@@ -226,9 +226,9 @@
                 <h2 data-i18n="titulo_tabela" class="font-montserrat text-2xl md:text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight">Por que escolher a Estação Elion?</h2>
                 <div class="w-20 md:w-24 h-1.5 md:h-2 bg-gradient-to-r from-ecogreen to-cyan-500 mx-auto rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]"></div>
             </div>
-            
-            <div class="overflow-x-auto w-full">
-                <table class="w-full text-left border-collapse min-w-[500px]">
+  
+            <div class="w-full overflow-x-auto">
+                <table class="w-full text-left border-collapse">
                     <thead class="bg-slate-900/60 text-white border-b border-white/10">
                         <tr>
                             <th data-i18n="tab_recurso" class="p-5 md:p-8 font-montserrat tracking-[0.2em] text-slate-400 uppercase text-xs">Recurso</th>
@@ -236,7 +236,7 @@
                             <th data-i18n="tab_ecobot" class="p-5 md:p-8 font-montserrat tracking-[0.2em] text-ecogreen font-black text-xs md:text-sm uppercase">Estação Elion</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-white/5 text-slate-300 text-sm md:text-base">
+                    <tbody id="historico-tabela">
                         <tr class="hover:bg-white/5 transition-colors group">
                             <td data-i18n="linha1_rec" class="p-5 md:p-8 font-medium tracking-wide group-hover:text-white transition-colors">Custo de Implementação</td>
                             <td data-i18n="linha1_trad" class="p-5 md:p-8 text-slate-500/80">Alto Custo</td>
@@ -254,7 +254,7 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </div>  
         </section>
 
         <section class="mb-24 md:mb-36">
