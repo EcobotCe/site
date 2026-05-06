@@ -933,7 +933,7 @@
                 if (!temDado) {
                     document.getElementById('status-badge').innerHTML = `<span class="bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md"><i class="fa-solid fa-spinner fa-spin mr-2"></i> ${txtLoading}</span>`;
                     document.getElementById('alerta-offline').classList.add('hidden');
-                } else if (difMin <= 3) {
+                } else if (difMin <= 6) {
                     document.getElementById('status-badge').innerHTML = `<span class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md">${txtOnline}</span>`;
                     document.getElementById('alerta-offline').classList.add('hidden');
                 } else {
