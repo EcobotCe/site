@@ -220,43 +220,69 @@
                 <i class="fa-solid fa-arrow-right relative z-10 text-slate-900 group-hover:translate-x-3 transition-transform text-lg md:text-xl"></i>
             </button>
         </header>
+        <section class="mb-24 md:mb-36 relative z-10 px-4">
+    <div class="text-center mb-12">
+        <h2 data-i18n="titulo_tabela" class="font-montserrat text-2xl md:text-4xl font-black text-white mb-4">
+            Por que escolher a Estação Elion?
+        </h2>
+        <div class="w-20 h-1.5 bg-gradient-to-r from-ecogreen to-cyan-500 mx-auto rounded-full"></div>
+    </div>
 
-        <section class="mb-24 md:mb-36 relative z-10">
-            <div class="text-center mb-12 md:mb-16">
-                <h2 data-i18n="titulo_tabela" class="font-montserrat text-2xl md:text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight">Por que escolher a Estação Elion?</h2>
-                <div class="w-20 md:w-24 h-1.5 md:h-2 bg-gradient-to-r from-ecogreen to-cyan-500 mx-auto rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]"></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="glass-premium p-6 rounded-[2rem] border border-white/5 flex flex-col gap-4">
+            <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                <i class="fa-solid fa-hand-holding-dollar text-ecogreen text-xl"></i>
+                <span data-i18n="linha1_rec" class="text-slate-400 uppercase text-xs tracking-widest font-bold">Custo</span>
             </div>
-            
-            <div class="overflow-x-auto rounded-[2rem] glass-premium">
-                <div class="overflow-x-auto w-full pb-4 scrollbar-thin scrollbar-thumb-ecogreen scrollbar-track-transparent">
-    <table class="w-full text-left border-collapse min-w-[600px]">
-        <thead class="bg-slate-900/60 text-white border-b border-white/10">
-            <tr>
-                <th data-i18n="tab_recurso" class="p-5 md:p-8 font-montserrat tracking-[0.2em] text-slate-400 uppercase text-xs">Recurso</th>
-                <th data-i18n="tab_tradicional" class="p-5 md:p-8 font-montserrat tracking-[0.2em] text-slate-500 uppercase text-xs">Estações disponíveis no mercado</th>
-                <th data-i18n="tab_ecobot" class="p-5 md:p-8 font-montserrat tracking-[0.2em] text-ecogreen font-black text-xs md:text-sm uppercase">Estação Elion</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-white/5 text-slate-300 text-sm md:text-base">
-            <tr class="hover:bg-white/5 transition-colors group">
-                <td data-i18n="linha1_rec" class="p-5 md:p-8 font-medium tracking-wide group-hover:text-white transition-colors">Custo de Implementação</td>
-                <td data-i18n="linha1_trad" class="p-5 md:p-8 text-slate-500/80">Alto Custo</td>
-                <td class="p-5 md:p-8 text-white font-bold flex items-center gap-3"><i class="fa-solid fa-check-circle text-ecogreen text-lg drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]"></i> <span data-i18n="linha1_eco">Baixíssimo Custo</span></td>
-            </tr>
-            <tr class="hover:bg-white/5 transition-colors group">
-                <td data-i18n="linha2_rec" class="p-5 md:p-8 font-medium tracking-wide group-hover:text-white transition-colors">Instalação</td>
-                <td data-i18n="linha2_trad" class="p-5 md:p-8 text-slate-500/80">Técnico Especializado</td>
-                <td class="p-5 md:p-8 text-white font-bold flex items-center gap-3"><i class="fa-solid fa-check-circle text-ecogreen text-lg drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]"></i> <span data-i18n="linha2_eco">Rápido e fácil</span></td>
-            </tr>
-            <tr class="hover:bg-white/5 transition-colors group">
-                <td data-i18n="linha3_rec" class="p-5 md:p-8 font-medium tracking-wide group-hover:text-white transition-colors">Tecnologia</td>
-                <td data-i18n="linha3_trad" class="p-5 md:p-8 text-slate-500/80">Sistema Fechado</td>
-                <td class="p-5 md:p-8 text-white font-bold flex items-center gap-3"><i class="fa-solid fa-check-circle text-ecogreen text-lg drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]"></i> <span data-i18n="linha3_eco">Open-Source e Escalável</span></td>
-            </tr>
-        </tbody>
-    </table>
+            <div class="space-y-4">
+                <div class="opacity-50">
+                    <p class="text-[10px] uppercase text-slate-500 mb-1">Mercado</p>
+                    <p data-i18n="linha1_trad" class="text-sm">Alto Custo de Aquisição</p>
+                </div>
+                <div class="bg-ecogreen/10 p-4 rounded-xl border border-ecogreen/20">
+                    <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold">Estação Elion</p>
+                    <p data-i18n="linha1_eco" class="text-white font-bold">Baixíssimo Custo</p>
+                </div>
             </div>
-        </section>
+        </div>
+
+        <div class="glass-premium p-6 rounded-[2rem] border border-white/5 flex flex-col gap-4">
+            <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                <i class="fa-solid fa-screwdriver-wrench text-ecogreen text-xl"></i>
+                <span data-i18n="linha2_rec" class="text-slate-400 uppercase text-xs tracking-widest font-bold">Instalação</span>
+            </div>
+            <div class="space-y-4">
+                <div class="opacity-50">
+                    <p class="text-[10px] uppercase text-slate-500 mb-1">Mercado</p>
+                    <p data-i18n="linha2_trad" class="text-sm">Técnico Especializado</p>
+                </div>
+                <div class="bg-ecogreen/10 p-4 rounded-xl border border-ecogreen/20">
+                    <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold">Estação Elion</p>
+                    <p data-i18n="linha2_eco" class="text-white font-bold">Rápido e Fácil (Plug-and-Play)</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-premium p-6 rounded-[2rem] border border-white/5 flex flex-col gap-4">
+            <div class="flex items-center gap-3 border-b border-white/10 pb-3">
+                <i class="fa-solid fa-microchip text-ecogreen text-xl"></i>
+                <span data-i18n="linha3_rec" class="text-slate-400 uppercase text-xs tracking-widest font-bold">Tecnologia</span>
+            </div>
+            <div class="space-y-4">
+                <div class="opacity-50">
+                    <p class="text-[10px] uppercase text-slate-500 mb-1">Mercado</p>
+                    <p data-i18n="linha3_trad" class="text-sm">Sistema Fechado / Rígido</p>
+                </div>
+                <div class="bg-ecogreen/10 p-4 rounded-xl border border-ecogreen/20">
+                    <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold">Estação Elion</p>
+                    <p data-i18n="linha3_eco" class="text-white font-bold">Open-Source e Escalável</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
 
         <section class="mb-24 md:mb-36">
             <div class="text-center mb-12 md:mb-16">
