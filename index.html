@@ -13,7 +13,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 
     <script>
         tailwind.config = {
@@ -33,7 +33,12 @@
                         'blob': 'blob 15s infinite alternate',
                         'gradient-x': 'gradient-x 6s ease infinite',
                         'float-slow': 'float 8s ease-in-out infinite',
-                        'loading': 'pulse 1.5s ease-in-out infinite'
+                        'loading': 'pulse 1.5s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                        'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
+                        'slide-in-right': 'slideInRight 0.6s ease-out forwards',
+                        'bounce-in': 'bounceIn 0.8s ease-out forwards',
+                        'glow': 'glow 2s ease-in-out infinite alternate'
                     },
                     keyframes: {
                         blob: {
@@ -45,6 +50,28 @@
                         'gradient-x': {
                             '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
                             '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        slideInLeft: {
+                            '0%': { opacity: '0', transform: 'translateX(-50px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        slideInRight: {
+                            '0%': { opacity: '0', transform: 'translateX(50px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' }
+                        },
+                        bounceIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.3)' },
+                            '50%': { opacity: '1', transform: 'scale(1.05)' },
+                            '70%': { transform: 'scale(0.9)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' }
+                        },
+                        glow: {
+                            '0%': { 'box-shadow': '0 0 20px rgba(16, 185, 129, 0.4)' },
+                            '100%': { 'box-shadow': '0 0 30px rgba(16, 185, 129, 0.8)' }
                         }
                     }
                 }
@@ -57,9 +84,12 @@
         body {
             width: 100vw;
             overflow-x: hidden;
-            background-color: #020617;
+            background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.14), transparent 22%),
+                        radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.1), transparent 22%),
+                        linear-gradient(180deg, #05121c 0%, #020617 45%, #020617 100%);
+            background-attachment: fixed;
             -webkit-font-smoothing: antialiased;
-            color: #cbd5e1;
+            color: #e2e8f0;
         }
 
         /* Scrollbar Premium */
@@ -142,9 +172,171 @@
             background-size: 50px 50px;
         }
 
+        .glass-highlight {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.16), rgba(8, 74, 46, 0.55));
+            border-color: rgba(16, 185, 129, 0.18);
+        }
+
+        .section-title {
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -1rem;
+            width: 5rem;
+            height: 0.35rem;
+            border-radius: 999px;
+            background: linear-gradient(90deg, rgba(16,185,129,0.95), rgba(56,189,248,0.9));
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
+        }
+
+        .hero-title {
+            position: relative;
+            z-index: 1;
+            line-height: 0.95;
+        }
+
+        .hero-title span {
+            background: linear-gradient(90deg, #6ee7b7, #10b981, #14b8a6);
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 18px rgba(16, 185, 129, 0.28);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981, #0f766e 80%);
+            color: #020617;
+            box-shadow: 0 16px 45px rgba(16, 185, 129, 0.18);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 55px rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-secondary {
+            border: 1px solid rgba(16, 185, 129, 0.28);
+            color: #d1fae5;
+        }
+
+        .glass-border {
+            border: 1px solid rgba(16, 185, 129, 0.12);
+            box-shadow: 0 20px 70px rgba(0, 0, 0, 0.28);
+        }
+
+        .hero-accent {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            justify-content: center;
+            padding: 0.75rem 1.15rem;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.18);
+            color: #8af9c4;
+            font-size: 0.8rem;
+            letter-spacing: 0.18em;
+        }
+
+        .hero-accent i {
+            color: #34d399;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(16, 185, 129, 0.14);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .stat-card h3 {
+            font-size: 1.75rem;
+            color: #ffffff;
+        }
+
+        .stat-card p {
+            color: #94a3b8;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            color: #6ee7b7;
+        }
+
+        .footer-pill {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.18);
+            color: #d1fae5;
+        }
+
         /* Brilho Suave de Textos */
         .text-glow {
             text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Ripple Effect para Botões */
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .ripple:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Hover Avançado para Botões */
+        .btn-hover-glow:hover {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(16, 185, 129, 0.1);
+            border-top: 3px solid #10b981;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Animação de Pulsar para Elementos Ativos */
+        .pulse-active {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Gradiente Animado para Cards */
+        .card-gradient {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
+            background-size: 200% 200%;
+            animation: gradient-x 6s ease infinite;
         }
     </style>
 </head>
@@ -152,7 +344,7 @@
 <body
     class="font-poppins min-h-screen selection:bg-ecogreen selection:text-white flex flex-col relative overflow-x-hidden">
 
-    <div class="fixed inset-0 bg-grid pointer-events-none z-0">
+    <div class="fixed inset-0 bg-grid pointer-events-none z-0 animate-pulse" style="animation-duration: 20s;">
         <div
             class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-darkbg/80 to-darkbg pointer-events-none">
         </div>
@@ -167,13 +359,7 @@
             style="animation-delay: 4s;"></div>
     </div>
 
-    <div class="fixed bottom-4 right-4 opacity-30 hover:opacity-100 transition-opacity duration-300 z-50">
-        <button onclick="abrirModalLogin()"
-            class="p-4 text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-700/80 rounded-full backdrop-blur transition-all cursor-pointer shadow-lg"
-            title="Área Restrita do Sistema">
-            <i class="fa-solid fa-lock text-sm drop-shadow-md"></i>
-        </button>
-    </div>
+
 
     <div
         class="fixed bottom-5 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-8 z-50 glass-premium rounded-full px-6 py-3 flex gap-4 text-xs md:text-sm transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] w-max border border-white/5">
@@ -192,65 +378,23 @@
         <div class="relative w-32 h-32 md:w-44 md:h-44 mb-10">
             <div class="absolute inset-0 bg-ecogreen rounded-full blur-[50px] opacity-40 animate-pulse"></div>
             <div
-                class="relative w-full h-full rounded-full glass-premium overflow-hidden z-10 p-1 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+                class="relative w-full h-full rounded-full glass-premium overflow-hidden z-10 p-1 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.2)] animate-bounce-in">
                 <img src="https://i.ibb.co/27MMFFC0/logo.png" alt="Logo Ecobot"
-                    class="w-[95%] h-[95%] object-cover rounded-full">
+                    class="w-[95%] h-[95%] object-cover rounded-full animate-float-slow">
             </div>
         </div>
         <h1
-            class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow">
+            class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow animate-fade-in" style="animation-delay: 0.3s;">
             Ecobot OS</h1>
-        <div class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner">
+        <div class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner animate-slide-in-left" style="animation-delay: 0.5s;">
             <div class="h-full bg-gradient-to-r from-ecogreen via-teal-400 to-blue-500 animate-loading"></div>
         </div>
         <p data-i18n="txt_carregando"
-            class="text-ecogreen/80 font-mono text-[10px] md:text-xs tracking-[0.4em] uppercase text-center font-semibold">
+            class="text-ecogreen/80 font-mono text-[10px] md:text-xs tracking-[0.4em] uppercase text-center font-semibold animate-fade-in" style="animation-delay: 0.7s;">
             Calibrando Sensores...</p>
     </div>
 
-    <div id="modal-login"
-        class="fixed inset-0 z-[200] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
-        <div class="glass-premium p-8 md:p-12 rounded-[2rem] max-w-sm w-full text-center transform scale-95 transition-all duration-400 relative overflow-hidden"
-            id="modal-login-box">
-            <div
-                class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-600 via-orange-500 to-red-600 background-size-[200%] animate-gradient-x">
-            </div>
-            <button onclick="fecharModalLogin()"
-                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"><i
-                    class="fa-solid fa-xmark text-lg"></i></button>
-            <div
-                class="w-20 h-20 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-700/50 shadow-inner">
-                <i
-                    class="fa-solid fa-shield-halved text-3xl text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]"></i>
-            </div>
-            <h2 data-i18n="txt_acesso_restrito" class="font-montserrat text-2xl text-white font-bold mb-2">Acesso
-                Restrito</h2>
-            <p data-i18n="txt_insira_credencial" class="text-slate-400 text-sm mb-8 font-light">Insira a credencial de
-                administrador.</p>
 
-            <input type="password" id="input-senha" placeholder="••••••••"
-                class="w-full bg-slate-900/90 border border-slate-700 text-center text-white text-xl rounded-2xl p-4 mb-4 focus:border-red-500 focus:ring-1 focus:ring-red-500/50 outline-none transition-all tracking-[0.4em] shadow-inner font-mono">
-            <p data-i18n="txt_senha_erro" id="erro-senha"
-                class="text-red-500 text-xs font-bold mb-6 hidden opacity-0 transition-opacity">Credencial Incorreta!
-            </p>
-            <div class="text-right mt-2">
-                <button onclick="recuperarSenha()"
-                    class="text-xs text-ecogreen hover:text-emerald-400 underline transition-colors bg-transparent border-none cursor-pointer">
-                    Esqueci minha senha
-                </button>
-            </div>
-
-            <button onclick="verificarSenha()"
-                class="w-full bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-4 rounded-2xl transition-all shadow-[0_10px_25px_rgba(239,68,68,0.4)] hover:-translate-y-1 tracking-widest uppercase text-sm"><span
-                    data-i18n="btn_autenticar">Autenticar</span></button>
-            <div class="text-right mt-2">
-                <button onclick="recuperarSenha()"
-                    class="text-xs text-ecogreen hover:text-emerald-400 underline transition-colors bg-transparent border-none cursor-pointer">
-                    Esqueci minha senha
-                </button>
-            </div>
-        </div>
-    </div>
 
     <div id="modal-loc"
         class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
@@ -272,14 +416,60 @@
             </p>
             <div class="flex flex-col gap-4">
                 <button onclick="acessarSensoresGPS()"
-                    class="bg-gradient-to-r from-ecogreen to-emerald-600 hover:from-emerald-500 hover:to-ecogreen text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_10px_25px_rgba(16,185,129,0.3)] flex items-center justify-center gap-3 hover:-translate-y-1 text-base">
+                    class="bg-gradient-to-r from-ecogreen to-emerald-600 hover:from-emerald-500 hover:to-ecogreen text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_10px_25px_rgba(16,185,129,0.3)] flex items-center justify-center gap-3 hover:-translate-y-1 text-base btn-hover-glow ripple animate-fade-in">
                     <i class="fa-solid fa-location-crosshairs text-xl"></i> <span data-i18n="btn_modal_gps"
                         class="tracking-wide">Usar Meu GPS</span>
                 </button>
                 <button onclick="acessarSensoresManual()"
-                    class="bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-4 px-6 rounded-2xl transition-all border border-slate-600/50 hover:border-slate-500 text-base">
+                    class="bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-4 px-6 rounded-2xl transition-all border border-slate-600/50 hover:border-slate-500 text-base btn-hover-glow ripple animate-fade-in" style="animation-delay: 0.2s;">
                     <span data-i18n="btn_modal_manual" class="tracking-wide">Escolher Base Manualmente</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-adicionar-base"
+        class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
+        <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-md w-full text-center transform scale-95 transition-all duration-400 relative"
+            id="modal-adicionar-base-box">
+            <button onclick="fecharModalAdicionarBase()"
+                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div
+                class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-ecogreen/30 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                <i class="fa-solid fa-plus text-4xl md:text-5xl text-ecogreen"></i>
+            </div>
+            <h2 data-i18n="txt_adicionar_base_titulo" class="font-montserrat text-2xl md:text-3xl text-white font-bold mb-4">Adicionar Nova Base</h2>
+            <p data-i18n="txt_adicionar_base_sub" class="text-slate-400 mb-8 text-sm leading-relaxed font-light">
+                Adicione sua própria base de monitoramento ambiental para acompanhar os dados em tempo real.
+            </p>
+            <div class="space-y-5">
+                <div>
+                    <label data-i18n="lbl_identificacao" class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Identificação</label>
+                    <input type="text" id="nova-nome" placeholder="Ex: Minha Base"
+                        class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Device-Token (Tago.io)</label>
+                    <input type="text" id="nova-token" placeholder="xxxx-xxxx-xxxx-xxxx"
+                        class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-xs shadow-inner font-mono placeholder-slate-600">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Lat (Opcional)</label>
+                        <input type="number" id="nova-lat" placeholder="-6.40" step="any"
+                            class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Lon (Opcional)</label>
+                        <input type="number" id="nova-lon" placeholder="-38.86" step="any"
+                            class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
+                    </div>
+                </div>
+                <button onclick="salvarNovaBase()"
+                    class="w-full bg-gradient-to-r from-ecogreen to-emerald-600 hover:from-emerald-500 hover:to-ecogreen text-white font-black py-4 rounded-2xl transition-all shadow-[0_10px_25px_rgba(16,185,129,0.3)] hover:-translate-y-1 uppercase tracking-wider text-sm"><i
+                        class="fa-solid fa-plus mr-2"></i> <span data-i18n="btn_salvar_nova_base">Adicionar Base</span></button>
             </div>
         </div>
     </div>
@@ -306,15 +496,17 @@
     <main id="view-home"
         class="page-view active-view pt-32 md:pt-44 pb-20 px-4 md:px-6 max-w-6xl mx-auto flex-grow relative z-10">
         <header class="text-center mb-24 md:mb-36 relative">
-            <div class="inline-block px-5 py-2 md:px-6 md:py-2.5 rounded-full glass-premium text-ecogreen font-semibold text-[10px] md:text-xs mb-8 uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-float-slow border border-ecogreen/20"
+            <div class="inline-block px-5 py-2 md:px-6 md:py-2.5 rounded-full glass-premium text-ecogreen font-semibold text-[10px] md:text-xs mb-4 uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-float-slow border border-ecogreen/20"
                 data-i18n="txt_pesquisa_inovacao">
                 Pesquisa & Inovação
             </div>
+            <div class="hero-accent mx-auto mb-8 max-w-2xl" data-i18n="txt_hero_accent">
+                Plataforma inteligente para conectar estações ambientais em tempo real.
+            </div>
             <h1
-                class="font-montserrat text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white mb-6 leading-[1.1] tracking-tighter drop-shadow-2xl">
+                class="font-montserrat text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white mb-6 leading-[1.1] tracking-tighter drop-shadow-2xl hero-title">
                 <span data-i18n="txt_projeto_titulo">Projeto</span> <br>
-                <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-ecogreen via-emerald-300 to-cyan-400 animate-gradient-x drop-shadow-[0_0_30px_rgba(16,185,129,0.4)]">Ecobot</span>
+                <span class="text-white">Ecobot</span>
             </h1>
             <p data-i18n="txt_subtitulo"
                 class="text-sm md:text-xl max-w-3xl mx-auto text-slate-400 font-light leading-relaxed mb-12 px-2">
@@ -322,12 +514,12 @@
                 climáticos no interior e construir um futuro inteligente.
             </p>
             <button onclick="tentarAcessarSensores()"
-                class="relative inline-flex items-center justify-center gap-4 bg-white overflow-hidden text-slate-950 font-black py-4 px-10 md:py-5 md:px-14 rounded-full text-sm md:text-lg transition-all duration-500 hover:shadow-[0_0_50px_rgba(255,255,255,0.4)] hover:-translate-y-2 group mx-auto w-full sm:w-auto">
+                class="relative inline-flex items-center justify-center gap-4 btn-primary overflow-hidden text-slate-950 font-black py-4 px-10 md:py-5 md:px-14 rounded-full text-sm md:text-lg transition-all duration-500 hover:-translate-y-2 group mx-auto w-full sm:w-auto">
                 <span
-                    class="absolute inset-0 bg-gradient-to-r from-ecogreen/30 via-transparent to-ecogreen/30 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>
+                    class="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>
                 <span data-i18n="btn_ver_dados" class="relative z-10 tracking-widest uppercase">Explorar Dados</span>
                 <i
-                    class="fa-solid fa-arrow-right relative z-10 text-slate-900 group-hover:translate-x-3 transition-transform text-lg md:text-xl"></i>
+                    class="fa-solid fa-arrow-right relative z-10 text-slate-950 group-hover:translate-x-3 transition-transform text-lg md:text-xl"></i>
             </button>
         </header>
         <section class="mb-24 md:mb-36 relative z-10 px-4">
@@ -570,7 +762,7 @@
     <main id="view-dashboard"
         class="page-view hidden-view pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex-grow relative z-10 w-full">
         <header
-            class="glass-premium p-6 md:p-8 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6 shadow-xl">
+            class="glass-premium p-6 md:p-8 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6 shadow-xl hover:shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 border border-ecogreen/10 hover:border-ecogreen/20">
             <div>
                 <h1
                     class="font-montserrat text-2xl md:text-3xl text-white font-black tracking-widest uppercase mb-2 flex items-center gap-3 text-glow">
@@ -586,11 +778,17 @@
             <div class="flex flex-col gap-2 w-full sm:w-auto">
                 <label data-i18n="lbl_rede" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Base
                     de Monitoramento:</label>
-                <div class="relative w-full sm:w-72">
-                    <select id="seletor-base" onchange="mudarBase(this.value)"
-                        class="w-full appearance-none bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3.5 pr-10 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600"></select>
-                    <i
-                        class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <div class="relative w-full sm:w-72">
+                        <select id="seletor-base" onchange="mudarBase(this.value)"
+                            class="w-full appearance-none bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3.5 pr-10 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600"></select>
+                        <i
+                            class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                    </div>
+                    <button onclick="abrirModalAdicionarBase()"
+                        class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3.5 px-6 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
+                        <i class="fa-solid fa-plus"></i> <span data-i18n="btn_adicionar_base">Adicionar Base</span>
+                    </button>
                 </div>
             </div>
         </header>
@@ -627,7 +825,7 @@
 
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-8 md:mb-12">
             <div id="card-temp"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(249,115,22,0.3)] transition-all duration-300 animate-slide-in-left">
                 <div
                     class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all">
                 </div>
@@ -646,7 +844,7 @@
             </div>
 
             <div id="card-umi"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-300 animate-fade-in" style="animation-delay: 0.2s;">
                 <div
                     class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all">
                 </div>
@@ -665,7 +863,7 @@
             </div>
 
             <div id="card-gas"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-2 md:col-span-1 hover:-translate-y-1 transition-transform duration-300">
+                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-2 md:col-span-1 hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(168,85,247,0.3)] transition-all duration-300 animate-slide-in-right" style="animation-delay: 0.4s;">
                 <div
                     class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all">
                 </div>
@@ -689,8 +887,7 @@
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-5">
                 <h3
                     class="font-montserrat text-xl md:text-2xl text-white font-black flex items-center gap-3 tracking-wide">
-                    <i class="fa-solid fa-chart-line text-ecogreen"></i> <span data-i18n="txt_hist">Sincronizado com o
-                        melhor</span>
+                    <i class="fa-solid fa-chart-line text-ecogreen"></i> <span data-i18n="txt_hist">Sincronizado</span>
                 </h3>
 
                 <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
@@ -717,89 +914,13 @@
                 </div>
             </div>
 
-            <div class="h-64 md:h-[400px] w-full relative">
-                <canvas id="graficoSensor"></canvas>
+            <div class="h-64 md:h-[400px] w-full relative animate-fade-in" style="animation-delay: 0.6s;">
+                <canvas id="graficoSensor" class="w-full h-full"></canvas>
             </div>
         </div>
     </main>
 
-    <main id="view-admin"
-        class="page-view hidden-view pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex-grow relative z-10 w-full">
-        <header
-            class="glass-premium p-6 md:p-8 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6 shadow-xl">
-            <div>
-                <h1 data-i18n="txt_adm_titulo"
-                    class="font-montserrat text-2xl md:text-3xl text-white font-black tracking-widest uppercase mb-2">
-                    Controle do Sistema</h1>
-                <p class="text-xs md:text-sm text-slate-400 font-light">Gerencie as bases autorizadas na rede Tago.io
-                </p>
-            </div>
-            <div class="w-full sm:w-auto">
-                <button onclick="limparFormulario()"
-                    class="w-full sm:w-auto bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3.5 px-8 rounded-2xl transition-all shadow-md text-sm flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-plus"></i> <span data-i18n="btn_nova_base">Nova Base</span>
-                </button>
-            </div>
-        </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1">
-                <div class="glass-premium p-8 rounded-[2.5rem] sticky top-32 border border-slate-700/50">
-                    <h3 data-i18n="txt_cad_base"
-                        class="font-bold text-white text-xl mb-6 tracking-wider flex items-center gap-3"><i
-                            class="fa-solid fa-microchip text-ecogreen"></i> Dados da Placa</h3>
-                    <input type="hidden" id="adm-edit-id">
-                    <div class="space-y-5">
-                        <div>
-                            <label data-i18n="lbl_identificacao"
-                                class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Identificação</label>
-                            <input type="text" id="adm-nome" placeholder="Ex: EEEPDJWM"
-                                class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
-                        </div>
-                        <div>
-                            <label
-                                class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Device-Token
-                                (Tago.io)</label>
-                            <input type="text" id="adm-token" placeholder="xxxx-xxxx-xxxx-xxxx"
-                                class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-xs shadow-inner font-mono placeholder-slate-600">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Lat
-                                    (Opcional)</label>
-                                <input type="number" id="adm-lat" placeholder="-6.40" step="any"
-                                    class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Lon
-                                    (Opcional)</label>
-                                <input type="number" id="adm-lon" placeholder="-38.86" step="any"
-                                    class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
-                            </div>
-                        </div>
-                        <div class="pt-6 flex gap-3">
-                            <button onclick="limparFormulario()"
-                                class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-4 rounded-2xl border border-slate-700 transition-all uppercase tracking-wider text-xs"><span
-                                    data-i18n="btn_cancelar">Cancelar</span></button>
-                            <button id="btn-salvar-base" onclick="salvarBase()"
-                                class="flex-[2] bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 rounded-2xl transition-all shadow-[0_10px_20px_rgba(79,70,229,0.3)] hover:-translate-y-1 uppercase tracking-wider text-xs"><i
-                                    class="fa-solid fa-floppy-disk mr-2"></i> <span data-i18n="btn_salvar">Salvar
-                                    Base</span></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2">
-                <div class="glass-premium p-8 rounded-[2.5rem] min-h-[500px] border border-slate-700/50">
-                    <h3 data-i18n="txt_redes_ativas"
-                        class="font-bold text-white text-xl mb-6 tracking-wider flex items-center gap-3"><i
-                            class="fa-solid fa-network-wired text-blue-400"></i> Redes Ativas</h3>
-                    <div id="lista-bases-admin" class="space-y-4"></div>
-                </div>
-            </div>
-        </div>
-    </main>
 
     <footer class="border-t border-slate-800/50 py-10 mt-auto relative z-10 bg-darkbg/80 backdrop-blur-md">
         <div
@@ -808,7 +929,7 @@
                 <p class="text-slate-500 text-sm font-medium tracking-wide" data-i18n="txt_direitos">© 2026 Projeto
                     Ecobot. Todos os direitos reservados.</p>
             </div>
-            <div class="flex items-center gap-3 glass-premium px-4 py-2 rounded-full border border-ecogreen/20">
+            <div class="flex items-center gap-3 glass-premium footer-pill px-4 py-2 rounded-full border border-ecogreen/20">
                 <div class="w-2.5 h-2.5 rounded-full bg-ecogreen animate-pulse"></div>
                 <span class="text-xs text-ecogreen font-bold tracking-widest uppercase"
                     data-i18n="txt_sistema_operante">Sistema Operante</span>
@@ -821,7 +942,7 @@
         // ------------------------------------------------
         const dicionario = {
             pt: {
-                txt_carregando: "Calibrando Sensores...", txt_acesso_restrito: "Acesso Restrito", txt_insira_credencial: "Insira a credencial de administrador.",
+                txt_carregando: "Calibrando Sensores...",
                 txt_senha_erro: "Credencial Incorreta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acessar Estações",
                 txt_projeto_titulo: "Projeto", txt_subtitulo: "Unindo robótica de baixo custo e preservação ambiental para combater a invisibilidade dos dados climáticos no interior e construir um futuro inteligente.",
                 btn_ver_dados: "Explorar Dados", titulo_tabela: "Por que escolher a Estação Elion?", tab_recurso: "Recurso",
@@ -837,28 +958,31 @@
                 btn_modal_gps: "Usar Meu GPS", btn_modal_manual: "Escolher Base Manualmente",
                 lbl_rede: "Base de Monitoramento:", btn_tago: "DADOS EM TEMPO REAL",
                 txt_offline_titulo: "CONEXÃO PERDIDA", txt_offline_sub: "Os dados pararam de chegar ou a estação está desligada. Aguardando nuvem...",
-                txt_alerta: "ALERTA: NÍVEL DE GÁS ELEVADO!", lbl_temp: "Temperatura", lbl_umi: "Umidade", lbl_gas: "Nivel de CO2",
-                txt_hist: "Sincronizado com o melhor", txt_adm_titulo: "Controle do Sistema",
-                btn_nova_base: "Nova Base", txt_cad_base: "Dados da Placa", lbl_identificacao: "Identificação",
-                btn_cancelar: "Cancelar", btn_salvar: "Salvar Base", txt_redes_ativas: "Redes Ativas",
+                txt_alerta: "ALERTA: NÍVEL DE GÁS ELEVADO!", lbl_temp: "Temperatura", lbl_umi: "Umidade", lbl_gas: "Nível de CO2",
+                txt_hist: "Sincronizado", txt_adm_titulo: "Controle do Sistema",
+                btn_adicionar_base: "Adicionar Base", txt_adicionar_base_titulo: "Adicionar Nova Base",
+                txt_adicionar_base_sub: "Adicione sua própria base de monitoramento ambiental para acompanhar os dados em tempo real.",
+                btn_salvar_nova_base: "Adicionar Base",
                 txt_pesquisa_inovacao: "Pesquisa & Inovação",
                 txt_acesse_celular: "Acesse no Celular",
                 txt_aponte_camera: "Aponte a câmara do seu smartphone para visualizar a dashboard em tempo real.",
+                txt_hero_accent: "Plataforma inteligente para conectar estações ambientais em tempo real.",
+                txt_hero_sync_desc: "Dados atualizados automaticamente.",
+                txt_hero_secure_desc: "Notificações instantâneas para segurança ambiental.",
+                txt_hero_open_desc: "Arquitetura open-source pronta para expansão.",
                 txt_direitos: "© 2026 Projeto Ecobot. Todos os direitos reservados.",
                 txt_desenvolvido: "Desenvolvido com IA, JavaScript, TailwindCSS & Chart.js",
                 txt_sistema_operante: "Sistema Operante",
                 txt_atualizado_as: "Atualizado às",
                 txt_ultimas_leituras: "Últimas leituras",
-                btn_ver_tago: "ver dados no tago.io",
+                btn_ver_tago: "Ver dados no tago.io",
                 txt_sincronizando: "Sincronizando com a nuvem...",
-                txt_aguardando: "Aguardando Conexão...",
-                tab_tradicional: "Estações disponíveis no Mercado",
-                tab_ecobot: "Estação Elion"
+                txt_aguardando: "Aguardando Conexão..."
             },
             en: {
-                txt_carregando: "Calibrating Sensors...", txt_acesso_restrito: "Restricted Access", txt_insira_credencial: "Insert administrator credential.",
+                txt_carregando: "Calibrating Sensors...",
                 txt_senha_erro: "Incorrect Credential!", btn_autenticar: "Authenticate", btn_nav_sensores: "Access Stations",
-                txt_projeto_titulo: "Project", txt_subtitulo: "Uniting low-cost robotics and environmental preservation to combat the invisibility of climate data.",
+                txt_projeto_titulo: "Project", txt_subtitulo: "Uniting low-cost robotics and environmental preservation to bring climate intelligence to remote areas.",
                 btn_ver_dados: "Explore Data", titulo_tabela: "Why choose Elion Station?", tab_recurso: "Feature",
                 tab_tradicional: "Market available stations", tab_ecobot: "Elion Station",
                 linha1_rec: "Implementation Cost", linha1_trad: "High Cost", linha1_eco: "Very Low Cost",
@@ -868,31 +992,34 @@
                 txt_onu_sub: "Ecobot responds directly to the Sustainable Development Goals (SDG).",
                 txt_ods9: "Industry, Innovation and Infrastructure", txt_ods11: "Sustainable Cities and Communities", txt_ods13: "Climate Action",
                 txt_acompanhe: "Follow our evolution", txt_modal_titulo: "Where are you?",
-                txt_modal_sub: "We need to find the nearest base. We do not save your location!",
+                txt_modal_sub: "We need to locate the nearest base. We do not save your location!",
                 btn_modal_gps: "Use My GPS", btn_modal_manual: "Choose Base Manually",
                 lbl_rede: "Monitoring Base:", btn_tago: "REAL-TIME DATA",
-                txt_offline_titulo: "CONNECTION LOST", txt_offline_sub: "Waiting for cloud...",
-                txt_alerta: "ALERT: HIGH GAS LEVEL!", lbl_temp: "temperature", lbl_umi: "Humidity", lbl_gas: "CO2 Concentration",
-                txt_hist: "Synchronized with the best", txt_adm_titulo: "System Control",
-                btn_nova_base: "New Base", txt_cad_base: "Board Data", lbl_identificacao: "Identification",
-                btn_cancelar: "Cancel", btn_salvar: "Save Base", txt_redes_ativas: "Active Networks",
+                txt_offline_titulo: "CONNECTION LOST", txt_offline_sub: "Data stopped arriving or station is offline. Waiting for cloud...",
+                txt_alerta: "ALERT: HIGH GAS LEVEL!", lbl_temp: "Temperature", lbl_umi: "Humidity", lbl_gas: "CO2 Concentration",
+                txt_hist: "Synchronized", txt_adm_titulo: "System Control",
+                btn_adicionar_base: "Add Base", txt_adicionar_base_titulo: "Add New Base",
+                txt_adicionar_base_sub: "Add your own environmental monitoring base to track data in real time.",
+                btn_salvar_nova_base: "Add Base",
                 txt_pesquisa_inovacao: "Research & Innovation",
                 txt_acesse_celular: "Access on Mobile",
                 txt_aponte_camera: "Point your smartphone camera to view the dashboard in real time.",
+                txt_hero_accent: "Smart platform to connect environmental stations in real time.",
+                txt_hero_sync_desc: "Data refreshed automatically.",
+                txt_hero_secure_desc: "Instant alerts for environmental safety.",
+                txt_hero_open_desc: "Open-source architecture ready to scale.",
                 txt_direitos: "© 2026 Ecobot Project. All rights reserved.",
                 txt_desenvolvido: "Developed with AI, JavaScript, TailwindCSS & Chart.js",
                 txt_sistema_operante: "System Operational",
                 txt_atualizado_as: "Updated at",
                 txt_ultimas_leituras: "Latest readings",
-                btn_ver_tago: "view data on tago.io",
+                btn_ver_tago: "View data on tago.io",
                 txt_sincronizando: "Synchronizing with the cloud...",
-                txt_aguardando: "Waiting for Connection...",
-                tab_tradicional: "Market available stations",
-                tab_ecobot: "Elion Station",
+                txt_aguardando: "Waiting for Connection..."
             },
             es: {
-                txt_carregando: "Calibrando Sensores...", txt_acesso_restrito: "Acceso Restringido", txt_insira_credencial: "Inserte la credencial de administrador.",
-                txt_senha_erro: "¡Credencial Incorrecta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acceder Estaciones",
+                txt_carregando: "Calibrando Sensores...",
+                txt_senha_erro: "¡Credencial Incorrecta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acceder a Estaciones",
                 txt_projeto_titulo: "Proyecto", txt_subtitulo: "Uniendo robótica de bajo costo y preservación ambiental para combatir la invisibilidad de los datos climáticos.",
                 btn_ver_dados: "Explorar Datos", titulo_tabela: "¿Por qué elegir la Estación Elion?", tab_recurso: "Recurso",
                 tab_tradicional: "Estaciones disponibles en el mercado", tab_ecobot: "Estación Elion",
@@ -908,22 +1035,25 @@
                 lbl_rede: "Base de Monitoreo:", btn_tago: "DATOS EN TIEMPO REAL",
                 txt_offline_titulo: "CONEXIÓN PERDIDA", txt_offline_sub: "Esperando a la nube...",
                 txt_alerta: "¡ALERTA: NIVEL DE GAS ALTO!", lbl_temp: "Temperatura", lbl_umi: "Humedad", lbl_gas: "Concentración de CO2",
-                txt_hist: "Sincronizado con el mejor", txt_adm_titulo: "Control del Sistema",
-                btn_nova_base: "Nueva Base", txt_cad_base: "Datos de la Placa", lbl_identificacao: "Identificación",
-                btn_cancelar: "Cancelar", btn_salvar: "Guardar Base", txt_redes_ativas: "Redes Activas",
+                txt_hist: "Sincronizado", txt_adm_titulo: "Control del Sistema",
+                btn_adicionar_base: "Agregar Base", txt_adicionar_base_titulo: "Agregar Nueva Base",
+                txt_adicionar_base_sub: "Agregue su propia base de monitoreo ambiental para rastrear datos en tiempo real.",
+                btn_salvar_nova_base: "Agregar Base",
                 txt_pesquisa_inovacao: "Investigación e Innovación",
                 txt_acesse_celular: "Accede en el Celular",
                 txt_aponte_camera: "Apunta la cámara de tu smartphone para ver el panel en tiempo real.",
+                txt_hero_accent: "Plataforma inteligente para conectar estaciones ambientales en tiempo real.",
+                txt_hero_sync_desc: "Datos actualizados automáticamente.",
+                txt_hero_secure_desc: "Alertas instantáneas para mayor seguridad ambiental.",
+                txt_hero_open_desc: "Arquitectura open-source lista para escalar.",
                 txt_direitos: "© 2026 Proyecto Ecobot. Todos los derechos reservados.",
                 txt_desenvolvido: "Desarrollado con IA, JavaScript, TailwindCSS & Chart.js",
                 txt_sistema_operante: "Sistema en Funcionamiento",
                 txt_atualizado_as: "Actualizado a las",
                 txt_ultimas_leituras: "Últimas lecturas",
-                btn_ver_tago: "ver datos en tago.io",
+                btn_ver_tago: "Ver datos en tago.io",
                 txt_sincronizando: "Sincronizando con la nube...",
-                txt_aguardando: "Esperando Conexión...",
-                tab_tradicional: "Estaciones disponibles en el mercado",
-                tab_ecobot: "Estación Elion",
+                txt_aguardando: "Esperando Conexión..."
             }
         };
 
@@ -991,12 +1121,12 @@
 
             if (viewId === 'dashboard') {
                 if (!baseSelecionada && redeBases.length > 0) mudarBase(redeBases[0].id);
-                // Aumentado o intervalo para não piscar rápido: Atualiza a cada 30 segundos!
+                // Atualiza imediatamente e depois a cada 30 segundos
+                sincronizarTago();
                 if (!intervalSync) intervalSync = setInterval(sincronizarTago, 30000);
             } else {
                 if (intervalSync) { clearInterval(intervalSync); intervalSync = null; }
             }
-            if (viewId === 'admin') { atualizarInterfaceBases(); }
             window.scrollTo(0, 0);
         }
 
@@ -1004,7 +1134,7 @@
             const btnText = document.getElementById('btn_nav_sensores');
             const icon = document.getElementById('icon_nav_sensores');
 
-            if (viewId === 'dashboard' || viewId === 'admin') {
+            if (viewId === 'dashboard') {
                 btnText.innerHTML = idiomaAtual === 'pt' ? 'Voltar ao Início' : idiomaAtual === 'es' ? 'Volver al Inicio' : 'Back to Home';
                 icon.className = 'fa-solid fa-arrow-left text-ecogreen group-hover:-translate-x-1 transition-transform';
             } else {
@@ -1017,6 +1147,20 @@
             const currentView = document.querySelector('.active-view').id;
             if (currentView === 'view-home') tentarAcessarSensores();
             else navegarPara('home');
+        }
+
+        function atualizarInterfaceBases() {
+            const seletor = document.getElementById('seletor-base');
+            seletor.innerHTML = '';
+            redeBases.forEach(base => {
+                const option = document.createElement('option');
+                option.value = base.id;
+                option.textContent = base.nome;
+                if (baseSelecionada && base.id === baseSelecionada.id) {
+                    option.selected = true;
+                }
+                seletor.appendChild(option);
+            });
         }
 
         function tentarAcessarSensores() {
@@ -1080,187 +1224,49 @@
             setTimeout(() => { document.getElementById('modal-loc').classList.add('hidden'); }, 400);
         }
 
-        // ------------------------------------------------
-        // 4. AUTENTICAÇÃO (LOGIN)
-        // ------------------------------------------------
-        function abrirModalLogin() {
-            const modal = document.getElementById('modal-login');
-            document.getElementById('input-senha').value = '';
-            document.getElementById('erro-senha').classList.add('hidden', 'opacity-0');
+        function abrirModalAdicionarBase() {
+            document.getElementById('nova-nome').value = '';
+            document.getElementById('nova-token').value = '';
+            document.getElementById('nova-lat').value = '';
+            document.getElementById('nova-lon').value = '';
+            const modal = document.getElementById('modal-adicionar-base');
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                document.getElementById('modal-login-box').classList.remove('scale-95');
+                document.getElementById('modal-adicionar-base-box').classList.remove('scale-95');
             }, 10);
-            setTimeout(() => document.getElementById('input-senha').focus(), 100);
+            setTimeout(() => document.getElementById('nova-nome').focus(), 100);
         }
 
-        function fecharModalLogin() {
-            document.getElementById('modal-login').classList.add('opacity-0');
-            document.getElementById('modal-login-box').classList.add('scale-95');
-            setTimeout(() => document.getElementById('modal-login').classList.add('hidden'), 400);
+        function fecharModalAdicionarBase() {
+            document.getElementById('modal-adicionar-base').classList.add('opacity-0');
+            document.getElementById('modal-adicionar-base-box').classList.add('scale-95');
+            setTimeout(() => { document.getElementById('modal-adicionar-base').classList.add('hidden'); }, 400);
         }
 
-        function verificarSenha() {
-            const inputSenha = document.getElementById('input-senha');
-            const s = inputSenha.value;
-            const err = document.getElementById('erro-senha');
-
-            // Busca na memória do navegador se já existe uma senha salva
-            const senhaSalva = localStorage.getItem('ecobot_senha_admin');
-
-            // --- CENÁRIO 1: PRIMEIRO ACESSO (CRIAR SENHA) ---
-            if (!senhaSalva) {
-                if (s.length < 4) {
-                    alert("Para sua segurança, a senha deve ter pelo menos 4 caracteres.");
-                    return;
-                }
-
-                // Pede uma palavra secreta para caso ele esqueça a senha
-                const palavraRecuperacao = prompt("Primeiro Acesso! \nCrie uma PALAVRA SECRETA (ex: nome do seu pet) para poder recuperar essa senha no futuro:");
-
-                if (!palavraRecuperacao) {
-                    alert("Você precisa definir uma palavra secreta de recuperação para continuar!");
-                    return;
-                }
-
-                // Salva a senha e a palavra secreta no navegador
-                localStorage.setItem('ecobot_senha_admin', s);
-                localStorage.setItem('ecobot_palavra_recuperacao', palavraRecuperacao.toLowerCase().trim());
-
-                alert("Senha de administrador criada com sucesso!");
-                inputSenha.value = ''; // limpa o campo
-                fecharModalLogin();
-                navegarPara('admin');
-                return;
-            }
-
-            // --- CENÁRIO 2: ACESSO NORMAL (FAZER LOGIN) ---
-            if (s === senhaSalva) {
-                inputSenha.value = ''; // limpa o campo
-                fecharModalLogin();
-                navegarPara('admin');
-            } else {
-                // Se errar a senha, roda a sua animação original de erro
-                err.classList.remove('hidden');
-                setTimeout(() => err.classList.remove('opacity-0'), 10);
-                setTimeout(() => {
-                    err.classList.add('opacity-0');
-                    setTimeout(() => err.classList.add('hidden'), 300);
-                }, 3000);
-            }
-        }
-
-        // --- NOVA FUNÇÃO: RECUPERAR SENHA ---
-        function recuperarSenha() {
-            const senhaSalva = localStorage.getItem('ecobot_senha_admin');
-            const palavraSalva = localStorage.getItem('ecobot_palavra_recuperacao');
-
-            if (!senhaSalva) {
-                alert("Nenhuma senha foi criada ainda. Apenas digite uma senha nova no campo para criar!");
-                return;
-            }
-
-            const tentativa = prompt("Esqueceu a senha? \nDigite a sua PALAVRA SECRETA de recuperação:");
-
-            if (tentativa && tentativa.toLowerCase().trim() === palavraSalva) {
-                alert(`Sua senha de administrador é: ${senhaSalva} \nAnote em um lugar seguro!`);
-            } else if (tentativa) {
-                alert("Palavra secreta incorreta!");
-            }
-        }
-
-        // ------------------------------------------------
-        // 5. GESTÃO DE BASES (ADMIN)
-        // ------------------------------------------------
-        function limparFormulario() {
-            document.getElementById('adm-edit-id').value = '';
-            document.getElementById('adm-nome').value = '';
-            document.getElementById('adm-token').value = '';
-            document.getElementById('adm-lat').value = '';
-            document.getElementById('adm-lon').value = '';
-            document.getElementById('btn-salvar-base').innerHTML = `<i class="fa-solid fa-floppy-disk mr-2"></i> <span data-i18n="btn_salvar">${dicionario[idiomaAtual]['btn_salvar']}</span>`;
-        }
-
-        function salvarBase() {
-            const id = document.getElementById('adm-edit-id').value;
-            const nome = document.getElementById('adm-nome').value;
-            const token = document.getElementById('adm-token').value;
-            const lat = document.getElementById('adm-lat').value;
-            const lon = document.getElementById('adm-lon').value;
+        function salvarNovaBase() {
+            const nome = document.getElementById('nova-nome').value;
+            const token = document.getElementById('nova-token').value;
+            const lat = document.getElementById('nova-lat').value;
+            const lon = document.getElementById('nova-lon').value;
 
             if (!nome || !token) {
                 alert(idiomaAtual === 'pt' ? "Nome e Token são obrigatórios!" : "Name and Token are required!");
                 return;
             }
 
-            if (id) {
-                const index = redeBases.findIndex(b => b.id == id);
-                if (index > -1) redeBases[index] = { ...redeBases[index], nome, token, lat, lon };
-            } else {
-                redeBases.push({ id: Date.now(), nome, token, lat, lon });
-            }
-
+            redeBases.push({ id: Date.now(), nome, token, lat: lat || null, lon: lon || null });
             localStorage.setItem('ecobot_bases', JSON.stringify(redeBases));
-            limparFormulario();
+            fecharModalAdicionarBase();
             atualizarInterfaceBases();
-        }
-
-        function editarBase(id) {
-            const b = redeBases.find(x => x.id == id);
-            if (b) {
-                document.getElementById('adm-edit-id').value = b.id;
-                document.getElementById('adm-nome').value = b.nome;
-                document.getElementById('adm-token').value = b.token;
-                document.getElementById('adm-lat').value = b.lat || '';
-                document.getElementById('adm-lon').value = b.lon || '';
-                document.getElementById('btn-salvar-base').innerHTML = `<i class="fa-solid fa-pen-to-square mr-2"></i> Atualizar Base`;
-                window.scrollTo(0, 0);
+            if (redeBases.length === 1) {
+                mudarBase(redeBases[0].id);
             }
         }
 
-        function removerBase(id) {
-            if (confirm(idiomaAtual === 'pt' ? "Remover esta base permanentemente?" : "Remove this base permanently?")) {
-                redeBases = redeBases.filter(b => b.id != id);
-                localStorage.setItem('ecobot_bases', JSON.stringify(redeBases));
-                atualizarInterfaceBases();
-            }
-        }
 
-        function atualizarInterfaceBases() {
-            const select = document.getElementById('seletor-base');
-            select.innerHTML = '';
-            redeBases.forEach(b => {
-                let opt = document.createElement('option');
-                opt.value = b.id;
-                opt.innerText = `📍 Base: ${b.nome}`;
-                select.appendChild(opt);
-            });
 
-            if (!redeBases.find(b => baseSelecionada && b.id == baseSelecionada.id) && redeBases.length > 0) {
-                baseSelecionada = redeBases[0];
-            }
 
-            const lista = document.getElementById('lista-bases-admin');
-            if (lista) {
-                lista.innerHTML = '';
-                redeBases.forEach(b => {
-                    lista.innerHTML += `
-                        <div class="bg-slate-900/60 border border-slate-700 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-slate-500 transition-colors group">
-                            <div class="w-full overflow-hidden">
-                                <h4 class="text-white font-bold text-base flex items-center gap-2 truncate"><i class="fa-solid fa-tower-cell text-ecogreen"></i> ${b.nome}</h4>
-                                <p class="text-[10px] text-slate-500 mt-1 uppercase tracking-widest font-mono truncate">ID: ${b.id}</p>
-                                ${b.lat ? `<p class="text-xs text-blue-400 mt-1 truncate font-mono"><i class="fa-solid fa-location-dot"></i> GPS: ${b.lat}, ${b.lon}</p>` : ''}
-                            </div>
-                            <div class="flex gap-2 justify-end w-full sm:w-auto shrink-0 mt-2 sm:mt-0 border-t border-slate-700/50 sm:border-0 pt-3 sm:pt-0">
-                                <button onclick="editarBase(${b.id})" class="w-12 h-12 flex items-center justify-center text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-600 rounded-xl transition-all border border-blue-500/20 shadow-md"><i class="fa-solid fa-pen"></i></button>
-                                <button onclick="removerBase(${b.id})" class="w-12 h-12 flex items-center justify-center text-red-500 hover:text-white bg-red-500/10 hover:bg-red-600 rounded-xl transition-all border border-red-500/20 shadow-md"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-        }
 
         // ------------------------------------------------
         // 6. SINCRONIZAÇÃO TAGO.IO & GRÁFICO
@@ -1308,13 +1314,13 @@
 
                 // Lógica Visual do Status
                 if (!temDado) {
-                    document.getElementById('status-badge').innerHTML = `<span class="bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md"><i class="fa-solid fa-spinner fa-spin mr-2"></i> ${txtLoading}</span>`;
+                    document.getElementById('status-badge').innerHTML = `<span class="bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md animate-pulse-active"><i class="fa-solid fa-spinner fa-spin mr-2"></i> ${txtLoading}</span>`;
                     document.getElementById('alerta-offline').classList.add('hidden');
                 } else if (difMin <= 6) {
-                    document.getElementById('status-badge').innerHTML = `<span class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md">${txtOnline}</span>`;
+                    document.getElementById('status-badge').innerHTML = `<span class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md animate-glow">${txtOnline}</span>`;
                     document.getElementById('alerta-offline').classList.add('hidden');
                 } else {
-                    document.getElementById('status-badge').innerHTML = `<span class="bg-red-500/10 text-red-500 border border-red-500/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md">${txtOffline}</span>`;
+                    document.getElementById('status-badge').innerHTML = `<span class="bg-red-500/10 text-red-500 border border-red-500/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md animate-pulse">${txtOffline}</span>`;
                     document.getElementById('alerta-offline').classList.remove('hidden');
                 }
 
@@ -1348,7 +1354,7 @@
                 let now = new Date();
                 let horaFormatada = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-                let textoAtualizado = dicionario[langAtual].txt_atualizado_as || "Atualizado às";
+                let textoAtualizado = dicionario[idiomaAtual].txt_atualizado_as || "Atualizado às";
 
                 document.getElementById('hora-sync').innerText = `${textoAtualizado} ${horaFormatada}`;
 
@@ -1360,7 +1366,15 @@
         }
 
         function atualizarGrafico(arrT, arrU, arrG) {
-            const ctx = document.getElementById('graficoSensor').getContext('2d');
+            const canvasGrafico = document.getElementById('graficoSensor');
+            if (!canvasGrafico) return;
+            const ctx = canvasGrafico.getContext('2d');
+
+            const safeParseNum = (val) => {
+                if (val === null || val === undefined) return null;
+                let num = parseFloat(String(val).replace(',', '.').trim());
+                return isNaN(num) ? null : num;
+            };
 
             let todosDados = [...arrT, ...arrU, ...arrG];
             if (todosDados.length === 0) return;
@@ -1375,7 +1389,7 @@
                     let dt = new Date(d.time);
                     return `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` === hora;
                 });
-                return dado ? dado.value : null;
+                return dado ? safeParseNum(dado.value) : null;
             });
 
             const dataU = horasUnicas.map(hora => {
@@ -1383,7 +1397,7 @@
                     let dt = new Date(d.time);
                     return `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` === hora;
                 });
-                return dado ? dado.value : null;
+                return dado ? safeParseNum(dado.value) : null;
             });
 
             const dataG = horasUnicas.map(hora => {
@@ -1391,7 +1405,7 @@
                     let dt = new Date(d.time);
                     return `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` === hora;
                 });
-                return dado ? dado.value : null;
+                return dado ? safeParseNum(dado.value) : null;
             });
 
             // ATUALIZA O GRÁFICO (EVITA PISCAR E MANTÉM OS ITENS DESMARCADOS)
@@ -1417,6 +1431,10 @@
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
+                        animation: {
+                            duration: 1000,
+                            easing: 'easeInOutQuart'
+                        },
                         plugins: {
                             legend: { position: 'top', labels: { boxWidth: 12, usePointStyle: true, padding: 20, font: { weight: '600', size: 12 } } },
                             tooltip: { backgroundColor: 'rgba(2, 6, 23, 0.95)', titleFont: { size: 13, family: "'Montserrat', sans-serif" }, bodyFont: { size: 12 }, padding: 15, cornerRadius: 12, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }
