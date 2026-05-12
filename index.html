@@ -78,6 +78,9 @@
                 }
             }
         }
+        // NO INÍCIO DO SEU SCRIPT - DECLARE UMA ÚNICA VEZ
+       // ========== CONFIGURAÇÃO DE AMBIENTE ==========
+const API_URL = 'https://web-production-7eff7up.railway.app';
     </script>
 
     <style>
@@ -1196,7 +1199,8 @@
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-key text-ecogreen"></i> EmailJS configurado automaticamente
             </h3>
-            <p class="text-sm text-slate-400">O envio de alertas por email usa credenciais internas do sistema. Basta configurar seu email de destino no painel de alertas.</p>
+            <p class="text-sm text-slate-400">O envio de alertas por email usa credenciais internas do sistema. Basta
+                configurar seu email de destino no painel de alertas.</p>
         </div>
 
         <!-- Seção de Tipos de Alertas -->
@@ -2212,8 +2216,8 @@
             } catch (err) {
                 console.error('Erro na conectividade TagO:', err);
                 statusElement.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 text-xs"></i> <span class="text-xs text-red-500">Erro</span>';
-                const errorMsg = err.message.includes('Failed to fetch') ? 
-                    '❌ CORS ou rede bloqueada. Execute em servidor local (ex: Live Server).' : 
+                const errorMsg = err.message.includes('Failed to fetch') ?
+                    '❌ CORS ou rede bloqueada. Execute em servidor local (ex: Live Server).' :
                     '❌ Erro na conexão com API TagO';
                 showToast(errorMsg, 'error');
             }
