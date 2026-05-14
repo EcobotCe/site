@@ -1,6 +1,6 @@
 # 🌍 Ecobot - Sistema de Monitoramento Ambiental Inteligente
 
-![Ecobot OS](https://i.ibb.co/1Gwp73Sv/favicon.jpg)
+![Ecobot OS](https://i.ibb.co/rfpgNKDY/Design-sem-nome-7.png)
 
 ## 📌 Sobre o Projeto
 
