@@ -318,4 +318,4 @@ async function executar() {
 executar().catch(err => {
   console.error('❌ Erro fatal:', err);
   process.exit(1);
-});
+});   
