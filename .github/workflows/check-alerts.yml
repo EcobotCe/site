@@ -27,7 +27,7 @@ jobs:
         run: node scripts/check-alerts.js
         env:
           EMAIL_USER: pjt.ecobot@gmail.com
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          EMAIL_PASS: cssf hrdb xbld russ
           TAGO_TOKEN_1: b8880259-b7b8-4317-add7-f8499b2b331c
           TAGO_TOKEN_2: 2fcbccc4-3614-43a6-81c9-270f56c3c109
           ALERT_EMAILS: vinnysky23@gmail.com
