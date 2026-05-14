@@ -1,0 +1,41 @@
+name: "🚨 Verificar Alertas Automáticos"
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  
+  workflow_dispatch:
+
+jobs:
+  check_alerts:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Verificar alertas automáticos
+        run: node scripts/check-alerts.js
+        env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+          TAGO_TOKEN_1: ${{ secrets.TAGO_TOKEN_1 }}
+          TAGO_TOKEN_2: ${{ secrets.TAGO_TOKEN_2 }}
+          ALERT_EMAILS: ${{ secrets.ALERT_EMAILS }}
+
+      - name: ✅ Verificação concluída
+        if: success()
+        run: echo "🟢 Alertas verificados!"
+
+      - name: ❌ Erro
+        if: failure()
+        run: echo "🔴 Erro ao verificar alertas"
