@@ -26,11 +26,11 @@ jobs:
       - name: Verificar alertas automáticos
         run: node scripts/check-alerts.js
         env:
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_USER: pjt.ecobot@gmail.com
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          TAGO_TOKEN_1: ${{ secrets.TAGO_TOKEN_1 }}
-          TAGO_TOKEN_2: ${{ secrets.TAGO_TOKEN_2 }}
-          ALERT_EMAILS: ${{ secrets.ALERT_EMAILS }}
+          TAGO_TOKEN_1: b8880259-b7b8-4317-add7-f8499b2b331c
+          TAGO_TOKEN_2: 2fcbccc4-3614-43a6-81c9-270f56c3c109
+          ALERT_EMAILS: vinnysky23@gmail.com
 
       - name: ✅ Verificação concluída
         if: success()
