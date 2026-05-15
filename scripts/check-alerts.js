@@ -34,7 +34,8 @@ const BASES = [
   }
 ];
 
-const EMAILS_DESTINO = (process.env.ALERT_EMAILS || '')
+// 🔴 CORRIGIDO: Alterado de 'const' para 'let' para permitir adicionar novos e-mails
+let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '')
   .split(',')
   .map(e => e.trim())
   .filter(e => e);
@@ -57,7 +58,7 @@ const transporter = nodemailer.createTransport({
 
 async function verificarBase(base) {
   try {
-    console.log(`\n📍 Verificando base: ${base.nome}...`);
+    console.log(`\n📍 A verificar base: ${base.nome}...`);
 
     const response = await axios.get('https://api.tago.io/data?qty=60', {
       headers: {
@@ -167,7 +168,7 @@ async function verificarBase(base) {
     }
 
     if (alertas.length > 0) {
-      console.log(`   ⚠️ ${alertas.length} alerta(s) detectado(s)`);
+      console.log(`   ⚠️ ${alertas.length} alerta(s) detetado(s)`);
       
       for (const alerta of alertas) {
         await enviarEmail(base, alerta, {
@@ -177,7 +178,7 @@ async function verificarBase(base) {
         });
       }
     } else {
-      console.log(`   ✅ Nenhum alerta detectado`);
+      console.log(`   ✅ Nenhum alerta detetado`);
     }
 
     return alertas;
@@ -274,10 +275,12 @@ async function enviarEmail(base, alerta, dados) {
   }
 }
 
-// Buscar e-mails de utilizadores guardados no TagoIO
+// ================================================
+// 📡 BUSCAR ASSINANTES NO TAGOIO
+// ================================================
 async function buscarEmailsAssinantes() {
   try {
-    // Vamos usar o token da base 1 para consultar os e-mails
+    // Usamos o token da base 1 para consultar os e-mails guardados
     const token = process.env.TAGO_TOKEN_1; 
     const resposta = await axios.get('https://api.tago.io/data?variable=email_assinante&qty=100', {
       headers: { 'Device-Token': token }
@@ -287,10 +290,11 @@ async function buscarEmailsAssinantes() {
     const lista = resposta.data.result.map(item => item.value);
     return lista;
   } catch (e) {
-    console.log("⚠️ Nenhum assinante extra encontrado no TagoIO.");
+    console.log("   ⚠️ Nenhum assinante extra encontrado no TagoIO.");
     return [];
   }
 }
+
 // ================================================
 // 🚀 EXECUTAR
 // ================================================
@@ -306,18 +310,25 @@ async function executar() {
     process.exit(1);
   }
 
-  if (EMAILS_DESTINO.length === 0) {
-    console.error('❌ Nenhum email de destino!');
-    process.exit(1);
-  }
-
   if (BASES.some(b => !b.token)) {
     console.error('❌ Tokens Tago.io não configurados!');
     process.exit(1);
   }
 
-  console.log(`\n📧 Enviando alertas para: ${EMAILS_DESTINO.join(', ')}`);
-  console.log(`🔍 Verificando ${BASES.length} base(s)...\n`);
+  // 🔴 NOVO: Vai buscar os assinantes e junta à lista do GitHub
+  console.log('🔍 A procurar novos assinantes no TagoIO...');
+  const novosAssinantes = await buscarEmailsAssinantes();
+  
+  // Junta tudo e remove duplicados (o Set garante que não há e-mails repetidos)
+  EMAILS_DESTINO = [...new Set([...EMAILS_DESTINO, ...novosAssinantes])];
+
+  if (EMAILS_DESTINO.length === 0) {
+    console.error('❌ Nenhum email de destino encontrado (nem no GitHub nem no site)!');
+    process.exit(1);
+  }
+
+  console.log(`\n📧 A enviar alertas para: ${EMAILS_DESTINO.join(', ')}`);
+  console.log(`🔍 A verificar ${BASES.length} base(s)...\n`);
 
   let totalAlertas = 0;
   for (const base of BASES) {
@@ -335,4 +346,4 @@ async function executar() {
 executar().catch(err => {
   console.error('❌ Erro fatal:', err);
   process.exit(1);
-});   
+});
