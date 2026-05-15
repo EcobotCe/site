@@ -274,6 +274,23 @@ async function enviarEmail(base, alerta, dados) {
   }
 }
 
+// Buscar e-mails de utilizadores guardados no TagoIO
+async function buscarEmailsAssinantes() {
+  try {
+    // Vamos usar o token da base 1 para consultar os e-mails
+    const token = process.env.TAGO_TOKEN_1; 
+    const resposta = await axios.get('https://api.tago.io/data?variable=email_assinante&qty=100', {
+      headers: { 'Device-Token': token }
+    });
+    
+    // Extrai apenas os e-mails da resposta
+    const lista = resposta.data.result.map(item => item.value);
+    return lista;
+  } catch (e) {
+    console.log("⚠️ Nenhum assinante extra encontrado no TagoIO.");
+    return [];
+  }
+}
 // ================================================
 // 🚀 EXECUTAR
 // ================================================
