@@ -2,8 +2,8 @@ name: "🚨 Verificar Alertas Automáticos"
 
 on:
   schedule:
-    - cron: '*/5 * * * *' # Corre a cada 5 minutos
-  workflow_dispatch:      # Permite correr manualmente
+    - cron: '*/5 * * * *' # Executa a cada 5 minutos
+  workflow_dispatch:      # Permite rodar manualmente para testar
 
 jobs:
   check_alerts:
@@ -22,7 +22,7 @@ jobs:
         run: npm install
 
       - name: Verificar alertas automáticos
-        # REMOVIDO o 'cd backend' e o 'scripts/' pois o ficheiro está na raiz
+        # CORREÇÃO: Removido o 'cd backend' e o 'scripts/'. Roda direto na raiz.
         run: node check-alerts.js
         env:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
@@ -30,11 +30,3 @@ jobs:
           TAGO_TOKEN_1: ${{ secrets.TAGO_TOKEN_1 }}
           TAGO_TOKEN_2: ${{ secrets.TAGO_TOKEN_2 }}
           ALERT_EMAILS: ${{ secrets.ALERT_EMAILS }}
-
-      - name: ✅ Sucesso
-        if: success()
-        run: echo "🟢 Verificação concluída sem erros!"
-
-      - name: ❌ Erro
-        if: failure()
-        run: echo "🔴 Ocorreu um erro no processo"
