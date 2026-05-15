@@ -2,9 +2,8 @@ name: "🚨 Verificar Alertas Automáticos"
 
 on:
   schedule:
-    - cron: '*/5 * * * *'
-  
-  workflow_dispatch:
+    - cron: '*/5 * * * *' # Corre a cada 5 minutos
+  workflow_dispatch:      # Permite correr manualmente
 
 jobs:
   check_alerts:
@@ -18,26 +17,24 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          # Removi a linha de cache para evitar o erro do package-lock.json
 
       - name: Instalar dependências
         run: npm install
 
       - name: Verificar alertas automáticos
-        # Caminho corrigido para ler da pasta principal
+        # REMOVIDO o 'cd backend' e o 'scripts/' pois o ficheiro está na raiz
         run: node check-alerts.js
         env:
-          # Lendo as senhas de forma 100% segura pelo GitHub Secrets
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           TAGO_TOKEN_1: ${{ secrets.TAGO_TOKEN_1 }}
           TAGO_TOKEN_2: ${{ secrets.TAGO_TOKEN_2 }}
           ALERT_EMAILS: ${{ secrets.ALERT_EMAILS }}
 
-      - name: ✅ Verificação concluída
+      - name: ✅ Sucesso
         if: success()
-        run: echo "🟢 Alertas verificados!"
+        run: echo "🟢 Verificação concluída sem erros!"
 
       - name: ❌ Erro
         if: failure()
-        run: echo "🔴 Erro ao verificar alertas"
+        run: echo "🔴 Ocorreu um erro no processo"
