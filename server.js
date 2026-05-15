@@ -20,18 +20,24 @@ const PORT = process.env.PORT || 3001;        // Porta padrão 3001
 // 🔒 CONFIGURAÇÃO CORS (Controle de Origem)
 // ================================================
 
-// CORS permite que o frontend acesse este backend
-// Sem CORS, você receberia erro: "blocked by CORS policy"
+const allowedOrigins = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
+  : [
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:8080',
+      'http://127.0.0.1:8080'
+    ];
+
 app.use(cors({
-  origin: [
-    'http://localhost:3000',        // Frontend em desenvolvimento
-    'http://127.0.0.1:3000',        // Alternativa localhost
-    'http://localhost:8080',        // Porta alternativa
-    'http://127.0.0.1:8080'         // Alternativa
-    // Adicione seu domínio de produção aqui depois
-  ],
-  methods: ['GET', 'POST', 'OPTIONS'],  // Métodos HTTP permitidos
-  credentials: true                     // Permitir cookies
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('CORS não permitido pela política de segurança.'));
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  credentials: true
 }));
 
 // Middleware para ler JSON
@@ -54,6 +60,18 @@ const transporter = nodemailer.createTransport({
   maxMessages: 5,                      // Máximo 5 mensagens por conexão
   rateDelta: 20000,                    // Intervalo entre mensagens
   rateLimit: 5                         // Limite de taxa
+});
+
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.warn('⚠️ EMAIL_USER ou EMAIL_PASS não estão configurados. o envio de emails pode falhar.');
+}
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ Não foi possível verificar o transportador de email:', error.message);
+  } else {
+    console.log('✅ Nodemailer pronto para enviar emails.');
+  }
 });
 
 // ================================================

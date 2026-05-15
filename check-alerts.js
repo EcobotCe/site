@@ -42,18 +42,35 @@ async function buscarAssinantesDinamicos() {
 async function verificarBase(base) {
   try {
     console.log(`\n📍 Verificando: ${base.nome}...`);
+
+    if (!base.token) {
+      console.warn(`   ⚠️ Token da base ${base.nome} não configurado. Ignorando.`);
+      return;
+    }
+
     const response = await axios.get('https://api.tago.io/data?qty=20', {
       headers: { 'Device-Token': base.token }
     });
 
-    const dados = response.data.result || [];
+    const dados = Array.isArray(response.data?.result) ? response.data.result : [];
+    if (!dados.length) {
+      console.warn(`   ⚠️ Nenhum dado retornado para ${base.nome}. Verifique se o dispositivo está enviando dados.`);
+      return;
+    }
+
     const getVal = (pref) => {
-      const item = dados.find(d => d.variable.toLowerCase().includes(pref));
+      const item = dados.find(d => d.variable && d.variable.toLowerCase().includes(pref));
       return item ? parseFloat(String(item.value).replace(',', '.')) : null;
     };
 
-    const t = getVal('temp'), u = getVal('umid'), c = getVal('co2') || getVal('gas');
+    const t = getVal('temp');
+    const u = getVal('umid');
+    const c = getVal('co2') ?? getVal('gas');
     console.log(`   Dados atuais -> Temp: ${t}°C, Umi: ${u}%, CO2: ${c}ppm`);
+
+    if (!dados.length) {
+      console.log(`   ⚠️ Sem dados retornados para ${base.nome}. Verifique token e dispositivo.`);
+    }
 
     let alertas = [];
     if (t > LIMIARES.temp_critica) alertas.push(`🔥 Temperatura Crítica: ${t}°C`);
