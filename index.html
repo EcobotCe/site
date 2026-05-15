@@ -2626,6 +2626,41 @@ const API_URL = 'https://web-production-7eff7up.railway.app';
         setTimeout(() => {
             atualizarSemaforo();
         }, 1000);
+    // Função para enviar o e-mail inserido para o TagoIO
+async function subscreverAlertas() {
+    // Obter o valor digitado pelo utilizador
+    const email = document.getElementById("email_input").value;
+    
+    if (!email || !email.includes("@")) {
+        alert("Por favor, insira um e-mail válido!");
+        return;
+    }
+
+    // Substitua pelo seu Token real do dispositivo TagoIO
+    const tokenTago = "COLOQUE_O_SEU_TOKEN_AQUI"; 
+    
+    const dados = {
+        variable: "email_assinante",
+        value: email
+    };
+
+    try {
+        await fetch('https://api.tago.io/data', {
+            method: 'POST',
+            headers: {
+                'Device-Token': tokenTago,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        });
+        
+        alert("Sucesso! O seu e-mail foi registado para receber os alertas ambientais.");
+        document.getElementById("email_input").value = ""; // Limpa o campo
+    } catch (erro) {
+        console.error(erro);
+        alert("Ocorreu um erro ao registar o e-mail.");
+    }
+}
     </script>
 
     <!-- Toast Notification Container -->
