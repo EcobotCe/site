@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecobot | Monitoramento Ambiental Inteligente</title>
 
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -84,7 +84,6 @@ const API_URL = 'https://web-production-7eff7up.railway.app';
 const ECOBOT_BACKEND_URL = ''; // Ex: 'http://localhost:3001'. Deixe vazio para usar mesmo host/origem.
 const TAGO_API_BASE = 'https://api.tago.io/data';
 const TAGO_FETCH_QTY = 60;
-const OFFLINE_THRESHOLD_MINUTES = 6;
     </script>
 
     <style>
@@ -152,8 +151,8 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         /* Efeito de Vidro (Glassmorphism) Elite */
         .glass-premium {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
-            backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(24px);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             border-left: 1px solid rgba(255, 255, 255, 0.05);
             border-right: 1px solid rgba(255, 255, 255, 0.01);
@@ -167,8 +166,8 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         }
 
         .glass-modal {
-            backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
+            backdrop-filter: blur(30px);
             background: rgba(2, 6, 23, 0.9);
         }
 
@@ -178,6 +177,59 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: 50px 50px;
+        }
+
+        .anim-duration-20s {
+            animation-duration: 20s;
+        }
+
+        .delay-01s {
+            animation-delay: 0.1s;
+        }
+
+        .delay-02s {
+            animation-delay: 0.2s;
+        }
+
+        .delay-03s {
+            animation-delay: 0.3s;
+        }
+
+        .delay-04s {
+            animation-delay: 0.4s;
+        }
+
+        .delay-05s {
+            animation-delay: 0.5s;
+        }
+
+        .delay-06s {
+            animation-delay: 0.6s;
+        }
+
+        .delay-07s {
+            animation-delay: 0.7s;
+        }
+
+        .delay-08s {
+            animation-delay: 0.8s;
+        }
+
+        .delay-1s {
+            animation-delay: 1s;
+        }
+
+        .delay-2s {
+            animation-delay: 2s;
+        }
+
+        .delay-4s {
+            animation-delay: 4s;
+        }
+
+        .alerta-checkbox {
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .glass-highlight {
@@ -211,8 +263,8 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
 
         .hero-title span {
             background: linear-gradient(90deg, #6ee7b7, #10b981, #14b8a6);
-            background-clip: text;
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             color: transparent;
             text-shadow: 0 0 18px rgba(16, 185, 129, 0.28);
@@ -343,8 +395,8 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
             background: rgba(15, 23, 42, 0.65);
             border: 1px solid rgba(16, 185, 129, 0.14);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
-            backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
+            backdrop-filter: blur(18px);
         }
 
         .stat-card h3 {
@@ -438,6 +490,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
 
         /* Checkboxes customizados */
         .alerta-checkbox {
+            -webkit-user-select: none;
             user-select: none;
         }
 
@@ -459,7 +512,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
 <body
     class="font-poppins min-h-screen selection:bg-ecogreen selection:text-white flex flex-col relative overflow-x-hidden">
 
-    <div class="fixed inset-0 bg-grid pointer-events-none z-0 animate-pulse" style="animation-duration: 20s;">
+    <div class="fixed inset-0 bg-grid pointer-events-none z-0 animate-pulse anim-duration-20s">
         <div
             class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-darkbg/80 to-darkbg pointer-events-none">
         </div>
@@ -468,23 +521,21 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         <div
             class="absolute top-[-10%] left-[-10%] w-[30rem] h-[30rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob">
         </div>
-        <div class="absolute top-[40%] right-[-10%] w-[25rem] h-[25rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob"
-            style="animation-delay: 2s;"></div>
-        <div class="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-cyan-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob"
-            style="animation-delay: 4s;"></div>
+        <div class="absolute top-[40%] right-[-10%] w-[25rem] h-[25rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-2s"></div>
+        <div class="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-cyan-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-4s"></div>
     </div>
 
 
 
     <div
         class="fixed bottom-5 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-8 z-50 glass-premium rounded-full px-6 py-3 flex gap-4 text-xs md:text-sm transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] w-max border border-white/5">
-        <button id="btn_lang_pt" onclick="mudarIdioma('pt')"
+        <button type="button" id="btn_lang_pt" onclick="mudarIdioma('pt')"
             class="text-ecogreen font-bold hover:scale-110 transition-transform">PT</button>
         <span class="text-slate-600/50">|</span>
-        <button id="btn_lang_en" onclick="mudarIdioma('en')"
+        <button type="button" id="btn_lang_en" onclick="mudarIdioma('en')"
             class="text-slate-400 font-medium hover:text-ecogreen hover:scale-110 transition-all">EN</button>
         <span class="text-slate-600/50">|</span>
-        <button id="btn_lang_es" onclick="mudarIdioma('es')"
+        <button type="button" id="btn_lang_es" onclick="mudarIdioma('es')"
             class="text-slate-400 font-medium hover:text-ecogreen hover:scale-110 transition-all">ES</button>
     </div>
 
@@ -498,16 +549,13 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                     class="w-[95%] h-[95%] object-cover rounded-full animate-float-slow">
             </div>
         </div>
-        <h1 class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow animate-fade-in"
-            style="animation-delay: 0.3s;">
+        <h1 class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow animate-fade-in delay-03s">
             Ecobot OS</h1>
-        <div class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner animate-slide-in-left"
-            style="animation-delay: 0.5s;">
+        <div class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner animate-slide-in-left delay-05s">
             <div class="h-full bg-gradient-to-r from-ecogreen via-cyan-400 to-sky-300 animate-loading"></div>
         </div>
         <p data-i18n="txt_carregando"
-            class="text-ecogreen/80 font-mono text-[10px] md:text-xs tracking-[0.4em] uppercase text-center font-semibold animate-fade-in"
-            style="animation-delay: 0.7s;">
+            class="text-ecogreen/80 font-mono text-[10px] md:text-xs tracking-[0.4em] uppercase text-center font-semibold animate-fade-in delay-07s">
             Calibrando Sensores...</p>
     </div>
 
@@ -517,8 +565,9 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
         <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-md w-full text-center transform scale-95 transition-all duration-400 relative"
             id="modal-loc-box">
-            <button onclick="fecharModalLoc()"
-                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors">
+            <button type="button" onclick="fecharModalLoc()"
+                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors"
+                title="Fechar modal" aria-label="Fechar modal">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
             <div
@@ -532,14 +581,13 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                     class="text-slate-300 font-medium">Não guardamos a sua localização!</span>
             </p>
             <div class="flex flex-col gap-4">
-                <button onclick="acessarSensoresGPS()"
+                <button type="button" onclick="acessarSensoresGPS()"
                     class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] flex items-center justify-center gap-3 hover:-translate-y-1 text-base btn-hover-glow ripple animate-fade-in">
                     <i class="fa-solid fa-location-crosshairs text-xl"></i> <span data-i18n="btn_modal_gps"
                         class="tracking-wide">Usar Meu GPS</span>
                 </button>
-                <button onclick="acessarSensoresManual()"
-                    class="bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-4 px-6 rounded-2xl transition-all border border-slate-600/50 hover:border-slate-500 text-base btn-hover-glow ripple animate-fade-in"
-                    style="animation-delay: 0.2s;">
+                <button type="button" onclick="acessarSensoresManual()"
+                    class="bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-4 px-6 rounded-2xl transition-all border border-slate-600/50 hover:border-slate-500 text-base btn-hover-glow ripple animate-fade-in delay-02s">
                     <span data-i18n="btn_modal_manual" class="tracking-wide">Escolher Base Manualmente</span>
                 </button>
             </div>
@@ -550,8 +598,9 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
         <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-md w-full text-center transform scale-95 transition-all duration-400 relative"
             id="modal-adicionar-base-box">
-            <button onclick="fecharModalAdicionarBase()"
-                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors">
+            <button type="button" onclick="fecharModalAdicionarBase()"
+                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors"
+                title="Fechar modal" aria-label="Fechar modal">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
             <div
@@ -590,7 +639,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                             class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
                     </div>
                 </div>
-                <button onclick="salvarNovaBase()"
+                <button type="button" onclick="salvarNovaBase()"
                     class="w-full bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-black py-4 rounded-2xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] hover:-translate-y-1 uppercase tracking-wider text-sm"><i
                         class="fa-solid fa-plus mr-2"></i> <span id="btn-salvar-base-text"
                         data-i18n="btn_salvar_nova_base">Adicionar Base</span></button>
@@ -610,12 +659,12 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 class="font-montserrat font-black text-lg md:text-2xl text-white tracking-[0.2em] drop-shadow-md text-glow">ECOBOT</span>
         </div>
         <div class="flex gap-2 md:gap-4">
-            <button onclick="navegarPara('alertas')"
+            <button type="button" onclick="navegarPara('alertas')"
                 class="glass-premium hover:bg-white/10 text-white font-bold py-2.5 md:py-3 px-4 md:px-6 rounded-full transition-all flex items-center gap-2 md:gap-3 group text-xs md:text-sm tracking-wider shadow-md">
                 <i class="fa-solid fa-bell text-ecogreen group-hover:animate-pulse"></i>
                 <span class="hidden sm:inline">Alertas</span>
             </button>
-            <button onclick="acaoNavbar()"
+            <button type="button" onclick="acaoNavbar()"
                 class="glass-premium hover:bg-white/10 text-white font-bold py-2.5 md:py-3 px-5 md:px-8 rounded-full transition-all flex items-center gap-2 md:gap-3 group text-xs md:text-sm tracking-wider shadow-md">
                 <i id="icon_nav_sensores"
                     class="fa-solid fa-satellite-dish text-ecogreen group-hover:animate-pulse"></i>
@@ -646,7 +695,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 Unindo robótica de baixo custo e preservação ambiental para combater a invisibilidade dos dados
                 climáticos no interior e construir um futuro inteligente.
             </p>
-            <button onclick="tentarAcessarSensores()"
+            <button type="button" onclick="tentarAcessarSensores()"
                 class="relative inline-flex items-center justify-center gap-4 btn-primary overflow-hidden text-slate-950 font-black py-4 px-10 md:py-5 md:px-14 rounded-full text-sm md:text-lg transition-all duration-500 hover:-translate-y-2 group mx-auto w-full sm:w-auto">
                 <span
                     class="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>
@@ -854,7 +903,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                         Conecte-se conosco</h3>
 
                     <div class="flex flex-col gap-3 w-full max-w-xs">
-                        <a href="https://www.instagram.com/ecobot.ce" target="_blank"
+                        <a href="https://www.instagram.com/ecobot.ce" target="_blank" rel="noopener noreferrer"
                             class="group relative flex items-center gap-3 bg-gradient-to-tr from-ecogreen/60 via-cyan-500 to-sky-400 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
                                 <i
@@ -862,14 +911,14 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                                 <span class="tracking-widest text-xs font-bold text-white">@ecobot.ce</span>
                             </div>
                         </a>
-                        <a href="https://www.youtube.com/@EcobotCE" target="_blank"
+                        <a href="https://www.youtube.com/@EcobotCE" target="_blank" rel="noopener noreferrer"
                             class="group relative flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
                                 <i class="fa-brands fa-youtube text-2xl text-red-500"></i>
                                 <span class="tracking-widest text-xs font-bold text-white">Ecobot Oficial</span>
                             </div>
                         </a>
-                        <a href="#" target="_blank"
+                        <a href="#"
                             class="group relative flex items-center gap-3 bg-gradient-to-tr from-ecogreen/60 to-cyan-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
                                 <i class="fa-brands fa-tiktok text-2xl text-white"></i>
@@ -924,7 +973,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                         <i
                             class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                     </div>
-                    <button onclick="abrirModalAdicionarBase()"
+                    <button type="button" onclick="abrirModalAdicionarBase()"
                         class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3.5 px-6 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
                         <i class="fa-solid fa-plus"></i> <span data-i18n="btn_adicionar_base">Adicionar Base</span>
                     </button>
@@ -937,23 +986,9 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         <div id="status-badge" class="mb-8 w-max">
 
             <span data-i18n="txt_aguardando"
-                class="bg-slate-800 text-slate-400 border border-slate-600 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">Aguardando
+                class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">Aguardando
                 Conexão...</span>
 
-        </div>
-
-        <div id="alerta-offline"
-            class="hidden bg-red-900/40 border border-red-500/30 text-red-200 p-6 rounded-[2rem] mb-8 shadow-lg backdrop-blur-md flex items-center gap-6">
-            <div
-                class="w-14 h-14 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 text-2xl shrink-0">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <div>
-                <h4 data-i18n="txt_offline_titulo" class="font-bold text-red-400 mb-1 text-lg tracking-wider">CONEXÃO
-                    PERDIDA</h4>
-                <p data-i18n="txt_offline_sub" class="text-xs text-slate-400 font-medium tracking-wide">Os dados pararam
-                    de chegar ou a estação está desligada. Aguardando nuvem...</p>
-            </div>
         </div>
 
         <div id="alerta-gas"
@@ -991,8 +1026,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
             </div>
 
             <div id="card-umi"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-300 animate-fade-in"
-                style="animation-delay: 0.2s;">
+                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-300 animate-fade-in delay-02s">
                 <div
                     class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-ecogreen/10 rounded-full blur-3xl group-hover:bg-ecogreen/20 transition-all">
                 </div>
@@ -1012,8 +1046,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
 
             <!-- NOVO CARD CO₂ -->
             <div id="card-co2"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-2 md:col-span-1 hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(168,85,247,0.3)] transition-all duration-300 animate-slide-in-right"
-                style="animation-delay: 0.4s;">
+                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-2 md:col-span-1 hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(168,85,247,0.3)] transition-all duration-300 animate-slide-in-right delay-04s">
                 <div
                     class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all">
                 </div>
@@ -1032,8 +1065,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         </div>
 
         <!-- Semáforo Climático -->
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in"
-            style="animation-delay: 0.6s;">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-06s">
             <div class="flex justify-between items-center mb-6">
                 <h3
                     class="font-montserrat text-xl md:text-2xl text-white font-black flex items-center gap-3 tracking-wide">
@@ -1046,7 +1078,6 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 </div>
             </div>
             <p id="semaforo-status" class="text-slate-400 text-sm font-medium">Analisando condições ambientais...</p>
-            </button>
             <div class="mt-4 text-xs text-slate-500">
                 <p><strong>Verde:</strong> Condições ideais (Temp ≤30°C, Umi ≥40%, CO₂ ≤5%)</p>
                 <p><strong>Amarelo:</strong> Atenção (Temp >30°C, Umi <40%, CO₂>5%)</p>
@@ -1055,8 +1086,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         </div>
 
         <!-- Status de Conectividade -->
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in"
-            style="animation-delay: 0.8s;">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-08s">
             <h3
                 class="font-montserrat text-xl md:text-2xl text-white font-black mb-6 flex items-center gap-3 tracking-wide">
                 <i class="fa-solid fa-wifi text-ecogreen"></i> Status de Conectividade
@@ -1081,7 +1111,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                             <span class="text-xs text-slate-400">Verificando...</span>
                         </div>
                     </div>
-                    <button onclick="testarConectividadeTagO()"
+                    <button type="button" onclick="testarConectividadeTagO()"
                         class="w-full bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200">
                         <i class="fa-solid fa-plug mr-1"></i> Testar Conexão
                     </button>
@@ -1105,7 +1135,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                             <span class="text-xs text-slate-400">Verificando...</span>
                         </div>
                     </div>
-                    <button onclick="testarConectividadeEmailJS()"
+                    <button type="button" onclick="testarConectividadeEmailJS()"
                         class="w-full bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200">
                         <i class="fa-solid fa-plug mr-1"></i> Testar Conexão
                     </button>
@@ -1133,7 +1163,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 </div>
 
                 <a href="https://699217a1cecd9d000ab29255.us-e1.tago.run/dashboards/info/69c44a3086ff0a00092df519?anonymousToken=00000000-6992-17a1-cecd-9d000ab29255"
-                    target="_blank"
+                    target="_blank" rel="noopener noreferrer"
                     class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_0_15px_rgba(20,184,166,0.3)] hover:-translate-y-1 text-xs md:text-sm flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
                     <i class="fa-solid fa-up-right-from-square"></i>
                     <span data-i18n="btn_ver_tago">Ver dados no Tago.io</span>
@@ -1153,7 +1183,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
             </div>
         </div>
 
-        <div class="h-64 md:h-[400px] w-full relative animate-fade-in" style="animation-delay: 0.6s;">
+        <div class="h-64 md:h-[400px] w-full relative animate-fade-in delay-06s">
             <canvas id="graficoSensor" class="w-full h-full"></canvas>
         </div>
         <div class="mt-4 text-xs text-slate-500 text-center">
@@ -1198,8 +1228,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         </div>
         </div>
 
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter"
-            style="animation-delay: 0.1s;">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-01s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-key text-ecogreen"></i> EmailJS configurado automaticamente
             </h3>
@@ -1208,8 +1237,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
         </div>
 
         <!-- Seção de Tipos de Alertas -->
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter"
-            style="animation-delay: 0.2s;">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-02s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-sliders text-ecogreen"></i> Escolha seus Alertas
             </h3>
@@ -1218,8 +1246,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
 
             <div class="space-y-4">
                 <!-- Alerta Temperatura -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-orange-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 animate-fade-in"
-                    style="animation-delay: 0.4s;">
+                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-orange-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 animate-fade-in delay-04s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-temp" class="w-5 h-5 cursor-pointer"
@@ -1246,8 +1273,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 </div>
 
                 <!-- Alerta CO2 -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-purple-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 animate-fade-in"
-                    style="animation-delay: 0.6s;">
+                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-purple-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 animate-fade-in delay-06s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-co2" class="w-5 h-5 cursor-pointer"
@@ -1274,8 +1300,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 </div>
 
                 <!-- Alerta Umidade -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-ecogreen/40 transition-all duration-300 hover:shadow-lg hover:shadow-ecogreen/10 animate-fade-in"
-                    style="animation-delay: 0.8s;">
+                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-ecogreen/40 transition-all duration-300 hover:shadow-lg hover:shadow-ecogreen/10 animate-fade-in delay-08s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-umi" class="w-5 h-5 cursor-pointer"
@@ -1302,8 +1327,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 </div>
 
                 <!-- Alerta Queimada -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-red-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/10 animate-fade-in"
-                    style="animation-delay: 1s;">
+                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-red-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/10 animate-fade-in delay-1s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-queimada" class="w-5 h-5 cursor-pointer"
@@ -1330,7 +1354,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 </div>
             </div>
 
-            <button onclick="salvarConfiguracoesAlertas()"
+            <button type="button" onclick="salvarConfiguracoesAlertas()"
                 class="w-full mt-8 bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-4 rounded-xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] hover:-translate-y-1 uppercase tracking-wider text-sm relative overflow-hidden group">
                 <span class="relative z-10 flex items-center justify-center gap-2">
                     <i class="fa-solid fa-save"></i> Salvar Todas as Configurações
@@ -1416,7 +1440,8 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 txt_ultimas_leituras: "Últimas leituras",
                 btn_ver_tago: "Ver dados no tago.io",
                 txt_sincronizando: "Sincronizando com a nuvem...",
-                txt_aguardando: "Aguardando Conexão..."
+                txt_aguardando: "Aguardando Conexão...",
+                txt_status_note: "Estações mandam dados a cada 5 minutos, mas podem chegar com atraso."
             },
             en: {
                 txt_carregando: "Calibrating Sensors...",
@@ -1456,7 +1481,8 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 txt_ultimas_leituras: "Latest readings",
                 btn_ver_tago: "View data on tago.io",
                 txt_sincronizando: "Synchronizing with the cloud...",
-                txt_aguardando: "Waiting for Connection..."
+                txt_aguardando: "Waiting for Connection...",
+                txt_status_note: "Stations send data every 5 minutes, but there may be a delay."
             },
             es: {
                 txt_carregando: "Calibrando Sensores...",
@@ -1496,7 +1522,8 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 txt_ultimas_leituras: "Últimas lecturas",
                 btn_ver_tago: "Ver datos en tago.io",
                 txt_sincronizando: "Sincronizando con la nube...",
-                txt_aguardando: "Esperando Conexión..."
+                txt_aguardando: "Esperando Conexión...",
+                txt_status_note: "Las estaciones envían datos cada 5 minutos, pero puede haber demora."
             }
         };
 
@@ -1630,9 +1657,9 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                                 <p class="text-xs text-slate-500 mt-3">${coords}</p>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <button onclick="mudarBase(${base.id})" class="text-ecogreen text-xs font-bold uppercase tracking-[0.26em]">Selecionar</button>
-                                <button onclick="editarBase(${base.id})" class="text-slate-300 text-xs hover:text-ecogreen flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i>Editar</button>
-                                <button onclick="removerBase(${base.id})" class="text-red-400 text-xs hover:text-red-200 flex items-center gap-2"><i class="fa-solid fa-trash"></i>Excluir</button>
+                                <button type="button" onclick="mudarBase(${base.id})" class="text-ecogreen text-xs font-bold uppercase tracking-[0.26em]">Selecionar</button>
+                                <button type="button" onclick="editarBase(${base.id})" class="text-slate-300 text-xs hover:text-ecogreen flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i>Editar</button>
+                                <button type="button" onclick="removerBase(${base.id})" class="text-red-400 text-xs hover:text-red-200 flex items-center gap-2"><i class="fa-solid fa-trash"></i>Excluir</button>
                             </div>
                         </div>
                     `;
@@ -1830,26 +1857,46 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
 
             try {
                 // Busca os dados mais recentes para preencher o gráfico corretamente
-                const url = `${TAGO_API_BASE}?qty=${TAGO_FETCH_QTY}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: { 'Device-Token': baseSelecionada.token, 'Content-Type': 'application/json' }
-                });
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(baseSelecionada.token)}&qty=${TAGO_FETCH_QTY}`;
+                const directUrl = `${TAGO_API_BASE}?qty=${TAGO_FETCH_QTY}`;
 
-                if (!response.ok) {
-                    throw new Error(`TagO API retornou ${response.status} ${response.statusText}`);
+                const fetchData = async (url, useDirect = false) => {
+                    const headers = useDirect
+                        ? { 'Content-Type': 'application/json', 'Device-Token': baseSelecionada.token }
+                        : { 'Content-Type': 'application/json' };
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        cache: 'no-store',
+                        headers
+                    });
+                    if (!response.ok) {
+                        throw new Error(`TagO API retornou ${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                };
+
+                let json;
+                try {
+                    json = await fetchData(proxyUrl, false);
+                } catch (proxyError) {
+                    console.warn('Proxy TagO falhou, tentando acesso direto:', proxyError.message);
+                    json = await fetchData(directUrl, true);
                 }
 
-                const json = await response.json();
-                if (!json || !Array.isArray(json.result)) {
-                    throw new Error('Resposta TagO inválida');
-                }
-                const data = json.result;
+                const data = Array.isArray(json.result)
+                    ? json.result
+                    : Array.isArray(json.dados?.result)
+                        ? json.dados.result
+                        : [];
 
                 const normalize = (value) => value ? value.toString().toLowerCase().trim() : '';
                 const sortByTime = (arr) => arr
                     .filter(d => d && d.time)
-                    .sort((a, b) => new Date(a.time) - new Date(b.time));
+                    .map(d => ({ ...d, __time: new Date(d.time).getTime() }))
+                    .filter(d => !Number.isNaN(d.__time))
+                    .sort((a, b) => a.__time - b.__time);
 
                 const t = sortByTime(data.filter(d => {
                     const v = normalize(d.variable);
@@ -1864,40 +1911,13 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                     return /gas|mq|co2/.test(v);
                 }));
 
-                const temDado = t.length > 0 || u.length > 0 || g.length > 0;
-                let difMin = 999;
-
-                if (temDado) {
-                    const latestTimes = [
-                        t.length > 0 ? new Date(t[t.length - 1].time) : null,
-                        u.length > 0 ? new Date(u[u.length - 1].time) : null,
-                        g.length > 0 ? new Date(g[g.length - 1].time) : null,
-                    ].filter(Boolean).map(d => d.getTime());
-
-                    if (latestTimes.length > 0) {
-                        const tempoUltimo = new Date(Math.max(...latestTimes));
-                        const tempoAtual = new Date();
-                        difMin = (tempoAtual - tempoUltimo) / (1000 * 60);
-                    }
-                }
-
-                let txtOnline = idiomaAtual === 'pt' ? 'ONLINE' : 'ONLINE';
-                let txtOffline = idiomaAtual === 'pt' ? 'OFFLINE' : 'OFFLINE';
-                let txtNoData = idiomaAtual === 'pt' ? 'SEM DADOS' : 'NO DATA';
-                let txtLoading = idiomaAtual === 'pt' ? 'CARREGANDO...' : 'LOADING...';
                 const baseNomeBadge = baseSelecionada ? baseSelecionada.nome : 'Base não selecionada';
+                const statusNote = dicionario[idiomaAtual].txt_status_note;
 
-                // Lógica Visual do Status
-                if (!temDado) {
-                    document.getElementById('status-badge').innerHTML = `<span class="bg-red-500/10 text-red-500 border border-red-500/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md animate-pulse">${txtNoData} • ${baseNomeBadge}</span>`;
-                    document.getElementById('alerta-offline').classList.remove('hidden');
-                } else if (difMin <= OFFLINE_THRESHOLD_MINUTES) {
-                    document.getElementById('status-badge').innerHTML = `<span class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md animate-glow">${txtOnline} • ${baseNomeBadge}</span>`;
-                    document.getElementById('alerta-offline').classList.add('hidden');
-                } else {
-                    document.getElementById('status-badge').innerHTML = `<span class="bg-red-500/10 text-red-500 border border-red-500/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest shadow-md animate-pulse">${txtOffline} • ${baseNomeBadge}</span>`;
-                    document.getElementById('alerta-offline').classList.remove('hidden');
-                }
+                document.getElementById('status-badge').innerHTML = `
+                    <span class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">${baseNomeBadge}</span>
+                    <p class="text-[10px] text-slate-400 mt-2">${statusNote}</p>
+                `;
 
                 const safeParse = (val) => {
                     if (val === null || val === undefined) return null;
@@ -2219,20 +2239,33 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
 
             try {
                 const token = baseSelecionada.token;
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol.startsWith('http') ? window.location.origin : '');
-                const requestUrl = backendUrl
-                    ? `${backendUrl}/api/test-tago?token=${encodeURIComponent(token)}`
-                    : `https://api.tago.io/data?qty=1`;
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(token)}&qty=1`;
+                const directUrl = `https://api.tago.io/data?qty=1`;
 
-                const headers = { 'Content-Type': 'application/json' };
-                if (!backendUrl) headers['Device-Token'] = token;
+                const fetchWithHeaders = async (url, useDirect = false) => {
+                    const headers = useDirect
+                        ? { 'Content-Type': 'application/json', 'Device-Token': token }
+                        : { 'Content-Type': 'application/json' };
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        cache: 'no-store',
+                        headers
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response;
+                };
 
-                const response = await fetch(requestUrl, {
-                    method: 'GET',
-                    mode: 'cors',
-                    cache: 'no-store',
-                    headers
-                });
+                let response;
+                try {
+                    response = await fetchWithHeaders(proxyUrl, false);
+                } catch (proxyError) {
+                    console.warn('Proxy TagO falhou, tentando acesso direto:', proxyError.message);
+                    response = await fetchWithHeaders(directUrl, true);
+                }
 
                 if (response.ok) {
                     statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xs"></i> <span class="text-xs text-green-500">Conectado</span>';
@@ -2574,7 +2607,7 @@ const OFFLINE_THRESHOLD_MINUTES = 6;
                 <div class="flex items-center">
                     <i class="fas ${icon} icon"></i>
                     <span class="flex-1">${message}</span>
-                    <button class="close-btn" onclick="this.parentElement.parentElement.remove()">
+                    <button type="button" class="close-btn" title="Fechar aviso" aria-label="Fechar aviso" onclick="this.parentElement.parentElement.remove()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -2701,6 +2734,7 @@ async function subscreverAlertas() {
             padding: 1rem 1.5rem;
             border-radius: 1rem;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             animation: slideInRight 0.5s ease-out, fadeIn 0.5s ease-out;
@@ -2755,6 +2789,7 @@ async function subscreverAlertas() {
         /* Enhanced Visual Improvements */
         .glass-premium {
             background: linear-gradient(135deg, rgba(10, 25, 40, 0.6), rgba(15, 35, 50, 0.4));
+            -webkit-backdrop-filter: blur(25px);
             backdrop-filter: blur(25px);
             border: 1px solid rgba(20, 184, 166, 0.2);
             box-shadow:
@@ -2773,6 +2808,7 @@ async function subscreverAlertas() {
 
         .glass-highlight {
             background: linear-gradient(135deg, rgba(15, 30, 45, 0.5), rgba(20, 40, 60, 0.3));
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(20, 184, 166, 0.15);
             box-shadow:
