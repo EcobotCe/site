@@ -79,11 +79,11 @@
             }
         }
         // NO INÍCIO DO SEU SCRIPT - DECLARE UMA ÚNICA VEZ
-       // ========== CONFIGURAÇÃO DE AMBIENTE ==========
-const API_URL = 'https://web-production-7eff7up.railway.app';
-const ECOBOT_BACKEND_URL = ''; // Ex: 'http://localhost:3001'. Deixe vazio para usar mesmo host/origem.
-const TAGO_API_BASE = 'https://api.tago.io/data';
-const TAGO_FETCH_QTY = 60;
+        // ========== CONFIGURAÇÃO DE AMBIENTE ==========
+        const API_URL = 'https://web-production-7eff7up.railway.app';
+        const ECOBOT_BACKEND_URL = ''; // Ex: 'http://localhost:3001'. Deixe vazio para usar mesmo host/origem.
+        const TAGO_API_BASE = 'https://api.tago.io/data';
+        const TAGO_FETCH_QTY = 60;
     </script>
 
     <style>
@@ -521,8 +521,12 @@ const TAGO_FETCH_QTY = 60;
         <div
             class="absolute top-[-10%] left-[-10%] w-[30rem] h-[30rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob">
         </div>
-        <div class="absolute top-[40%] right-[-10%] w-[25rem] h-[25rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-2s"></div>
-        <div class="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-cyan-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-4s"></div>
+        <div
+            class="absolute top-[40%] right-[-10%] w-[25rem] h-[25rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-2s">
+        </div>
+        <div
+            class="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-cyan-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-4s">
+        </div>
     </div>
 
 
@@ -549,9 +553,11 @@ const TAGO_FETCH_QTY = 60;
                     class="w-[95%] h-[95%] object-cover rounded-full animate-float-slow">
             </div>
         </div>
-        <h1 class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow animate-fade-in delay-03s">
+        <h1
+            class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow animate-fade-in delay-03s">
             Ecobot OS</h1>
-        <div class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner animate-slide-in-left delay-05s">
+        <div
+            class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner animate-slide-in-left delay-05s">
             <div class="h-full bg-gradient-to-r from-ecogreen via-cyan-400 to-sky-300 animate-loading"></div>
         </div>
         <p data-i18n="txt_carregando"
@@ -787,31 +793,7 @@ const TAGO_FETCH_QTY = 60;
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 w-full max-w-full overflow-hidden">
-
-                <div
-                    class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(16,185,129,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
-                    <div
-                        class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
-                        <div class="flex gap-1.5 md:gap-2 shrink-0">
-                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
-                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
-                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
-                        </div>
-                        <span
-                            class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">SIARÁ
-                            TECH SUMMIT</span>
-                    </div>
-                    <div class="aspect-video relative bg-slate-950">
-                        <div
-                            class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
-                        </div>
-                        <iframe class="absolute top-0 left-0 w-full h-full z-10"
-                            src="https://www.youtube.com/embed/z1E18gfBydY" title="YouTube video player" frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowfullscreen></iframe>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 w-full max-w-full overflow-hidden">
 
                 <div
                     class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(20,184,166,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
@@ -831,12 +813,63 @@ const TAGO_FETCH_QTY = 60;
                             class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
                         </div>
                         <iframe class="absolute top-0 left-0 w-full h-full z-10"
-                            src="https://www.youtube.com/embed/UiDxeupyxsY" title="YouTube video player" frameborder="0"
+                            src="https://www.youtube.com/embed/FMro_7mW2mE?si=pSIciwhkF3r8ok3-"
+                            title="YouTube video player" frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen></iframe>
                     </div>
                 </div>
-            </div>
+
+                <div
+                    class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(16,185,129,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
+                    <div
+                        class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
+                        <div class="flex gap-1.5 md:gap-2 shrink-0">
+                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
+                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
+                        </div>
+                        <span
+                            class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">SIARÁ
+                            TECH SUMMIT</span>
+                    </div>
+                    <div class="aspect-video relative bg-slate-950">
+                        <div
+                            class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
+                        </div>
+                        <iframe class="absolute top-0 left-0 w-full h-full z-10"
+                            src="https://www.youtube.com/embed/hrKtoUhizrc?si=1cAf8zsdIuL483rf"
+                            title="YouTube video player" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen></iframe>
+                    </div>
+                </div>
+
+                <div
+                    class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(59,130,246,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
+                    <div
+                        class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
+                        <div class="flex gap-1.5 md:gap-2 shrink-0">
+                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
+                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
+                            <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
+                        </div>
+                        <span
+                            class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">CEARÁ
+                            FAZ CIÊNCIA</span>
+                    </div>
+                    <div class="aspect-video relative bg-slate-950">
+                        <div
+                            class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
+                        </div>
+                        <iframe class="absolute top-0 left-0 w-full h-full z-10"
+                            src="https://www.youtube.com/embed/mWEZmoo-nWw?si=0oAtZq-3EHLCP-JB"
+                            title="YouTube video player" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen></iframe>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -911,14 +944,14 @@ const TAGO_FETCH_QTY = 60;
                                 <span class="tracking-widest text-xs font-bold text-white">@ecobot.ce</span>
                             </div>
                         </a>
-                        <a href="https://www.youtube.com/@EcobotCE" target="_blank" rel="noopener noreferrer"
+                        <a href="https://www.youtube.com/channel/UCx-2zIP8ppit9EHc_xkslng" target="_blank" rel="noopener noreferrer"
                             class="group relative flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
                                 <i class="fa-brands fa-youtube text-2xl text-red-500"></i>
-                                <span class="tracking-widest text-xs font-bold text-white">Ecobot Oficial</span>
+                                <span class="tracking-widest text-xs font-bold text-white">@pjt.ecobot</span>
                             </div>
                         </a>
-                        <a href="#"
+                        <a href="https://www.tiktok.com/@ecobot.ce?_r=1&_t=ZS-96QKSDgfLT0"
                             class="group relative flex items-center gap-3 bg-gradient-to-tr from-ecogreen/60 to-cyan-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
                                 <i class="fa-brands fa-tiktok text-2xl text-white"></i>
@@ -1065,7 +1098,8 @@ const TAGO_FETCH_QTY = 60;
         </div>
 
         <!-- Semáforo Climático -->
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-06s">
+        <div
+            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-06s">
             <div class="flex justify-between items-center mb-6">
                 <h3
                     class="font-montserrat text-xl md:text-2xl text-white font-black flex items-center gap-3 tracking-wide">
@@ -1086,7 +1120,8 @@ const TAGO_FETCH_QTY = 60;
         </div>
 
         <!-- Status de Conectividade -->
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-08s">
+        <div
+            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-08s">
             <h3
                 class="font-montserrat text-xl md:text-2xl text-white font-black mb-6 flex items-center gap-3 tracking-wide">
                 <i class="fa-solid fa-wifi text-ecogreen"></i> Status de Conectividade
@@ -1228,7 +1263,8 @@ const TAGO_FETCH_QTY = 60;
         </div>
         </div>
 
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-01s">
+        <div
+            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-01s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-key text-ecogreen"></i> EmailJS configurado automaticamente
             </h3>
@@ -1237,7 +1273,8 @@ const TAGO_FETCH_QTY = 60;
         </div>
 
         <!-- Seção de Tipos de Alertas -->
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-02s">
+        <div
+            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-02s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-sliders text-ecogreen"></i> Escolha seus Alertas
             </h3>
@@ -1246,7 +1283,8 @@ const TAGO_FETCH_QTY = 60;
 
             <div class="space-y-4">
                 <!-- Alerta Temperatura -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-orange-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 animate-fade-in delay-04s">
+                <div
+                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-orange-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 animate-fade-in delay-04s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-temp" class="w-5 h-5 cursor-pointer"
@@ -1273,7 +1311,8 @@ const TAGO_FETCH_QTY = 60;
                 </div>
 
                 <!-- Alerta CO2 -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-purple-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 animate-fade-in delay-06s">
+                <div
+                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-purple-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 animate-fade-in delay-06s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-co2" class="w-5 h-5 cursor-pointer"
@@ -1300,7 +1339,8 @@ const TAGO_FETCH_QTY = 60;
                 </div>
 
                 <!-- Alerta Umidade -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-ecogreen/40 transition-all duration-300 hover:shadow-lg hover:shadow-ecogreen/10 animate-fade-in delay-08s">
+                <div
+                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-ecogreen/40 transition-all duration-300 hover:shadow-lg hover:shadow-ecogreen/10 animate-fade-in delay-08s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-umi" class="w-5 h-5 cursor-pointer"
@@ -1327,7 +1367,8 @@ const TAGO_FETCH_QTY = 60;
                 </div>
 
                 <!-- Alerta Queimada -->
-                <div class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-red-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/10 animate-fade-in delay-1s">
+                <div
+                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-red-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/10 animate-fade-in delay-1s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" id="ativar-queimada" class="w-5 h-5 cursor-pointer"
@@ -2686,41 +2727,41 @@ const TAGO_FETCH_QTY = 60;
         setTimeout(() => {
             atualizarSemaforo();
         }, 1000);
-    // Função para enviar o e-mail inserido para o TagoIO
-async function subscreverAlertas() {
-    // Obter o valor digitado pelo utilizador
-    const email = document.getElementById("email_input").value;
-    
-    if (!email || !email.includes("@")) {
-        alert("Por favor, insira um e-mail válido!");
-        return;
-    }
+        // Função para enviar o e-mail inserido para o TagoIO
+        async function subscreverAlertas() {
+            // Obter o valor digitado pelo utilizador
+            const email = document.getElementById("email_input").value;
 
-    // Substitua pelo seu Token real do dispositivo TagoIO
-    const tokenTago = "COLOQUE_O_SEU_TOKEN_AQUI"; 
-    
-    const dados = {
-        variable: "email_assinante",
-        value: email
-    };
+            if (!email || !email.includes("@")) {
+                alert("Por favor, insira um e-mail válido!");
+                return;
+            }
 
-    try {
-        await fetch('https://api.tago.io/data', {
-            method: 'POST',
-            headers: {
-                'Device-Token': tokenTago,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dados)
-        });
-        
-        alert("Sucesso! O seu e-mail foi registado para receber os alertas ambientais.");
-        document.getElementById("email_input").value = ""; // Limpa o campo
-    } catch (erro) {
-        console.error(erro);
-        alert("Ocorreu um erro ao registar o e-mail.");
-    }
-}
+            // Substitua pelo seu Token real do dispositivo TagoIO
+            const tokenTago = "COLOQUE_O_SEU_TOKEN_AQUI";
+
+            const dados = {
+                variable: "email_assinante",
+                value: email
+            };
+
+            try {
+                await fetch('https://api.tago.io/data', {
+                    method: 'POST',
+                    headers: {
+                        'Device-Token': tokenTago,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dados)
+                });
+
+                alert("Sucesso! O seu e-mail foi registado para receber os alertas ambientais.");
+                document.getElementById("email_input").value = ""; // Limpa o campo
+            } catch (erro) {
+                console.error(erro);
+                alert("Ocorreu um erro ao registar o e-mail.");
+            }
+        }
     </script>
 
     <!-- Toast Notification Container -->
