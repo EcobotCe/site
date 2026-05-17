@@ -22,8 +22,16 @@ let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '')
   .filter(e => e);
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: { 
+    user: process.env.EMAIL_USER, 
+    pass: process.env.EMAIL_PASS 
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
 });
 
 // Busca emails de quem se cadastrou no site via TagoIO
