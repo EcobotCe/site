@@ -50,10 +50,15 @@ app.use(express.urlencoded({ extended: true }));
 
 // Criar "transportador" - é como um carteiro que entrega seus emails
 const transporter = nodemailer.createTransport({
-  service: 'gmail',                    // Usar serviço Gmail
+  host: 'smtp.gmail.com',              // Força o servidor correto
+  port: 465,                           // Força a porta segura (SSL)
+  secure: true,                        // Garante a criptografia
   auth: {
     user: process.env.EMAIL_USER,      // Seu email (do arquivo .env)
     pass: process.env.EMAIL_PASS       // Sua senha de app (do arquivo .env)
+  },
+  tls: {
+    rejectUnauthorized: false          // Evita bloqueios de certificado na nuvem
   },
   pool: true,                          // Usar conexão reutilizável
   maxConnections: 1,                   // Máximo 1 conexão simultânea
@@ -63,7 +68,7 @@ const transporter = nodemailer.createTransport({
 });
 
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  console.warn('⚠️ EMAIL_USER ou EMAIL_PASS não estão configurados. o envio de emails pode falhar.');
+  console.warn('⚠️ EMAIL_USER ou EMAIL_PASS não estão configurados. O envio de emails pode falhar.');
 }
 
 transporter.verify((error, success) => {
