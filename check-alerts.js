@@ -23,8 +23,9 @@ let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '')
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  port: 587,                 // Mudámos da 465 para a 587
+  secure: false,             // Na porta 587 tem de ser false
+  requireTLS: true,          // Força a segurança (O Gmail exige isto)
   auth: { 
     user: process.env.EMAIL_USER, 
     pass: process.env.EMAIL_PASS 
