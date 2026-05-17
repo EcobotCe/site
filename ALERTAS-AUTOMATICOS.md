@@ -1,37 +1,16 @@
-# 🚨 Alertas Automáticos - Ecobot
+# ================================================
+# 🔧 CONFIGURAÇÃO DO SERVIDOR ECOBOT
+# ================================================
 
-## O que faz?
+# Porta onde o servidor vai rodar
+PORT=3001
 
-- ✅ Verifica suas bases Tago.io **a cada 5 minutos**
-- ✅ Detecta condições críticas automaticamente
-- ✅ Envia emails quando há alerta
-- ✅ **Funciona 24/7 no GitHub (grátis!)**
+# ================================================
+# 📧 CREDENCIAIS GMAIL (OBRIGATÓRIO)
+# ================================================
 
-## Limiares de Alerta
+# Seu email do Gmail
+EMAIL_USER=pjt.ecobot@gmail.com
 
-| Sensor | Crítico | Aviso |
-|--------|---------|-------|
-| 🌡️ Temperatura | > 35°C | > 30°C |
-| 💧 Umidade | < 30% | < 40% |
-| 💨 CO₂ | > 10 ppm | > 5 ppm |
-| 🔥 Queimada | Temp ≥ 32°C + Umi ≤ 40% | - |
-
-## Como testar?
-
-1. **GitHub → Actions**
-2. **"🚨 Verificar Alertas Automáticos"**
-3. **"Run workflow"**
-4. Aguarde 30 segundos
-
-Você receberá um email!
-
-## Como alterar limiares?
-
-Edite `scripts/check-alerts.js`:
-
-```javascript
-const LIMIARES = {
-  temp_critica: 35,      // Mude aqui
-  umi_critica: 30,       // Mude aqui
-  co2_critica: 10,       // Mude aqui
-};
+# Sua senha de app (NÃO é a senha normal do Gmail!)
+EMAIL_PASS=cssf hrdb xbld russ
