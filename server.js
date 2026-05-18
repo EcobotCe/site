@@ -8,6 +8,8 @@ const nodemailer = require('nodemailer');     // Enviar emails
 const cors = require('cors');                 // Permitir requisições de outros sites
 const dotenv = require('dotenv');             // Ler arquivo .env
 const axios = require('axios');               // Fazer requisições HTTP
+const fs = require('fs');                     // Sistema de arquivos
+const path = require('path');                 // Caminho de arquivos
 
 // Carregar variáveis do arquivo .env
 dotenv.config();
@@ -15,6 +17,43 @@ dotenv.config();
 // Criar aplicação Express
 const app = express();
 const PORT = process.env.PORT || 3001;        // Porta padrão 3001
+
+// ================================================
+// 📊 LOGGING MELHORADO
+// ================================================
+
+const logDir = path.join(__dirname, 'logs');
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
+}
+
+const logFile = path.join(logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
+
+function writeLog(level, message) {
+  const timestamp = new Date().toISOString();
+  const logMessage = `[${timestamp}] [${level}] ${message}\n`;
+  fs.appendFileSync(logFile, logMessage);
+}
+
+// Override console para logs
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+console.log = (...args) => {
+  originalLog(...args);
+  writeLog('INFO', args.join(' '));
+};
+
+console.error = (...args) => {
+  originalError(...args);
+  writeLog('ERROR', args.join(' '));
+};
+
+console.warn = (...args) => {
+  originalWarn(...args);
+  writeLog('WARN', args.join(' '));
+};
 
 // ================================================
 // 🔒 CONFIGURAÇÃO CORS (Controle de Origem)
@@ -431,6 +470,110 @@ app.get('/api/test-tago', async (req, res) => {
 });
 
 // ================================================
+// � ROTA 4: OBTER STATUS E CONFIGURAÇÃO
+// ================================================
+
+app.get('/api/status', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    email: {
+      configured: !!process.env.EMAIL_USER,
+      user: process.env.EMAIL_USER ? process.env.EMAIL_USER.split('@')[0] + '@***' : 'N/A'
+    },
+    tago: {
+      token1: process.env.TAGO_TOKEN_1 ? '✅ Configurado' : '❌ Não configurado',
+      token2: process.env.TAGO_TOKEN_2 ? '✅ Configurado' : '❌ Não configurado'
+    }
+  });
+});
+
+// ================================================
+// 📝 ROTA 5: RETORNAR LOGS RECENTES
+// ================================================
+
+app.get('/api/logs', (req, res) => {
+  try {
+    const lines = req.query.lines ? parseInt(req.query.lines) : 50;
+    
+    if (!fs.existsSync(logFile)) {
+      return res.status(200).json({ logs: [], message: 'Nenhum log encontrado' });
+    }
+
+    const content = fs.readFileSync(logFile, 'utf-8');
+    const logLines = content.split('\n').filter(l => l.trim());
+    const recentLogs = logLines.slice(-lines);
+
+    res.status(200).json({
+      total: logLines.length,
+      showing: recentLogs.length,
+      logs: recentLogs
+    });
+  } catch (erro) {
+    res.status(500).json({ erro: erro.message });
+  }
+});
+
+// ================================================
+// 📧 ROTA 6: TESTE DE EMAIL SIMPLES
+// ================================================
+
+app.get('/api/test-email', async (req, res) => {
+  try {
+    const testEmail = req.query.to || 'test@example.com';
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: testEmail,
+      subject: '🧪 Teste Ecobot - Verificação de Email',
+      html: `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+            .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+            .header { color: #14b8a6; border-bottom: 2px solid #14b8a6; padding-bottom: 15px; }
+            .success { color: #28a745; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>✅ Teste de Email Ecobot</h1>
+            </div>
+            <p>Se você está vendo este email, significa que o sistema de notificações está funcionando corretamente!</p>
+            <p class="success">Status: Conectado e operacional ✓</p>
+            <p style="font-size: 12px; color: #666; margin-top: 30px;">
+              Enviado em: ${new Date().toLocaleString('pt-BR')}<br>
+              Projeto Ecobot v1.0
+            </p>
+          </div>
+        </body>
+        </html>
+      `
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    res.status(200).json({
+      sucesso: true,
+      message: 'Email de teste enviado com sucesso',
+      messageId: info.messageId
+    });
+
+  } catch (erro) {
+    res.status(500).json({
+      sucesso: false,
+      erro: erro.message
+    });
+  }
+});
+
+// ================================================
 // 🚀 INICIAR SERVIDOR
 // ================================================
 
@@ -438,9 +581,13 @@ app.listen(PORT, () => {
   console.log(`\n✅ Servidor Ecobot rodando em http://localhost:${PORT}`);
   console.log(`📧 Email configurado: ${process.env.EMAIL_USER}`);
   console.log(`\n🔗 Rotas disponíveis:`);
-  console.log(`   POST /api/send-alert - Enviar alerta por email`);
-  console.log(`   GET  /api/test-tago  - Testar conexão TagO`);
-  console.log(`   GET  /api/health     - Verificar saúde do servidor\n`);
+  console.log(`   POST /api/send-alert  - Enviar alerta por email`);
+  console.log(`   GET  /api/health      - Verificar saúde do servidor`);
+  console.log(`   GET  /api/status      - Status e configuração`);
+  console.log(`   GET  /api/logs        - Logs recentes`);
+  console.log(`   GET  /api/test-email  - Teste rápido de email`);
+  console.log(`   GET  /api/test-tago   - Testar conexão TagoIO\n`);
+  writeLog('INFO', `Servidor iniciado na porta ${PORT}`);
 });
 
 // ================================================
