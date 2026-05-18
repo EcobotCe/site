@@ -67,8 +67,8 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false          // Evita bloqueios de certificado na nuvem
   },
-  connectionTimeout: 10000,            // Timeout de conexão: 10s
-  socketTimeout: 10000,                // Timeout de socket: 10s
+  connectionTimeout: 15000,            // Timeout de conexão: 15s (Railway é mais lento)
+  socketTimeout: 20000,                // Timeout de socket: 20s
   pool: true,
   maxConnections: 2,
   maxMessages: 10,
@@ -81,31 +81,31 @@ console.log('\n🔧 CONFIGURAÇÃO DE EMAIL:');
 console.log('   EMAIL_USER:', process.env.EMAIL_USER ? '✅ ' + process.env.EMAIL_USER : '❌ NÃO CONFIGURADO');
 console.log('   EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Configurado (***' + process.env.EMAIL_PASS.slice(-4) + ')' : '❌ NÃO CONFIGURADO');
 
-// Verificar conexão com Gmail (com timeout melhorado)
+// Verificar conexão com Gmail (com timeout melhorado para Railway)
 const verifyEmailWithTimeout = () => {
   const timeoutPromise = new Promise((resolve) => {
     setTimeout(() => {
-      console.warn('\n⏱️  TIMEOUT: Verificação de email demorou mais de 15 segundos');
+      console.warn('\n⏱️  TIMEOUT: Verificação de email demorou mais de 20 segundos');
       console.warn('   ⚠️  Em Railway/servidor remoto, isso é NORMAL!');
-      console.warn('   ✅ O sistema continuará funcionando mesmo com timeout.\n');
+      console.warn('   ✅ O sistema continuará funcionando mesmo com timeout.');
+      console.warn('   💡 Emails serão enviados normalmente quando solicitados.\n');
       resolve('timeout');
-    }, 15000);
+    }, 20000);  // 20 segundos (aumentado de 15)
   });
 
   const verifyPromise = new Promise((resolve) => {
     transporter.verify((error, success) => {
       if (error) {
-        console.error('\n❌ ERRO NA CONEXÃO COM EMAIL:');
-        console.error('   Tipo:', error.code || 'Desconhecido');
-        console.error('   Mensagem:', error.message);
+        console.error('\n⚠️  AVISO: Verificação inicial de email falhou');
+        console.error('   Erro:', error.message.split('\n')[0]);
         if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
-          console.error('   Status: CONNECTION TIMEOUT');
+          console.error('   Motivo: CONNECTION TIMEOUT (Railway é mais lento)');
         }
-        console.error('\n📌 POSSÍVEIS SOLUÇÕES:');
-        console.error('   1. EMAIL_USER: Verifique se é um email Gmail válido');
-        console.error('   2. EMAIL_PASS: Use SENHA DE APP (não a senha da conta)');
-        console.error('   3. Gere em: https://myaccount.google.com/apppasswords');
-        console.error('   4. Em Railway: Erro de conexão é esperado, verifique Logs\n');
+        if (error.message.includes('Invalid login') || error.message.includes('incorrect')) {
+          console.error('   Motivo: EMAIL_PASS pode estar incorreto');
+          console.error('   ⚠️  Gere novo em: https://myaccount.google.com/apppasswords');
+        }
+        console.error('   Status: Sistema continuará tentando enviar emails.\n');
         resolve('error');
       } else {
         console.log('\n✅ EMAIL CONECTADO COM SUCESSO!');
@@ -118,8 +118,10 @@ const verifyEmailWithTimeout = () => {
   return Promise.race([verifyPromise, timeoutPromise]);
 };
 
-// Executar verificação de email ao iniciar
-verifyEmailWithTimeout();
+// Executar verificação de email ao iniciar (assincronamente - não bloqueia)
+verifyEmailWithTimeout().catch(err => {
+  console.warn('⚠️  Erro na verificação assíncrona:', err.message);
+});
 
 // ================================================
 // 📝 ROTA 1: ENVIAR ALERTA POR EMAIL
@@ -308,30 +310,73 @@ app.post('/api/send-alert', async (req, res) => {
 
     // 📤 ENVIAR EMAIL
     console.log('📬 Enviando email para Nodemailer...');
-    const info = await transporter.sendMail(mailOptions);
+    let info;
+    let tentativas = 0;
+    let sucesso = false;
+    let ultimoErro = null;
 
-    console.log('✅ EMAIL ENVIADO COM SUCESSO!');
-    console.log('   Message ID:', info.messageId);
-    console.log('   Resposta do servidor:', info.response);
+    // Retry logic: tentar 3 vezes com backoff exponencial
+    while (tentativas < 3 && !sucesso) {
+      tentativas++;
+      try {
+        console.log(`   Tentativa ${tentativas}/3...`);
+        info = await transporter.sendMail(mailOptions);
+        sucesso = true;
+        console.log('✅ EMAIL ENVIADO COM SUCESSO!');
+        console.log('   Message ID:', info.messageId);
+        console.log('   Resposta do servidor:', info.response);
+      } catch (err) {
+        ultimoErro = err;
+        console.warn(`   ⚠️ Tentativa ${tentativas} falhou: ${err.message}`);
+        if (tentativas < 3) {
+          const delay = Math.pow(2, tentativas) * 1000; // 2s, 4s
+          console.log(`   ⏳ Aguardando ${delay}ms antes de retenta...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    if (!sucesso) {
+      throw ultimoErro;
+    }
 
     // ✅ Responder ao frontend que funcionou
     res.status(200).json({ 
       sucesso: true, 
       mensagem: 'Email enviado com sucesso!',
-      messageId: info.messageId
+      messageId: info.messageId,
+      tentativas: tentativas
     });
 
   } catch (erro) {
     console.error('\n❌ ERRO AO ENVIAR EMAIL:');
-    console.error('   Código de erro:', erro.code);
-    console.error('   Mensagem:', erro.message);
-    console.error('   Stack completo:', erro.stack);
+    console.error('   Código de erro:', erro.code || 'Desconhecido');
+    console.error('   Mensagem:', erro.message.split('\n')[0]);
+    
+    let dica = 'Erro desconhecido. Verifique logs.';
+    
+    // Mensagens de erro específicas
+    if (erro.message.includes('timeout') || erro.message.includes('ETIMEDOUT')) {
+      dica = '⏱️ TIMEOUT: Gmail demorou para responder. Tente novamente.';
+      console.error('   Motivo: Connection timeout (Railway é mais lento)');
+    } else if (erro.message.includes('Invalid login') || erro.message.includes('incorrect')) {
+      dica = '🔑 EMAIL_PASS incorreto! Gere novo em: myaccount.google.com/apppasswords';
+      console.error('   Motivo: Credenciais Gmail inválidas');
+    } else if (erro.message.includes('ECONNREFUSED')) {
+      dica = '🌐 Sem conexão com Gmail. Verifique internet.';
+      console.error('   Motivo: Conexão recusada (sem internet ou bloqueio de firewall)');
+    } else if (erro.code === 'ENOTFOUND') {
+      dica = '🌐 Não conseguiu resolver smtp.gmail.com. Verifique DNS.';
+      console.error('   Motivo: Resolução de domínio falhou');
+    }
+    
+    console.error('   Dica:', dica + '\n');
     
     // ❌ Responder ao frontend que deu erro
     res.status(500).json({ 
       sucesso: false, 
       erro: erro.message,
-      dica: 'Verifique EMAIL_USER, EMAIL_PASS e configurações de segurança do Gmail'
+      dica: dica
     });
   }
 });
