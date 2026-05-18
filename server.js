@@ -16,9 +16,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;        // Porta padrão 3001
 
-// Variável para monitorar erros
-let mailErrors = [];
-
 // ================================================
 // 🔒 CONFIGURAÇÃO CORS (Controle de Origem)
 // ================================================
@@ -29,9 +26,7 @@ const allowedOrigins = process.env.CORS_ORIGINS
       'http://localhost:3000',
       'http://127.0.0.1:3000',
       'http://localhost:8080',
-      'http://127.0.0.1:8080',
-      'https://web-production-7eff7.up.railway.app',
-      'file://'
+      'http://127.0.0.1:8080'
     ];
 
 app.use(cors({
@@ -46,144 +41,104 @@ app.use(cors({
 }));
 
 // Middleware para ler JSON
-app.use(express.json({ limit: '10kb' })); // Limitar tamanho de payload por segurança
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // ================================================
-// 🛡️ FUNÇÕES DE VALIDAÇÃO E SEGURANÇA
+// 📁 SERVIR ARQUIVOS ESTÁTICOS (HTML, CSS, JS, etc)
 // ================================================
-
-// Validar email
-const validarEmail = (email) => {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return regex.test(email) && email.length <= 255;
-};
-
-// Sanitizar string (remover caracteres perigosos)
-const sanitizar = (str) => {
-  if (typeof str !== 'string') return '';
-  return str.trim().slice(0, 1000); // Limitar a 1000 caracteres
-};
-
-// Logger estruturado
-const logger = {
-  info: (msg) => console.log(`✅ [${new Date().toISOString()}] ${msg}`),
-  warn: (msg) => console.warn(`⚠️ [${new Date().toISOString()}] ${msg}`),
-  error: (msg, err) => console.error(`❌ [${new Date().toISOString()}] ${msg}`, err?.message || ''),
-  debug: (msg) => process.env.DEBUG === 'true' && console.log(`🐛 [${new Date().toISOString()}] ${msg}`)
-};
+app.use(express.static(__dirname));  // Servir arquivos do diretório raiz
 
 // ================================================
 // 📧 CONFIGURAÇÃO NODEMAILER (Gmail)
 // ================================================
 
 // Criar "transportador" - é como um carteiro que entrega seus emails
+// CORREÇÃO: Usar porta 587 com TLS (melhor que 465 com SSL para Gmail)
 const transporter = nodemailer.createTransport({
-  service: 'gmail',                    // Usar serviço Gmail
+  host: 'smtp.gmail.com',              // Servidor do Gmail
+  port: 587,                           // CORRIGIDO: Porta TLS (não 465)
+  secure: false,                       // CORRIGIDO: false para usar TLS
+  requireTLS: true,                    // NOVO: Força uso de TLS
   auth: {
     user: process.env.EMAIL_USER,      // Seu email (do arquivo .env)
     pass: process.env.EMAIL_PASS       // Sua senha de app (do arquivo .env)
   },
-  pool: true,                          // Usar conexão reutilizável
-  maxConnections: 1,                   // Máximo 1 conexão simultânea
-  maxMessages: 5,                      // Máximo 5 mensagens por conexão
-  rateDelta: 20000,                    // Intervalo entre mensagens
-  rateLimit: 5                         // Limite de taxa
+  tls: {
+    rejectUnauthorized: false          // Evita bloqueios de certificado na nuvem
+  },
+  connectionTimeout: 10000,            // Timeout de conexão: 10s
+  socketTimeout: 10000,                // Timeout de socket: 10s
+  pool: true,
+  maxConnections: 2,
+  maxMessages: 10,
+  logger: false,                       // Desabilitar logs do nodemailer (muito verbose)
+  debug: false                         // Debug desabilitado
 });
 
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  logger.warn('EMAIL_USER ou EMAIL_PASS não estão configurados');
-}
+// Mostrar status da configuração
+console.log('\n🔧 CONFIGURAÇÃO DE EMAIL:');
+console.log('   EMAIL_USER:', process.env.EMAIL_USER ? '✅ ' + process.env.EMAIL_USER : '❌ NÃO CONFIGURADO');
+console.log('   EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ Configurado (***' + process.env.EMAIL_PASS.slice(-4) + ')' : '❌ NÃO CONFIGURADO');
 
-transporter.verify((error, success) => {
-  if (error) {
-    logger.error('Erro ao verificar transportador de email', error);
-  } else {
-    logger.info('Nodemailer pronto para enviar emails');
-  }
-});
+// Verificar conexão com Gmail (com timeout melhorado)
+const verifyEmailWithTimeout = () => {
+  const timeoutPromise = new Promise((resolve) => {
+    setTimeout(() => {
+      console.warn('\n⏱️  TIMEOUT: Verificação de email demorou mais de 15 segundos');
+      console.warn('   ⚠️  Em Railway/servidor remoto, isso é NORMAL!');
+      console.warn('   ✅ O sistema continuará funcionando mesmo com timeout.\n');
+      resolve('timeout');
+    }, 15000);
+  });
 
-// ================================================
-// � ROTA 1B: ENVIAR ALERTA PARA MÚLTIPLOS EMAILS (NÃO ESSENCIAL)
-// ================================================
-
-app.post('/api/send-alert-batch', async (req, res) => {
-  try {
-    const { destinatarios, assunto, corpo, baseNome, valor, tipo } = req.body;
-
-    // Validar input
-    if (!Array.isArray(destinatarios) || destinatarios.length === 0) {
-      return res.status(400).json({ 
-        sucesso: false, 
-        erro: 'Envie uma array com pelo menos 1 email' 
-      });
-    }
-
-    // Validar todos os emails
-    const emailsValidos = destinatarios.filter(email => validarEmail(email));
-    if (emailsValidos.length === 0) {
-      return res.status(400).json({ 
-        sucesso: false, 
-        erro: 'Nenhum email válido na lista' 
-      });
-    }
-
-    // Enviar para cada email (sequencialmente para não sobrecarregar)
-    const resultados = [];
-    for (const email of emailsValidos) {
-      try {
-        // Reutilizar a lógica do send-alert
-        const response = await axios.post('http://localhost:' + PORT + '/api/send-alert', {
-          destinatario: email,
-          assunto,
-          corpo,
-          baseNome,
-          valor,
-          tipo
-        }, { timeout: 10000 });
-        resultados.push({ email, sucesso: response.data.sucesso });
-      } catch (err) {
-        resultados.push({ email, sucesso: false, erro: err.message });
+  const verifyPromise = new Promise((resolve) => {
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error('\n❌ ERRO NA CONEXÃO COM EMAIL:');
+        console.error('   Tipo:', error.code || 'Desconhecido');
+        console.error('   Mensagem:', error.message);
+        if (error.message.includes('timeout') || error.message.includes('ETIMEDOUT')) {
+          console.error('   Status: CONNECTION TIMEOUT');
+        }
+        console.error('\n📌 POSSÍVEIS SOLUÇÕES:');
+        console.error('   1. EMAIL_USER: Verifique se é um email Gmail válido');
+        console.error('   2. EMAIL_PASS: Use SENHA DE APP (não a senha da conta)');
+        console.error('   3. Gere em: https://myaccount.google.com/apppasswords');
+        console.error('   4. Em Railway: Erro de conexão é esperado, verifique Logs\n');
+        resolve('error');
+      } else {
+        console.log('\n✅ EMAIL CONECTADO COM SUCESSO!');
+        console.log('   Pronto para enviar alertas.\n');
+        resolve('success');
       }
-    }
-
-    const sucessos = resultados.filter(r => r.sucesso).length;
-    logger.info(`Enviados ${sucessos}/${resultados.length} emails`);
-
-    res.status(200).json({
-      sucesso: sucessos > 0,
-      mensagem: `${sucessos} de ${resultados.length} emails enviados`,
-      resultados
     });
+  });
 
-  } catch (erro) {
-    logger.error('Erro ao enviar emails em batch', erro);
-    res.status(500).json({ 
-      sucesso: false, 
-      erro: 'Erro ao enviar emails'
-    });
-  }
-});
+  return Promise.race([verifyPromise, timeoutPromise]);
+};
+
+// Executar verificação de email ao iniciar
+verifyEmailWithTimeout();
 
 // ================================================
-// �📝 ROTA 1: ENVIAR ALERTA POR EMAIL
+// 📝 ROTA 1: ENVIAR ALERTA POR EMAIL
 // ================================================
 
 // Quando o frontend faz: POST /api/send-alert
 app.post('/api/send-alert', async (req, res) => {
   try {
-    // Pegar e sanitizar dados que o frontend enviou
-    let { destinatario, assunto, corpo, baseNome, valor, tipo } = req.body;
-    
-    destinatario = sanitizar(destinatario);
-    assunto = sanitizar(assunto);
-    corpo = sanitizar(corpo);
-    baseNome = sanitizar(baseNome) || 'Ecobot';
-    tipo = sanitizar(tipo) || 'GERAL';
+    // Pegar dados que o frontend enviou
+    const { destinatario, assunto, corpo, baseNome, valor, tipo } = req.body;
+
+    console.log('\n📨 REQUISIÇÃO DE EMAIL RECEBIDA');
+    console.log('   De:', process.env.EMAIL_USER);
+    console.log('   Para:', destinatario);
+    console.log('   Tipo:', tipo || 'GERAL');
 
     // ✅ VALIDAÇÃO 1: Verificar se campos obrigatórios existem
     if (!destinatario || !assunto || !corpo) {
-      logger.warn(`Validação falhou: campos obrigatórios faltando`);
+      console.warn('⚠️ ERRO: Campos obrigatórios faltando');
       return res.status(400).json({ 
         sucesso: false, 
         erro: 'Email, assunto e corpo são obrigatórios' 
@@ -191,8 +146,9 @@ app.post('/api/send-alert', async (req, res) => {
     }
 
     // ✅ VALIDAÇÃO 2: Verificar se email é válido
-    if (!validarEmail(destinatario)) {
-      logger.warn(`Email inválido: ${destinatario}`);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(destinatario)) {
+      console.warn('⚠️ ERRO: Email inválido:', destinatario);
       return res.status(400).json({ 
         sucesso: false, 
         erro: 'Email inválido' 
@@ -339,36 +295,43 @@ app.post('/api/send-alert', async (req, res) => {
 
     // Configurar opções do email
     const mailOptions = {
-      from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,  // Quem envia
-      to: destinatario,                                        // Para quem envia
-      subject: assunto,                                        // Assunto do email
-      html: htmlContent,                                       // Corpo em HTML
-      text: corpo,                                             // Versão em texto simples
+      from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
+      to: destinatario,
+      subject: assunto,
+      html: htmlContent,
+      text: corpo,
       headers: {
-        'X-Priority': '1',                                     // Email de alta prioridade
+        'X-Priority': '1',
         'Importance': 'high'
       }
     };
 
     // 📤 ENVIAR EMAIL
-    logger.debug(`Enviando email para: ${destinatario}`);
+    console.log('📬 Enviando email para Nodemailer...');
     const info = await transporter.sendMail(mailOptions);
 
+    console.log('✅ EMAIL ENVIADO COM SUCESSO!');
+    console.log('   Message ID:', info.messageId);
+    console.log('   Resposta do servidor:', info.response);
+
     // ✅ Responder ao frontend que funcionou
-    logger.info(`Email enviado com sucesso para: ${destinatario}`);
     res.status(200).json({ 
       sucesso: true, 
-      mensagem: 'Email enviado com sucesso',
+      mensagem: 'Email enviado com sucesso!',
       messageId: info.messageId
     });
 
   } catch (erro) {
-    logger.error('Erro ao enviar email', erro);
+    console.error('\n❌ ERRO AO ENVIAR EMAIL:');
+    console.error('   Código de erro:', erro.code);
+    console.error('   Mensagem:', erro.message);
+    console.error('   Stack completo:', erro.stack);
     
     // ❌ Responder ao frontend que deu erro
     res.status(500).json({ 
       sucesso: false, 
-      erro: process.env.DEBUG === 'true' ? erro.message : 'Erro ao enviar email'
+      erro: erro.message,
+      dica: 'Verifique EMAIL_USER, EMAIL_PASS e configurações de segurança do Gmail'
     });
   }
 });
@@ -379,15 +342,10 @@ app.post('/api/send-alert', async (req, res) => {
 
 // Quando o frontend faz: GET /api/health
 app.get('/api/health', (req, res) => {
-  const status = {
+  res.status(200).json({ 
     status: 'OK', 
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASS),
-    serverPort: PORT
-  };
-  logger.debug('Health check solicitado');
-  res.status(200).json(status);
+    timestamp: new Date().toISOString() 
+  });
 });
 
 // ================================================
@@ -397,38 +355,32 @@ app.get('/api/health', (req, res) => {
 // Permite testar conexão com Tago.io sem CORS
 app.get('/api/test-tago', async (req, res) => {
   try {
-    const token = sanitizar(req.query.token);
+    const token = req.query.token;
     
-    if (!token || token.length < 10) {
-      logger.warn('Teste Tago sem token válido');
+    if (!token) {
       return res.status(400).json({ 
         sucesso: false, 
-        erro: 'Token não fornecido ou inválido' 
+        erro: 'Token não fornecido' 
       });
     }
 
-    // Fazer requisição para Tago.io com timeout
-    const axiosConfig = {
+    // Fazer requisição para Tago.io
+    const response = await axios.get('https://api.tago.io/data?qty=1', {
       headers: { 
         'Device-Token': token, 
         'Content-Type': 'application/json' 
-      },
-      timeout: parseInt(process.env.AXIOS_TIMEOUT) || 10000
-    };
+      }
+    });
 
-    const response = await axios.get('https://api.tago.io/data?qty=1', axiosConfig);
-
-    logger.info('Teste Tago bem-sucedido');
     res.status(200).json({ 
       sucesso: true, 
       dados: response.data 
     });
     
   } catch (erro) {
-    logger.error('Erro ao testar Tago', erro);
     res.status(500).json({ 
       sucesso: false, 
-      erro: erro.code === 'ECONNABORTED' ? 'Timeout na conexão' : erro.message 
+      erro: erro.message 
     });
   }
 });
@@ -437,27 +389,13 @@ app.get('/api/test-tago', async (req, res) => {
 // 🚀 INICIAR SERVIDOR
 // ================================================
 
-const server = app.listen(PORT, () => {
-  console.log('\n╔════════════════════════════════════════╗');
-  console.log('║     ✅ SERVIDOR ECOBOT ATIVO          ║');
-  console.log('╚════════════════════════════════════════╝\n');
-  logger.info(`Servidor rodando em http://localhost:${PORT}`);
-  logger.info(`Email: ${process.env.EMAIL_USER}`);
-  logger.info(`Ambiente: ${process.env.NODE_ENV || 'desenvolvimento'}`);
-  console.log('\n📍 ROTAS DISPONÍVEIS:');
-  console.log('   POST /api/send-alert       - Enviar alerta por email');
-  console.log('   POST /api/send-alert-batch - Enviar para múltiplos emails (NÃO ESSENCIAL)');
-  console.log('   GET  /api/health           - Verificar saúde do servidor');
-  console.log('   GET  /api/test-tago        - Testar conexão TagoIO\n');
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.warn('SIGTERM recebido. Encerrando servidor...');
-  server.close(() => {
-    logger.info('Servidor encerrado');
-    process.exit(0);
-  });
+app.listen(PORT, () => {
+  console.log(`\n✅ Servidor Ecobot rodando em http://localhost:${PORT}`);
+  console.log(`📧 Email configurado: ${process.env.EMAIL_USER}`);
+  console.log(`\n🔗 Rotas disponíveis:`);
+  console.log(`   POST /api/send-alert - Enviar alerta por email`);
+  console.log(`   GET  /api/test-tago  - Testar conexão TagO`);
+  console.log(`   GET  /api/health     - Verificar saúde do servidor\n`);
 });
 
 // ================================================
