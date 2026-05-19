@@ -1,191 +1,109 @@
-const nodemailer = require('nodemailer');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 require('dotenv').config();
+const axios = require('axios');
+const nodemailer = require('nodemailer');
+const { Pool } = require('pg');
 
-const LIMIARES = {
-  temp_critica: 35, temp_aviso: 30,
-  umi_critica: 30,  umi_aviso: 40,
-  co2_critica: 10,  co2_aviso: 5,
-};
+// Configuração do Banco de Dados
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
-const BASES = [
-  { id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 },
-  { id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 }
-];
-
-const alertsLogFile = path.join(__dirname, 'alerts-log.json');
-let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '').split(',').map(e => e.trim()).filter(e => e);
-
+// Configuração do Nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
 });
 
-// Função para registrar logs de alerta
-function registrarAlerta(baseNome, nivel, mensagens) {
-  let logs = [];
-  if (fs.existsSync(alertsLogFile)) {
-    const data = fs.readFileSync(alertsLogFile, 'utf8');
-    if (data) {
-      try {
-        logs = JSON.parse(data);
-      } catch (e) {
-        console.error('Erro ao parsear alerts-log.json', e);
-      }
-    }
-  }
+// Bases para monitorar
+const BASES = [
+    { id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 },
+    { id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 }
+];
 
-  const novoLog = {
-    timestamp: new Date().toISOString(),
-    base: baseNome,
-    nivel: nivel,
-    mensagens: mensagens
-  };
-
-  logs.unshift(novoLog);
-  if (logs.length > 100) logs.pop();
-
-  fs.writeFileSync(alertsLogFile, JSON.stringify(logs, null, 2));
-  console.log(`   💾 Log de alerta [${nivel}] salvo para a base ${baseNome}.`);
-}
-
-async function buscarAssinantesDinamicos() {
-  try {
-    const res = await axios.get('https://api.tago.io/data?variable=email_assinante&qty=100', {
-      headers: { 'Device-Token': process.env.TAGO_TOKEN_1 },
-      timeout: 15000
-    });
-    return res.data.result.map(item => item.value);
-  } catch (e) {
-    if (e.code === 'ECONNABORTED') {
-      console.log("   ⚠️ Timeout ao buscar novos assinantes no TagoIO.");
-    } else {
-      console.log("   ⚠️ Não foi possível buscar novos assinantes no TagoIO.");
-    }
-    return [];
-  }
-}
-
-const createUnsubscribeFooter = (email) => {
-  const unsubscribeUrl = `/unsubscribe?email=${encodeURIComponent(email)}`;
-  return `<br><br><hr><p style="font-size:12px;color:#888;">Para não receber mais estes alertas, <a href="${unsubscribeUrl}">clique aqui para cancelar a inscrição</a>.</p>`;
+// Limites de alerta
+const LIMITES = {
+  temp: { min: 10, max: 35, critico: 40 },
+  umid: { min: 30, max: 70, critico_max: 85, critico_min: 20 },
+  co2: { max: 1000, critico: 1500 }
 };
 
-async function enviarEmail(baseNome, subject, body, emails) {
-  if (emails.length === 0) {
-    console.log(`   ❕ Nenhum e-mail de destino configurado. Poupando envio de "${subject}".`);
-    return;
-  }
-  
-  for (const email of emails) {
-      await transporter.sendMail({
-        from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: `${subject} - ${baseNome}`,
-        html: `<h2>${subject} na base ${baseNome}:</h2><ul>${body}</ul>${createUnsubscribeFooter(email)}`
-      });
-  }
-  console.log(`   📧 E-mails de "${subject}" enviados para ${emails.length} destinatários!`);
-}
-
-async function verificarBase(base) {
+const checkAlerts = async () => {
+  const client = await pool.connect();
   try {
-    console.log(`\n📍 Verificando: ${base.nome}...`);
+    console.log('Iniciando verificação de alertas...');
 
-    if (!base.token) {
-      console.warn(`   ⚠️ Token da base ${base.nome} não configurado. Ignorando.`);
-      return;
-    }
+    for (const base of BASES) {
+      if (!base.token) continue;
 
-    const response = await axios.get('https://api.tago.io/data?qty=20', {
-      headers: { 'Device-Token': base.token },
-      timeout: 15000
-    });
+      try {
+        const response = await axios.get('https://api.tago.io/data?qty=1', {
+          headers: { 'Device-Token': base.token },
+          timeout: 10000
+        });
 
-    const dados = Array.isArray(response.data?.result) ? response.data.result : [];
-    if (!dados.length) {
-      console.warn(`   ⚠️ Nenhum dado retornado para ${base.nome}. O dispositivo pode estar offline.`);
-      return;
-    }
+        const dados = Array.isArray(response.data?.result) ? response.data.result : [];
+        if (dados.length === 0) continue;
 
-    const getVal = (pref) => {
-      const item = dados.find(d => d.variable && d.variable.toLowerCase().includes(pref));
-      return item ? parseFloat(String(item.value).replace(',', '.')) : null;
-    };
+        const getVal = (pref) => {
+            const item = dados.find(d => d.variable && d.variable.toLowerCase().includes(pref));
+            return item ? parseFloat(String(item.value).replace(',', '.')) : null;
+        };
 
-    const t = getVal('temp');
-    const u = getVal('umid');
-    const c = getVal('co2') ?? getVal('gas');
-    console.log(`   Dados atuais -> Temp: ${t}°C, Umi: ${u}%, CO2: ${c}ppm`);
+        const temp = getVal('temp');
+        const umid = getVal('umid');
+        const co2 = getVal('co2') ?? getVal('gas');
 
-    let alertasCriticos = [];
-    let alertasAviso = [];
+        const alertasCriticos = [];
+        const alertasAviso = [];
 
-    if (t !== null) {
-      if (t > LIMIARES.temp_critica) {
-        alertasCriticos.push(`🔥 Temperatura Crítica: ${t}°C (Limite: ${LIMIARES.temp_critica}°C)`);
-      } else if (t > LIMIARES.temp_aviso) {
-        alertasAviso.push(`🌡️ Temperatura em Aviso: ${t}°C (Limite: ${LIMIARES.temp_aviso}°C)`);
+        // Lógica de verificação de limites
+        if (temp > LIMITES.temp.critico) alertasCriticos.push(`Temperatura CRÍTICA: ${temp}°C.`);
+        else if (temp > LIMITES.temp.max || temp < LIMITES.temp.min) alertasAviso.push(`Temperatura fora do ideal: ${temp}°C.`);
+
+        if (umid > LIMITES.umid.critico_max || umid < LIMITES.umid.critico_min) alertasCriticos.push(`Umidade CRÍTICA: ${umid}%.`);
+        else if (umid > LIMITES.umid.max || umid < LIMITES.umid.min) alertasAviso.push(`Umidade fora do ideal: ${umid}%.`);
+
+        if (co2 > LIMITES.co2.critico) alertasCriticos.push(`Nível de CO2 CRÍTICO: ${co2} ppm.`);
+        else if (co2 > LIMITES.co2.max) alertasAviso.push(`Nível de CO2 elevado: ${co2} ppm.`);
+
+        // Se houver alertas, processar e enviar e-mails
+        if (alertasCriticos.length > 0 || alertasAviso.length > 0) {
+          const { rows } = await client.query('SELECT email FROM subscribers');
+          const listaEmails = rows.map(r => r.email);
+
+          if (listaEmails.length > 0) {
+            const nivel = alertasCriticos.length > 0 ? 'critico' : 'aviso';
+            const subject = nivel === 'critico' ? `🚨 ALERTA CRÍTICO na base ${base.nome}` : `⚠️ Aviso de Condições na base ${base.nome}`;
+            const mensagens = [...alertasCriticos, ...alertasAviso];
+            const html = `<h2>${subject}</h2><ul>${mensagens.map(m => `<li>${m}</li>`).join('')}</ul><p>Estes dados requerem atenção.</p>`;
+            
+            // Salva o alerta no banco de dados
+            await client.query(
+              'INSERT INTO alerts(nivel, base, mensagens, timestamp) VALUES($1, $2, $3, NOW())',
+              [nivel, base.nome, mensagens]
+            );
+            console.log(`Alerta (${nivel}) salvo no banco de dados para a base ${base.nome}.`);
+
+            // Envia os e-mails
+            await transporter.sendMail({
+              from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
+              to: listaEmails.join(', '), // Envia para todos de uma vez
+              subject: subject,
+              html: html
+            });
+            console.log(`E-mails de alerta (${nivel}) enviados para ${listaEmails.length} inscritos.`);
+          }
+        }
+      } catch (err) {
+        console.error(`Erro ao processar a base ${base.nome}:`, err.message);
       }
     }
-
-    if (u !== null) {
-      if (u < LIMIARES.umi_critica) {
-        alertasCriticos.push(`🌵 Umidade Crítica: ${u}% (Limite: ${LIMIARES.umi_critica}%)`);
-      } else if (u < LIMIARES.umi_aviso) {
-        alertasAviso.push(`💧 Umidade em Aviso: ${u}% (Limite: ${LIMIARES.umi_aviso}%)`);
-      }
-    }
-
-    if (c !== null) {
-      if (c > LIMIARES.co2_critica) {
-        alertasCriticos.push(`💨 CO2 Crítico: ${c}ppm (Limite: ${LIMIARES.co2_critica}ppm)`);
-      } else if (c > LIMIARES.co2_aviso) {
-        alertasAviso.push(`💭 CO2 em Aviso: ${c}ppm (Limite: ${LIMIARES.co2_aviso}ppm)`);
-      }
-    }
-    
-    if (alertasCriticos.length > 0) {
-      const body = alertasCriticos.map(a => `<li>${a}</li>`).join('');
-      await enviarEmail(base.nome, '🚨 ALERTA AMBIENTAL CRÍTICO', body, EMAILS_DESTINO);
-      registrarAlerta(base.nome, 'critico', alertasCriticos);
-    } else if (alertasAviso.length > 0) {
-      const body = alertasAviso.map(a => `<li>${a}</li>`).join('');
-      await enviarEmail(base.nome, '⚠️ AVISO AMBIENTAL', body, EMAILS_DESTINO);
-      registrarAlerta(base.nome, 'aviso', alertasAviso);
-    } else {
-      console.log('   ✅ Condições normais. Nenhum alerta a ser enviado.');
-    }
-
-  } catch (erro) {
-    if (erro.code === 'ECONNABORTED') {
-      console.error(`   ❌ Timeout de 15s excedido para a base ${base.nome}.`);
-    } else {
-      console.error(`   ❌ Erro ao verificar a base ${base.nome}:`, erro.message);
-    }
+  } catch (err) {
+    console.error('Erro fatal na execução de checkAlerts:', err);
+  } finally {
+    await client.release();
   }
-}
+};
 
-async function iniciar() {
-  console.log('🚀 Iniciando Ecobot Check...');
-  
-  const extras = await buscarAssinantesDinamicos();
-  if (extras.length > 0) {
-      EMAILS_DESTINO = [...new Set([...EMAILS_DESTINO, ...extras])];
-  }
-  
-  if(EMAILS_DESTINO.length > 0) {
-    console.log(`   💌 Lista de e-mails para alerta: ${EMAILS_DESTINO.join(', ')}`);
-  } else {
-    console.log('   ❕ Nenhum e-mail de destino para os alertas.');
-  }
-
-  for (const base of BASES) {
-    await verificarBase(base);
-  }
-  console.log('\n✅ Verificação finalizada.');
-}
-
-iniciar();
+checkAlerts().finally(() => pool.end());

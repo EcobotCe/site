@@ -1,17 +1,21 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
 const cron = require('node-cron');
 const { exec } = require('child_process');
 const nodemailer = require('nodemailer');
-const axios = require('axios'); // Adicionado para a API
+const axios = require('axios');
+const { Pool } = require('pg');
 
 const app = express();
 const port = process.env.PORT || 3001;
-const emailsFile = path.join(__dirname, 'emails.json');
-const alertsLogFile = path.join(__dirname, 'alerts-log.json'); // Caminho para o log
+
+// Configuração do Pool de Conexões com o Banco de Dados
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -26,67 +30,83 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// --- Endpoint de Inscrição (Refatorado para DB) ---
 app.post('/subscribe', async (req, res) => {
   const { email } = req.body;
   if (!email) { return res.status(400).send('O e-mail é obrigatório.'); }
+  
   try {
-    let emails = [];
-    if (fs.existsSync(emailsFile)) {
-      const data = fs.readFileSync(emailsFile, 'utf8');
-      if (data) { emails = JSON.parse(data); }
+    const client = await pool.connect();
+    try {
+      // Verifica se o e-mail já existe
+      const existing = await client.query('SELECT * FROM subscribers WHERE email = $1', [email]);
+      if (existing.rows.length > 0) {
+        return res.status(409).send('Este e-mail já está inscrito.');
+      }
+      
+      // Insere o novo e-mail
+      await client.query('INSERT INTO subscribers(email) VALUES($1)', [email]);
+      
+      // Envia e-mail de boas-vindas
+      await transporter.sendMail({
+          from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
+          to: email,
+          subject: '✅ Inscrição Confirmada no Ecobot Alertas',
+          html: `<h2>Olá!</h2><p>Obrigado por se inscrever no sistema de alertas ambientais do Ecobot.</p><p>Você agora receberá e-mails de aviso e de alerta crítico baseados nos dados de nossos sensores.</p><p>Atenciosamente,<br>Equipe Ecobot</p>`
+      });
+      console.log(`E-mail de boas-vindas enviado para ${email}`);
+      res.status(200).send('Inscrito com sucesso! E-mail de confirmação enviado.');
+
+    } finally {
+      client.release();
     }
-    if (emails.includes(email)) { return res.status(409).send('Este e-mail já está inscrito.'); }
-    emails.push(email);
-    fs.writeFileSync(emailsFile, JSON.stringify(emails, null, 2));
-    await transporter.sendMail({
-        from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: '✅ Inscrição Confirmada no Ecobot Alertas',
-        html: `<h2>Olá!</h2><p>Obrigado por se inscrever no sistema de alertas ambientais do Ecobot.</p><p>Você agora receberá e-mails de aviso e de alerta crítico baseados nos dados de nossos sensores.</p><p>Atenciosamente,<br>Equipe Ecobot</p>`
-    });
-    console.log(`E-mail de boas-vindas enviado para ${email}`);
-    res.status(200).send('Inscrito com sucesso! E-mail de confirmação enviado.');
   } catch (error) {
-    console.error('Erro ao inscrever e-mail ou enviar confirmação:', error);
-    res.status(500).send('Ocorreu um erro no servidor ao processar sua inscrição.');
+    console.error('Erro ao inscrever e-mail:', error);
+    res.status(500).send('Ocorreu um erro no servidor.');
   }
 });
 
-app.get('/unsubscribe', (req, res) => {
+// --- Endpoint de Cancelamento (Refatorado para DB) ---
+app.get('/unsubscribe', async (req, res) => {
   const { email } = req.query;
-  if (!email) { return res.status(400).send('O e-mail é obrigatório na consulta.'); }
+  if (!email) { return res.status(400).send('O e-mail é obrigatório.'); }
+  
   try {
-    if (fs.existsSync(emailsFile)) {
-      let emails = JSON.parse(fs.readFileSync(emailsFile, 'utf8') || '[]');
-      const emailIndex = emails.indexOf(email);
-      if (emailIndex > -1) {
-        emails.splice(emailIndex, 1);
-        fs.writeFileSync(emailsFile, JSON.stringify(emails, null, 2));
-        console.log(`E-mail ${email} removido da lista.`);
+    const client = await pool.connect();
+    try {
+      const result = await client.query('DELETE FROM subscribers WHERE email = $1', [email]);
+      if (result.rowCount > 0) {
+        console.log(`E-mail ${email} removido do banco de dados.`);
         return res.status(200).send(`<h1>Inscrição Cancelada</h1><p>O e-mail ${email} foi removido da nossa lista de alertas.</p>`);
       } else {
         return res.status(404).send(`<h1>E-mail Não Encontrado</h1><p>O e-mail ${email} não foi encontrado na nossa lista de inscritos.</p>`);
       }
-    } else {
-        return res.status(404).send('<h1>Lista de Inscrição Vazia</h1><p>Nenhum e-mail encontrado.</p>');
+    } finally {
+      client.release();
     }
   } catch (error) {
     console.error('Erro ao cancelar inscrição:', error);
-    res.status(500).send('<h1>Erro no Servidor</h1><p>Não foi possível processar seu pedido de cancelamento de inscrição.</p>');
+    res.status(500).send('<h1>Erro no Servidor</h1><p>Não foi possível processar seu pedido.</p>');
   }
 });
 
-// --- NOVO: Endpoint para o histórico de alertas ---
-app.get('/api/alerts', (req, res) => {
-  if (fs.existsSync(alertsLogFile)) {
-    const data = fs.readFileSync(alertsLogFile, 'utf8');
-    res.status(200).json(JSON.parse(data || '[]'));
-  } else {
-    res.status(200).json([]);
+// --- Endpoint de Histórico de Alertas (Refatorado para DB) ---
+app.get('/api/alerts', async (req, res) => {
+  try {
+    const client = await pool.connect();
+    try {
+      const result = await client.query('SELECT nivel, base, mensagens, timestamp FROM alerts ORDER BY timestamp DESC');
+      res.status(200).json(result.rows);
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Erro ao buscar histórico de alertas:', error);
+    res.status(500).json([]);
   }
 });
 
-// --- NOVO: Endpoint para os dados recentes das bases ---
+// --- Endpoint de Dados Recentes (sem alteração, pois não usa persistência) ---
 app.get('/api/dados-recentes', async (req, res) => {
   const BASES = [
     { id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 },
@@ -120,12 +140,13 @@ app.get('/api/dados-recentes', async (req, res) => {
   res.json(resultados);
 });
 
+// --- Tarefa Agendada (sem alteração aqui) ---
 cron.schedule('*/5 * * * *', () => {
-  console.log('Executando a verificação de alertas...');
+  console.log('Executando a verificação de alertas via cron...');
   exec('node check-alerts.js', (err, stdout, stderr) => {
-    if (err) { console.error(err); return; }
-    console.log(stdout);
-    console.error(stderr);
+    if (err) { console.error('Erro ao executar check-alerts.js:', err); return; }
+    if (stdout) { console.log('Saída de check-alerts.js:', stdout); }
+    if (stderr) { console.error('Erros de check-alerts.js:', stderr); }
   });
 });
 
