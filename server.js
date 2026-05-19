@@ -1,4 +1,6 @@
 
+console.log('Valor de process.env.PORT:', process.env.PORT);
+
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
@@ -7,8 +9,6 @@ const cron = require('node-cron');
 const { exec } = require('child_process');
 
 const app = express();
-// A linha abaixo é a correção principal.
-// Ela usa a porta do Railway (process.env.PORT) se existir, ou 3001 como padrão.
 const port = process.env.PORT || 3001;
 
 const emailsFile = path.join(__dirname, 'emails.json');
