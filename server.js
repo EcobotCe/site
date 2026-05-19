@@ -7,7 +7,9 @@ const cron = require('node-cron');
 const { exec } = require('child_process');
 
 const app = express();
-const port = process.env.PORT || 3000;
+// A linha abaixo é a correção principal.
+// Ela usa a porta do Railway (process.env.PORT) se existir, ou 3001 como padrão.
+const port = process.env.PORT || 3001;
 
 const emailsFile = path.join(__dirname, 'emails.json');
 
