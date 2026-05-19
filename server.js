@@ -8,21 +8,25 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 const { Pool } = require('pg');
 
-// --- Diagnóstico de Conexão ---
-if (!process.env.DATABASE_URL) {
-  console.error('ERRO FATAL (server.js): A variável de ambiente DATABASE_URL não foi encontrada!');
-  process.exit(1); 
-}
-// --- Fim do Diagnóstico ---
-
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 8080; // Padrão para Railway é 8080
 
-// Configuração do Pool de Conexões com o Banco de Dados
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
+// Configuração do Pool de Conexões (permitir ser undefined inicialmente)
+let pool = null;
+
+if (process.env.DATABASE_URL) {
+  try {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
+    console.log('✅ Pool de conexão com banco de dados configurado');
+  } catch (err) {
+    console.warn('⚠️ Erro ao configurar pool de banco de dados:', err.message);
+  }
+} else {
+  console.warn('⚠️ DATABASE_URL não configurada. Recursos de banco de dados estarão indisponíveis.');
+}
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -46,12 +50,31 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
+// Middleware para verificar disponibilidade do banco de dados
+const requireDatabase = (req, res, next) => {
+  if (!pool) {
+    return res.status(503).json({ 
+      error: 'Serviço de banco de dados indisponível',
+      message: 'DATABASE_URL não foi configurada ou o banco está offline'
+    });
+  }
+  next();
+};
+
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    database: pool ? 'connected' : 'disconnected'
+  });
+});
+
 // --- Endpoint de Inscrição (Refatorado para DB) ---
-app.post('/subscribe', async (req, res) => {
+app.post('/subscribe', requireDatabase, async (req, res) => {
   const { email } = req.body;
   if (!email) { return res.status(400).send('O e-mail é obrigatório.'); }
   
@@ -67,14 +90,17 @@ app.post('/subscribe', async (req, res) => {
       // Insere o novo e-mail
       await client.query('INSERT INTO subscribers(email) VALUES($1)', [email]);
       
-      // Envia e-mail de boas-vindas
-      await transporter.sendMail({
-          from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
-          to: email,
-          subject: '✅ Inscrição Confirmada no Ecobot Alertas',
-          html: `<h2>Olá!</h2><p>Obrigado por se inscrever no sistema de alertas ambientais do Ecobot.</p><p>Você agora receberá e-mails de aviso e de alerta crítico baseados nos dados de nossos sensores.</p><p>Atenciosamente,<br>Equipe Ecobot</p>`
-      });
-      console.log(`E-mail de boas-vindas enviado para ${email}`);
+      // Envia e-mail de boas-vindas (apenas se EMAIL_USER estiver configurado)
+      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        await transporter.sendMail({
+            from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: '✅ Inscrição Confirmada no Ecobot Alertas',
+            html: `<h2>Olá!</h2><p>Obrigado por se inscrever no sistema de alertas ambientais do Ecobot.</p><p>Você agora receberá e-mails de aviso e de alerta crítico baseados nos dados de nossos sensores.</p><p>Atenciosamente,<br>Equipe Ecobot</p>`
+        });
+        console.log(`E-mail de boas-vindas enviado para ${email}`);
+      }
+      
       res.status(200).send('Inscrito com sucesso! E-mail de confirmação enviado.');
 
     } finally {
@@ -87,7 +113,7 @@ app.post('/subscribe', async (req, res) => {
 });
 
 // --- Endpoint de Cancelamento (Refatorado para DB) ---
-app.get('/unsubscribe', async (req, res) => {
+app.get('/unsubscribe', requireDatabase, async (req, res) => {
   const { email } = req.query;
   if (!email) { return res.status(400).send('O e-mail é obrigatório.'); }
   
@@ -111,7 +137,7 @@ app.get('/unsubscribe', async (req, res) => {
 });
 
 // --- Endpoint de Histórico de Alertas (Refatorado para DB) ---
-app.get('/api/alerts', async (req, res) => {
+app.get('/api/alerts', requireDatabase, async (req, res) => {
   try {
     const client = await pool.connect();
     try {
@@ -122,7 +148,7 @@ app.get('/api/alerts', async (req, res) => {
     }
   } catch (error) {
     console.error('Erro ao buscar histórico de alertas:', error);
-    res.status(500).json([]);
+    res.status(500).json({ error: 'Falha ao buscar alertas' });
   }
 });
 
