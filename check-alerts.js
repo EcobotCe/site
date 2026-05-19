@@ -3,6 +3,13 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 
+// --- Diagnóstico de Conexão ---
+if (!process.env.DATABASE_URL) {
+  console.error('ERRO FATAL (check-alerts.js): A variável de ambiente DATABASE_URL não foi encontrada!');
+  process.exit(1); 
+}
+// --- Fim do Diagnóstico ---
+
 // Configuração do Banco de Dados
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

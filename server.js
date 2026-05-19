@@ -8,6 +8,13 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 const { Pool } = require('pg');
 
+// --- Diagnóstico de Conexão ---
+if (!process.env.DATABASE_URL) {
+  console.error('ERRO FATAL (server.js): A variável de ambiente DATABASE_URL não foi encontrada!');
+  process.exit(1); 
+}
+// --- Fim do Diagnóstico ---
+
 const app = express();
 const port = process.env.PORT || 3001;
 

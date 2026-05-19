@@ -1,6 +1,17 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
+// --- Diagnóstico de Conexão ---
+console.log('Iniciando script de setup do banco de dados...');
+console.log(`Variável DATABASE_URL existe: ${!!process.env.DATABASE_URL}`);
+
+if (!process.env.DATABASE_URL) {
+  console.error('ERRO FATAL: A variável de ambiente DATABASE_URL não foi encontrada!');
+  console.error('Verifique se o serviço do banco de dados está conectado a este serviço no painel do Railway.');
+  process.exit(1); // Encerra o processo com erro
+}
+// --- Fim do Diagnóstico ---
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
