@@ -215,6 +215,28 @@ cron.schedule('*/5 * * * *', () => {
   });
 });
 
-app.listen(port, () => {
-  console.log(`Servidor rodando na porta ${port}`);
+const server = app.listen(port, () => {
+  console.log(`🚀 Servidor iniciado com sucesso na porta ${port}`);
+  console.log(`📊 Health check disponível em http://localhost:${port}/health`);
+  console.log(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+});
+
+// Tratamento de erros não capturados
+process.on('uncaughtException', (err) => {
+  console.error('❌ Erro não capturado:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Promessa rejeitada não tratada:', reason);
+  process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('⚠️ SIGTERM recebido. Encerrando gracefully...');
+  server.close(() => {
+    console.log('✅ Servidor encerrado');
+    process.exit(0);
+  });
 });
