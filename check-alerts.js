@@ -15,7 +15,7 @@ const BASES = [
   { id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 }
 ];
 
-// Lista de emails inicial (do GitHub Secrets)
+// Lista de emails inicial (do .env)
 let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '')
   .split(',')
   .map(e => e.trim())
@@ -26,15 +26,20 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
 });
 
-// Busca emails de quem se cadastrou no site via TagoIO
+// Busca emails de quem se cadastrou no site
 async function buscarAssinantesDinamicos() {
   try {
     const res = await axios.get('https://api.tago.io/data?variable=email_assinante&qty=100', {
-      headers: { 'Device-Token': process.env.TAGO_TOKEN_1 }
+      headers: { 'Device-Token': process.env.TAGO_TOKEN_1 },
+      timeout: 15000 // Timeout de 15 segundos
     });
     return res.data.result.map(item => item.value);
   } catch (e) {
-    console.log("   ⚠️ Sem novos assinantes no TagoIO.");
+    if (e.code === 'ECONNABORTED') {
+      console.log("   ⚠️ Timeout ao buscar novos assinantes no TagoIO.");
+    } else {
+      console.log("   ⚠️ Não foi possível buscar novos assinantes no TagoIO.");
+    }
     return [];
   }
 }
@@ -48,13 +53,15 @@ async function verificarBase(base) {
       return;
     }
 
+    // Requisição com timeout
     const response = await axios.get('https://api.tago.io/data?qty=20', {
-      headers: { 'Device-Token': base.token }
+      headers: { 'Device-Token': base.token },
+      timeout: 15000 // Timeout de 15 segundos!
     });
 
     const dados = Array.isArray(response.data?.result) ? response.data.result : [];
     if (!dados.length) {
-      console.warn(`   ⚠️ Nenhum dado retornado para ${base.nome}. Verifique se o dispositivo está enviando dados.`);
+      console.warn(`   ⚠️ Nenhum dado retornado para ${base.nome}. O dispositivo pode estar offline.`);
       return;
     }
 
@@ -67,10 +74,6 @@ async function verificarBase(base) {
     const u = getVal('umid');
     const c = getVal('co2') ?? getVal('gas');
     console.log(`   Dados atuais -> Temp: ${t}°C, Umi: ${u}%, CO2: ${c}ppm`);
-
-    if (!dados.length) {
-      console.log(`   ⚠️ Sem dados retornados para ${base.nome}. Verifique token e dispositivo.`);
-    }
 
     let alertas = [];
     if (t > LIMIARES.temp_critica) alertas.push(`🔥 Temperatura Crítica: ${t}°C`);
@@ -86,18 +89,27 @@ async function verificarBase(base) {
       });
       console.log(`   📧 Emails de alerta enviados!`);
     }
-  } catch (erro) { console.error(`   ❌ Erro na base ${base.nome}:`, erro.message); }
+  } catch (erro) {
+    if (erro.code === 'ECONNABORTED') {
+      console.error(`   ❌ Timeout de 15s excedido para a base ${base.nome}. A API não respondeu a tempo.`);
+    } else {
+      console.error(`   ❌ Erro ao verificar a base ${base.nome}:`, erro.message);
+    }
+  }
 }
 
 async function iniciar() {
   console.log('🚀 Iniciando Ecobot Check...');
   
-  // Atualiza lista de emails com os novos assinantes do site
   const extras = await buscarAssinantesDinamicos();
-  EMAILS_DESTINO = [...new Set([...EMAILS_DESTINO, ...extras])];
+  if (extras.length > 0) {
+      EMAILS_DESTINO = [...new Set([...EMAILS_DESTINO, ...extras])];
+  }
   
+  console.log(`   💌 Lista de e-mails para alerta: ${EMAILS_DESTINO.join(', ')}`)
+
   for (const base of BASES) {
-    if (base.token) await verificarBase(base);
+    await verificarBase(base);
   }
   console.log('\n✅ Verificação finalizada.');
 }
