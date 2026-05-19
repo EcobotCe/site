@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "Backend para sistema de alertas ambientais Ecobot",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
-    "start": "node setup-db.js && node server.js",
+    "start": "node server.js",
+    "setup": "node setup-db.js",
     "check": "node check-alerts.js",
     "db:setup": "node setup-db.js",
     "dev": "nodemon server.js",
