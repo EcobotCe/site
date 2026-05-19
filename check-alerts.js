@@ -2,7 +2,6 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 require('dotenv').config();
 
-// Configurações de limite
 const LIMIARES = {
   temp_critica: 35, temp_aviso: 30,
   umi_critica: 30,  umi_aviso: 40,
@@ -41,24 +40,32 @@ async function buscarAssinantesDinamicos() {
   }
 }
 
-async function enviarEmail(baseNome, subject, body) {
-  if (EMAILS_DESTINO.length === 0) {
+const createUnsubscribeFooter = (email) => {
+  // Usaremos uma URL relativa que funcionará tanto localmente quanto em produção
+  const unsubscribeUrl = `/unsubscribe?email=${encodeURIComponent(email)}`;
+  return `<br><br><hr><p style="font-size:12px;color:#888;">Para não receber mais estes alertas, <a href="${unsubscribeUrl}">clique aqui para cancelar a inscrição</a>.</p>`;
+};
+
+async function enviarEmail(baseNome, subject, body, emails) {
+  if (emails.length === 0) {
     console.log(`   ❕ Nenhum e-mail de destino configurado. Poupando envio de "${subject}".`);
     return;
   }
-  await transporter.sendMail({
-    from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
-    to: EMAILS_DESTINO.join(', '),
-    subject: `${subject} - ${baseNome}`,
-    html: `<h2>${subject} na base ${baseNome}:</h2><ul>${body}</ul>`
-  });
-  console.log(`   📧 E-mails de "${subject}" enviados!`);
+  
+  for (const email of emails) {
+      await transporter.sendMail({
+        from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: `${subject} - ${baseNome}`,
+        html: `<h2>${subject} na base ${baseNome}:</h2><ul>${body}</ul>${createUnsubscribeFooter(email)}`
+      });
+  }
+  console.log(`   📧 E-mails de "${subject}" enviados para ${emails.length} destinatários!`);
 }
 
 async function verificarBase(base) {
   try {
-    console.log(`
-📍 Verificando: ${base.nome}...`);
+    console.log(`\n📍 Verificando: ${base.nome}...`);
 
     if (!base.token) {
       console.warn(`   ⚠️ Token da base ${base.nome} não configurado. Ignorando.`);
@@ -89,7 +96,6 @@ async function verificarBase(base) {
     let alertasCriticos = [];
     let alertasAviso = [];
 
-    // Lógica para separar alertas críticos e avisos
     if (t !== null) {
       if (t > LIMIARES.temp_critica) {
         alertasCriticos.push(`🔥 Temperatura Crítica: ${t}°C (Limite: ${LIMIARES.temp_critica}°C)`);
@@ -114,13 +120,12 @@ async function verificarBase(base) {
       }
     }
     
-    // Envia o e-mail apropriado
     if (alertasCriticos.length > 0) {
       const body = alertasCriticos.map(a => `<li>${a}</li>`).join('');
-      await enviarEmail(base.nome, '🚨 ALERTA AMBIENTAL CRÍTICO', body);
+      await enviarEmail(base.nome, '🚨 ALERTA AMBIENTAL CRÍTICO', body, EMAILS_DESTINO);
     } else if (alertasAviso.length > 0) {
       const body = alertasAviso.map(a => `<li>${a}</li>`).join('');
-      await enviarEmail(base.nome, '⚠️ AVISO AMBIENTAL', body);
+      await enviarEmail(base.nome, '⚠️ AVISO AMBIENTAL', body, EMAILS_DESTINO);
     } else {
       console.log('   ✅ Condições normais. Nenhum alerta a ser enviado.');
     }
@@ -151,8 +156,7 @@ async function iniciar() {
   for (const base of BASES) {
     await verificarBase(base);
   }
-  console.log('
-✅ Verificação finalizada.');
+  console.log('\n✅ Verificação finalizada.');
 }
 
 iniciar();
