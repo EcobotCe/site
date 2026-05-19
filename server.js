@@ -1,4 +1,9 @@
 require('dotenv').config();
+
+console.log('🔧 Iniciando servidor...');
+console.log(`📌 NODE_ENV: ${process.env.NODE_ENV || 'não definido'}`);
+console.log(`🔌 PORT solicitada: ${process.env.PORT || 'não definida, usando 8080'}`);
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -10,6 +15,8 @@ const { Pool } = require('pg');
 
 const app = express();
 const port = process.env.PORT || 8080; // Padrão para Railway é 8080
+
+console.log(`✨ Porta final para listen: ${port}`);
 
 // Configuração do Pool de Conexões (permitir ser undefined inicialmente)
 let pool = null;
