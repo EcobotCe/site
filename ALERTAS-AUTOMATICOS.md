@@ -1,0 +1,16 @@
+# ================================================
+# 🔧 CONFIGURAÇÃO DO SERVIDOR ECOBOT
+# ================================================
+
+# Porta onde o servidor vai rodar
+PORT=3001
+
+# ================================================
+# 📧 CREDENCIAIS GMAIL (OBRIGATÓRIO)
+# ================================================
+
+# Seu email do Gmail
+EMAIL_USER=pjt.ecobot@gmail.com
+
+# Sua senha de app (NÃO é a senha normal do Gmail!)
+EMAIL_PASS=cssf hrdb xbld russ
