@@ -1,9 +1,7 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR" class="scroll-smooth">
 
 <head>
-<<<<<<< HEAD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecobot | Monitoramento Ambiental Inteligente</title>
@@ -1253,14 +1251,30 @@
                 <i class="fa-solid fa-phone text-ecogreen"></i> Seus Canais de Contato
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Email para alertas via EmailJS (local) -->
                 <div class="space-y-3">
                     <label class="text-sm text-slate-400 font-medium flex items-center gap-2">
                         <input type="checkbox" id="usar-email" class="w-4 h-4 cursor-pointer"
                             onchange="atualizarCamposAlertas()">
-                        <i class="fa-solid fa-envelope text-ecogreen"></i> Receber por Email
+                        <i class="fa-solid fa-envelope text-ecogreen"></i> Receber por Email (alertas automáticos)
                     </label>
                     <input type="email" id="email-alerta" placeholder="seuemail@exemplo.com"
                         class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
+                </div>
+                <!-- Inscrição no backend (lista de notificações do servidor) -->
+                <div class="space-y-3">
+                    <label class="text-sm text-slate-400 font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-server text-ecogreen"></i> Inscrever no servidor de alertas
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="email" id="email_input" placeholder="seuemail@exemplo.com"
+                            class="flex-1 bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
+                        <button type="button" onclick="subscreverAlertas()"
+                            class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-3 px-5 rounded-xl transition-all text-sm whitespace-nowrap shadow-md hover:-translate-y-0.5">
+                            <i class="fa-solid fa-bell mr-1"></i> Inscrever
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500">Você receberá e-mails do servidor quando os sensores detectarem condições críticas.</p>
                 </div>
             </div>
         </div>
@@ -2730,39 +2744,38 @@
         setTimeout(() => {
             atualizarSemaforo();
         }, 1000);
-        // Função para enviar o e-mail inserido para o TagoIO
+        // Função para inscrever e-mail no servidor de alertas (backend /subscribe)
         async function subscreverAlertas() {
-            // Obter o valor digitado pelo utilizador
-            const email = document.getElementById("email_input").value;
+            const emailInput = document.getElementById("email_input");
+            const email = emailInput ? emailInput.value.trim() : '';
 
             if (!email || !email.includes("@")) {
-                alert("Por favor, insira um e-mail válido!");
+                showToast('Por favor, insira um e-mail válido!', 'warning');
                 return;
             }
 
-            // Substitua pelo seu Token real do dispositivo TagoIO
-            const tokenTago = "COLOQUE_O_SEU_TOKEN_AQUI";
-
-            const dados = {
-                variable: "email_assinante",
-                value: email
-            };
+            const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
 
             try {
-                await fetch('https://api.tago.io/data', {
+                const response = await fetch(`${backendUrl}/subscribe`, {
                     method: 'POST',
-                    headers: {
-                        'Device-Token': tokenTago,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dados)
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
                 });
 
-                alert("Sucesso! O seu e-mail foi registado para receber os alertas ambientais.");
-                document.getElementById("email_input").value = ""; // Limpa o campo
+                const texto = await response.text();
+
+                if (response.ok) {
+                    showToast(`✅ ${texto}`, 'success');
+                    if (emailInput) emailInput.value = '';
+                } else if (response.status === 409) {
+                    showToast('ℹ️ Este e-mail já está inscrito na lista de alertas.', 'warning');
+                } else {
+                    showToast(`❌ Erro: ${texto}`, 'error');
+                }
             } catch (erro) {
-                console.error(erro);
-                alert("Ocorreu um erro ao registar o e-mail.");
+                console.error('Erro ao inscrever no backend:', erro);
+                showToast('❌ Não foi possível conectar ao servidor. Verifique a conexão.', 'error');
             }
         }
     </script>
@@ -2989,261 +3002,3 @@
 </body>
 
 </html>
-=======
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Ecobot</title>
-  <style>
-    :root {
-      --bg-color: #1a202c;
-      --card-bg: #2d3748;
-      --text-color: #e2e8f0;
-      --border-color: #4a5568;
-      --success-color: #38a169;
-      --error-color: #e53e3e;
-      --warning-color-bg: rgba(221, 107, 32, 0.2);
-      --critical-color-bg: rgba(229, 62, 62, 0.2);
-      --header-bg: #2c5282;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .full-width {
-      grid-column: 1 / -1;
-    }
-    .card {
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 20px;
-      border: 1px solid var(--border-color);
-    }
-    h1, h2 {
-      border-bottom: 2px solid var(--border-color);
-      padding-bottom: 10px;
-      margin-top: 0;
-    }
-    h1 {
-        background-color: var(--header-bg);
-        text-align: center;
-        padding: 20px;
-        border-radius: 8px;
-        border-bottom: none;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-    }
-    th {
-      background-color: #3c4a61;
-    }
-    tr.nivel-critico { background-color: var(--critical-color-bg); }
-    tr.nivel-aviso { background-color: var(--warning-color-bg); }
-
-    input[type='email'], button {
-      padding: 10px;
-      border-radius: 5px;
-      border: 1px solid var(--border-color);
-      background-color: var(--card-bg);
-      color: var(--text-color);
-      width: calc(100% - 22px);
-    }
-    button {
-      cursor: pointer;
-      background-color: var(--success-color);
-      border: none;
-      width: 100%;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-    button:disabled {
-      background-color: #4a5568;
-      cursor: not-allowed;
-    }
-    .message {
-      padding: 10px;
-      margin-top: 15px;
-      border-radius: 5px;
-      display: none;
-      text-align: center;
-    }
-    .success { background-color: var(--success-color); color: white; }
-    .error { background-color: var(--error-color); color: white; }
-    
-    #dados-recentes-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 15px;
-    }
-    .base-card {
-        background-color: #3c4a61;
-        border-radius: 8px;
-        padding: 15px;
-    }
-    .base-card h3 {
-        margin-top: 0;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 8px;
-    }
-
-    @media (max-width: 768px) {
-        .container {
-            grid-template-columns: 1fr;
-        }
-    }
-  </style>
-</head>
-<body>
-
-  <div class="container">
-    <div class="full-width">
-      <h1>Dashboard de Monitoramento Ecobot</h1>
-    </div>
-
-    <div class="card full-width">
-      <h2>Dados Atuais</h2>
-      <div id="dados-recentes-container"></div>
-    </div>
-    
-    <div class="card">
-        <h2>Painel de Alertas</h2>
-        <p>O sistema monitora continuamente o risco de queimadas baseado na combinação de temperatura alta e umidade baixa.</p>
-        <p>Os alertas são enviados automaticamente para os emails inscritos.</p>
-    </div>
-
-    <div class="card">
-      <h2>Inscreva-se para Alertas</h2>
-      <form id="subscribe-form">
-        <label for="email">Seu e-mail:</label>
-        <input type="email" id="email" name="email" required placeholder="seunome@example.com">
-        <button type="submit" id="submit-button">Inscrever</button>
-      </form>
-      <div id="message-success" class="message success"></div>
-      <div id="message-error" class="message error"></div>
-    </div>
-
-    <div class="card full-width">
-      <h2>Histórico de Alertas</h2>
-      <table id="alerts-history-table">
-        <thead>
-          <tr>
-            <th>Nível</th>
-            <th>Base</th>
-            <th>Mensagens</th>
-            <th>Data</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- As linhas de alerta serão inseridas aqui pelo JavaScript -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <script>
-    // --- Elementos do DOM ---
-    const form = document.getElementById('subscribe-form');
-    const emailInput = document.getElementById('email');
-    const submitButton = document.getElementById('submit-button');
-    const msgSuccess = document.getElementById('message-success');
-    const msgError = document.getElementById('message-error');
-
-    // --- Inscrição de Email ---
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      submitButton.disabled = true;
-      submitButton.innerText = 'Enviando...';
-      msgSuccess.style.display = 'none';
-      msgError.style.display = 'none';
-
-      try {
-        const response = await fetch('/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: emailInput.value }),
-        });
-        const responseText = await response.text();
-        if (response.ok) {
-          msgSuccess.innerText = responseText;
-          msgSuccess.style.display = 'block';
-          emailInput.value = '';
-        } else {
-          msgError.innerText = responseText;
-          msgError.style.display = 'block';
-        }
-      } catch (error) {
-        msgError.innerText = 'Um erro de rede ocorreu. Tente novamente.';
-        msgError.style.display = 'block';
-      } finally {
-        submitButton.disabled = false;
-        submitButton.innerText = 'Inscrever';
-      }
-    });
-
-    // --- Busca e Exibição dos Dados ---
-    async function fetchData() {
-      try {
-        // 1. Buscar e exibir dados recentes
-        const recentesRes = await fetch('/api/dados-recentes');
-        const recentesData = await recentesRes.json();
-        const recentesContainer = document.getElementById('dados-recentes-container');
-        recentesContainer.innerHTML = ''; // Limpar antes de adicionar
-        recentesData.forEach(base => {
-            const card = document.createElement('div');
-            card.className = 'base-card';
-            card.innerHTML = `
-                <h3>${base.nome}</h3>
-                ${base.error ? `<p>${base.error}</p>` : `
-                <p><strong>Temperatura:</strong> ${base.temp !== null ? base.temp + '°C' : 'N/A'}</p>
-                <p><strong>Umidade:</strong> ${base.umid !== null ? base.umid + '%' : 'N/A'}</p>
-                <p><strong>CO2:</strong> ${base.co2 !== null ? base.co2 + 'ppm' : 'N/A'}</p>
-                <p><small>Atualizado: ${base.timestamp ? new Date(base.timestamp).toLocaleString('pt-BR') : 'N/A'}</small></p>
-                `}
-            `;
-            recentesContainer.appendChild(card);
-        });
-
-        // 2. Buscar e exibir histórico de alertas na nova tabela
-        const alertsRes = await fetch('/api/alerts');
-        const alertsData = await alertsRes.json();
-        const tableBody = document.querySelector('#alerts-history-table tbody');
-        tableBody.innerHTML = ''; // Limpar antes de adicionar
-
-        alertsData.forEach(alert => {
-            const row = tableBody.insertRow();
-            row.className = `nivel-${alert.nivel}`; // Adiciona classe 'nivel-critico' ou 'nivel-aviso'
-            
-            row.insertCell(0).innerText = alert.nivel.toUpperCase();
-            row.insertCell(1).innerText = alert.base;
-            row.insertCell(2).innerText = alert.mensagens.join('; ');
-            row.insertCell(3).innerText = new Date(alert.timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-        });
-
-      } catch (error) {
-        console.error("Erro ao buscar dados para o dashboard:", error);
-      }
-    }
-
-    // Carregar os dados quando a página for aberta e depois a cada 30 segundos
-    fetchData();
-    setInterval(fetchData, 30000);
-  </script>
-</body>
-</html>
->>>>>>> 3f999ff2c091bc49a2d0ceacc21fc83b33e6c35d

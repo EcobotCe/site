@@ -147,6 +147,25 @@ app.get('/api/dados-recentes', async (req, res) => {
   res.json(resultados);
 });
 
+// --- Endpoint Proxy para TagO.io (evita CORS no browser) ---
+app.get('/api/test-tago', async (req, res) => {
+  const { token, qty = 60 } = req.query;
+  if (!token) return res.status(400).json({ error: 'Token é obrigatório.' });
+
+  try {
+    const response = await axios.get(`https://api.tago.io/data?qty=${qty}`, {
+      headers: { 'Device-Token': token },
+      timeout: 10000
+    });
+    res.status(200).json(response.data);
+  } catch (error) {
+    const status = error.response?.status || 502;
+    const msg = error.response?.data || error.message;
+    console.error(`Erro no proxy TagO (token: ...${token.slice(-6)}):`, msg);
+    res.status(status).json({ error: 'Falha ao contactar a API do TagO.io.', detalhe: msg });
+  }
+});
+
 // --- Tarefa Agendada (sem alteração aqui) ---
 cron.schedule('*/5 * * * *', () => {
   console.log('Executando a verificação de alertas via cron...');
