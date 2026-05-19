@@ -120,14 +120,6 @@ app.get('/api/dados-recentes', async (req, res) => {
   res.json(resultados);
 });
 
-app.get('/emails', (req, res) => {
-  if (fs.existsSync(emailsFile)) {
-    res.status(200).send(JSON.parse(fs.readFileSync(emailsFile, 'utf8')));
-  } else {
-    res.status(200).send([]);
-  }
-});
-
 cron.schedule('*/5 * * * *', () => {
   console.log('Executando a verificação de alertas...');
   exec('node check-alerts.js', (err, stdout, stderr) => {
