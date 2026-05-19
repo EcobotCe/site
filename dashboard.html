@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Ecobot Alertas</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    .base-card { border: 1px solid #ccc; border-radius: 8px; padding: 1em; margin-bottom: 1em; }
+    .alerts-list { list-style-type: none; padding: 0; }
+    .alerts-list li { border-bottom: 1px solid #eee; padding: 0.5em 0; }
+    .nivel-critico { color: #dc3545; }
+    .nivel-aviso { color: #ffc107; }
+    nav { margin-bottom: 2em; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html">Página de Inscrição</a>
+  </nav>
+
+  <h1>Dashboard de Monitoramento</h1>
+
+  <h2>Dados Atuais</h2>
+  <div id="dados-recentes-container"></div>
+
+  <h2>Histórico de Temperatura</h2>
+  <canvas id="tempChart" width="400" height="200"></canvas>
+
+  <h2>Últimos Alertas</h2>
+  <ul id="alerts-history" class="alerts-list"></ul>
+
+  <script>
+    async function fetchData() {
+        // Buscar dados recentes
+        const recentesRes = await fetch('/api/dados-recentes');
+        const recentesData = await recentesRes.json();
+        const recentesContainer = document.getElementById('dados-recentes-container');
+        recentesContainer.innerHTML = '';
+        recentesData.forEach(base => {
+            const card = document.createElement('div');
+            card.className = 'base-card';
+            card.innerHTML = `
+                <h3>${base.nome}</h3>
+                ${base.error ? `<p>${base.error}</p>` : `
+                <p><strong>Temperatura:</strong> ${base.temp !== null ? base.temp + '°C' : 'N/A'}</p>
+                <p><strong>Umidade:</strong> ${base.umid !== null ? base.umid + '%' : 'N/A'}</p>
+                <p><strong>CO2:</strong> ${base.co2 !== null ? base.co2 + 'ppm' : 'N/A'}</p>
+                <p><small>Última atualização: ${base.timestamp ? new Date(base.timestamp).toLocaleString('pt-BR') : 'N/A'}</small></p>
+                `}
+            `;
+            recentesContainer.appendChild(card);
+        });
+
+        // Buscar histórico de alertas
+        const alertsRes = await fetch('/api/alerts');
+        const alertsData = await alertsRes.json();
+        const alertsList = document.getElementById('alerts-history');
+        alertsList.innerHTML = '';
+        alertsData.slice(0, 10).forEach(alert => {
+            const item = document.createElement('li');
+            item.innerHTML = `
+                <strong class="nivel-${alert.nivel}">[${alert.nivel.toUpperCase()}]</strong> em <strong>${alert.base}</strong> - ${new Date(alert.timestamp).toLocaleString('pt-BR')}<br>
+                ${alert.mensagens.join(', ')}
+            `;
+            alertsList.appendChild(item);
+        });
+
+        // Gráfico (exemplo com dados de temperatura do histórico de alertas)
+        const ctx = document.getElementById('tempChart').getContext('2d');
+        const chartData = {
+            labels: alertsData.filter(a => a.mensagens.some(m => m.includes('Temperatura'))).map(a => new Date(a.timestamp).toLocaleTimeString('pt-BR')).reverse(),
+            datasets: [{
+                label: 'Temperatura nos Alertas (°C)',
+                data: alertsData.filter(a => a.mensagens.some(m => m.includes('Temperatura'))).map(a => {
+                    const msg = a.mensagens.find(m => m.includes('Temperatura'));
+                    const match = msg.match(/([\d\.]+)(?=°C)/);
+                    return match ? parseFloat(match[0]) : null;
+                }).reverse(),
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        };
+
+        new Chart(ctx, {
+            type: 'line',
+            data: chartData,
+            options: {
+                scales: {
+                    x: { display: true, title: { display: true, text: 'Hora do Alerta' } },
+                    y: { display: true, title: { display: true, text: 'Temperatura (°C)' } }
+                }
+            }
+        });
+    }
+
+    // Carregar os dados quando a página for aberta e depois a cada 30 segundos
+    fetchData();
+    setInterval(fetchData, 30000);
+
+  </script>
+
+</body>
+</html>

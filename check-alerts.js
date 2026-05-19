@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const LIMIARES = {
@@ -13,15 +15,41 @@ const BASES = [
   { id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 }
 ];
 
-let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '')
-  .split(',')
-  .map(e => e.trim())
-  .filter(e => e);
+const alertsLogFile = path.join(__dirname, 'alerts-log.json');
+let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '').split(',').map(e => e.trim()).filter(e => e);
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
 });
+
+// Função para registrar logs de alerta
+function registrarAlerta(baseNome, nivel, mensagens) {
+  let logs = [];
+  if (fs.existsSync(alertsLogFile)) {
+    const data = fs.readFileSync(alertsLogFile, 'utf8');
+    if (data) {
+      try {
+        logs = JSON.parse(data);
+      } catch (e) {
+        console.error('Erro ao parsear alerts-log.json', e);
+      }
+    }
+  }
+
+  const novoLog = {
+    timestamp: new Date().toISOString(),
+    base: baseNome,
+    nivel: nivel,
+    mensagens: mensagens
+  };
+
+  logs.unshift(novoLog);
+  if (logs.length > 100) logs.pop();
+
+  fs.writeFileSync(alertsLogFile, JSON.stringify(logs, null, 2));
+  console.log(`   💾 Log de alerta [${nivel}] salvo para a base ${baseNome}.`);
+}
 
 async function buscarAssinantesDinamicos() {
   try {
@@ -41,7 +69,6 @@ async function buscarAssinantesDinamicos() {
 }
 
 const createUnsubscribeFooter = (email) => {
-  // Usaremos uma URL relativa que funcionará tanto localmente quanto em produção
   const unsubscribeUrl = `/unsubscribe?email=${encodeURIComponent(email)}`;
   return `<br><br><hr><p style="font-size:12px;color:#888;">Para não receber mais estes alertas, <a href="${unsubscribeUrl}">clique aqui para cancelar a inscrição</a>.</p>`;
 };
@@ -123,9 +150,11 @@ async function verificarBase(base) {
     if (alertasCriticos.length > 0) {
       const body = alertasCriticos.map(a => `<li>${a}</li>`).join('');
       await enviarEmail(base.nome, '🚨 ALERTA AMBIENTAL CRÍTICO', body, EMAILS_DESTINO);
+      registrarAlerta(base.nome, 'critico', alertasCriticos);
     } else if (alertasAviso.length > 0) {
       const body = alertasAviso.map(a => `<li>${a}</li>`).join('');
       await enviarEmail(base.nome, '⚠️ AVISO AMBIENTAL', body, EMAILS_DESTINO);
+      registrarAlerta(base.nome, 'aviso', alertasAviso);
     } else {
       console.log('   ✅ Condições normais. Nenhum alerta a ser enviado.');
     }
