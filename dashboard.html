@@ -33,6 +33,8 @@
   <ul id="alerts-history" class="alerts-list"></ul>
 
   <script>
+    let tempChartInstance = null;
+
     async function fetchData() {
         // Buscar dados recentes
         const recentesRes = await fetch('/api/dados-recentes');
@@ -68,13 +70,19 @@
             alertsList.appendChild(item);
         });
 
-        // Gráfico (exemplo com dados de temperatura do histórico de alertas)
+        // Destroi o gráfico anterior antes de criar um novo
+        if (tempChartInstance) {
+            tempChartInstance.destroy();
+            tempChartInstance = null;
+        }
+
         const ctx = document.getElementById('tempChart').getContext('2d');
+        const alertsComTemp = alertsData.filter(a => a.mensagens.some(m => m.includes('Temperatura')));
         const chartData = {
-            labels: alertsData.filter(a => a.mensagens.some(m => m.includes('Temperatura'))).map(a => new Date(a.timestamp).toLocaleTimeString('pt-BR')).reverse(),
+            labels: alertsComTemp.map(a => new Date(a.timestamp).toLocaleTimeString('pt-BR')).reverse(),
             datasets: [{
                 label: 'Temperatura nos Alertas (°C)',
-                data: alertsData.filter(a => a.mensagens.some(m => m.includes('Temperatura'))).map(a => {
+                data: alertsComTemp.map(a => {
                     const msg = a.mensagens.find(m => m.includes('Temperatura'));
                     const match = msg.match(/([\d\.]+)(?=°C)/);
                     return match ? parseFloat(match[0]) : null;
@@ -85,7 +93,7 @@
             }]
         };
 
-        new Chart(ctx, {
+        tempChartInstance = new Chart(ctx, {
             type: 'line',
             data: chartData,
             options: {

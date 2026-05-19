@@ -64,15 +64,21 @@ const checkAlerts = async () => {
         const alertasCriticos = [];
         const alertasAviso = [];
 
-        // Lógica de verificação de limites
-        if (temp > LIMITES.temp.critico) alertasCriticos.push(`Temperatura CRÍTICA: ${temp}°C.`);
-        else if (temp > LIMITES.temp.max || temp < LIMITES.temp.min) alertasAviso.push(`Temperatura fora do ideal: ${temp}°C.`);
+        // Lógica de verificação de limites (ignora sensores offline)
+        if (temp !== null) {
+          if (temp > LIMITES.temp.critico) alertasCriticos.push(`Temperatura CRÍTICA: ${temp}°C.`);
+          else if (temp > LIMITES.temp.max || temp < LIMITES.temp.min) alertasAviso.push(`Temperatura fora do ideal: ${temp}°C.`);
+        }
 
-        if (umid > LIMITES.umid.critico_max || umid < LIMITES.umid.critico_min) alertasCriticos.push(`Umidade CRÍTICA: ${umid}%.`);
-        else if (umid > LIMITES.umid.max || umid < LIMITES.umid.min) alertasAviso.push(`Umidade fora do ideal: ${umid}%.`);
+        if (umid !== null) {
+          if (umid > LIMITES.umid.critico_max || umid < LIMITES.umid.critico_min) alertasCriticos.push(`Umidade CRÍTICA: ${umid}%.`);
+          else if (umid > LIMITES.umid.max || umid < LIMITES.umid.min) alertasAviso.push(`Umidade fora do ideal: ${umid}%.`);
+        }
 
-        if (co2 > LIMITES.co2.critico) alertasCriticos.push(`Nível de CO2 CRÍTICO: ${co2} ppm.`);
-        else if (co2 > LIMITES.co2.max) alertasAviso.push(`Nível de CO2 elevado: ${co2} ppm.`);
+        if (co2 !== null) {
+          if (co2 > LIMITES.co2.critico) alertasCriticos.push(`Nível de CO2 CRÍTICO: ${co2} ppm.`);
+          else if (co2 > LIMITES.co2.max) alertasAviso.push(`Nível de CO2 elevado: ${co2} ppm.`);
+        }
 
         // Se houver alertas, processar e enviar e-mails
         if (alertasCriticos.length > 0 || alertasAviso.length > 0) {
@@ -92,10 +98,11 @@ const checkAlerts = async () => {
             );
             console.log(`Alerta (${nivel}) salvo no banco de dados para a base ${base.nome}.`);
 
-            // Envia os e-mails
+            // Envia os e-mails usando BCC para não expor a lista de inscritos
             await transporter.sendMail({
               from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
-              to: listaEmails.join(', '), // Envia para todos de uma vez
+              to: process.env.EMAIL_USER, // remetente como destinatário principal
+              bcc: listaEmails.join(', '),
               subject: subject,
               html: html
             });
