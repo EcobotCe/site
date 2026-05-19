@@ -1,23 +1,105 @@
-# Node.js
-node_modules/
-npm-debug.log
-yarn-error.log
+const nodemailer = require('nodemailer');
+const axios = require('axios');
+require('dotenv').config();
 
-# Variáveis de ambiente
-.env
-.env.local
-.env.*.local
+// Configurações de limite
+const LIMIARES = {
+  temp_critica: 35, temp_aviso: 30,
+  umi_critica: 30,  umi_aviso: 40,
+  co2_critica: 10,  co2_aviso: 5,
+  queimada_temp: 32, queimada_umi: 40
+};
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+const BASES = [
+  { id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 },
+  { id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 }
+];
 
-# OS
-.DS_Store
-Thumbs.db
+// Lista de emails inicial (do GitHub Secrets)
+let EMAILS_DESTINO = (process.env.ALERT_EMAILS || '')
+  .split(',')
+  .map(e => e.trim())
+  .filter(e => e);
 
-# Logs
-logs/
-*.log
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+});
+
+// Busca emails de quem se cadastrou no site via TagoIO
+async function buscarAssinantesDinamicos() {
+  try {
+    const res = await axios.get('https://api.tago.io/data?variable=email_assinante&qty=100', {
+      headers: { 'Device-Token': process.env.TAGO_TOKEN_1 }
+    });
+    return res.data.result.map(item => item.value);
+  } catch (e) {
+    console.log("   ⚠️ Sem novos assinantes no TagoIO.");
+    return [];
+  }
+}
+
+async function verificarBase(base) {
+  try {
+    console.log(`\n📍 Verificando: ${base.nome}...`);
+
+    if (!base.token) {
+      console.warn(`   ⚠️ Token da base ${base.nome} não configurado. Ignorando.`);
+      return;
+    }
+
+    const response = await axios.get('https://api.tago.io/data?qty=20', {
+      headers: { 'Device-Token': base.token }
+    });
+
+    const dados = Array.isArray(response.data?.result) ? response.data.result : [];
+    if (!dados.length) {
+      console.warn(`   ⚠️ Nenhum dado retornado para ${base.nome}. Verifique se o dispositivo está enviando dados.`);
+      return;
+    }
+
+    const getVal = (pref) => {
+      const item = dados.find(d => d.variable && d.variable.toLowerCase().includes(pref));
+      return item ? parseFloat(String(item.value).replace(',', '.')) : null;
+    };
+
+    const t = getVal('temp');
+    const u = getVal('umid');
+    const c = getVal('co2') ?? getVal('gas');
+    console.log(`   Dados atuais -> Temp: ${t}°C, Umi: ${u}%, CO2: ${c}ppm`);
+
+    if (!dados.length) {
+      console.log(`   ⚠️ Sem dados retornados para ${base.nome}. Verifique token e dispositivo.`);
+    }
+
+    let alertas = [];
+    if (t > LIMIARES.temp_critica) alertas.push(`🔥 Temperatura Crítica: ${t}°C`);
+    if (u < LIMIARES.umi_critica) alertas.push(`🌵 Umidade Crítica: ${u}%`);
+    if (c > LIMIARES.co2_critica) alertas.push(`💨 CO2 Crítico: ${c}ppm`);
+
+    if (alertas.length > 0) {
+      await transporter.sendMail({
+        from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
+        to: EMAILS_DESTINO.join(', '),
+        subject: `🚨 ALERTA AMBIENTAL - ${base.nome}`,
+        html: `<h2>Atenção! Alertas detectados na base ${base.nome}:</h2><ul>${alertas.map(a => `<li>${a}</li>`).join('')}</ul>`
+      });
+      console.log(`   📧 Emails de alerta enviados!`);
+    }
+  } catch (erro) { console.error(`   ❌ Erro na base ${base.nome}:`, erro.message); }
+}
+
+async function iniciar() {
+  console.log('🚀 Iniciando Ecobot Check...');
+  
+  // Atualiza lista de emails com os novos assinantes do site
+  const extras = await buscarAssinantesDinamicos();
+  EMAILS_DESTINO = [...new Set([...EMAILS_DESTINO, ...extras])];
+  
+  for (const base of BASES) {
+    if (base.token) await verificarBase(base);
+  }
+  console.log('\n✅ Verificação finalizada.');
+}
+
+iniciar();
