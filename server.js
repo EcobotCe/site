@@ -1,6 +1,3 @@
-
-console.log('Valor de process.env.PORT:', process.env.PORT);
-
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
