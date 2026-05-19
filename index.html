@@ -1,86 +1,260 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ecobot Alertas</title>
+  <title>Dashboard Ecobot</title>
   <style>
+    :root {
+      --bg-color: #1a202c;
+      --card-bg: #2d3748;
+      --text-color: #e2e8f0;
+      --border-color: #4a5568;
+      --success-color: #38a169;
+      --error-color: #e53e3e;
+      --warning-color-bg: rgba(221, 107, 32, 0.2);
+      --critical-color-bg: rgba(229, 62, 62, 0.2);
+      --header-bg: #2c5282;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .full-width {
+      grid-column: 1 / -1;
+    }
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+    }
+    h1, h2 {
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+    h1 {
+        background-color: var(--header-bg);
+        text-align: center;
+        padding: 20px;
+        border-radius: 8px;
+        border-bottom: none;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    th {
+      background-color: #3c4a61;
+    }
+    tr.nivel-critico { background-color: var(--critical-color-bg); }
+    tr.nivel-aviso { background-color: var(--warning-color-bg); }
+
+    input[type='email'], button {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      width: calc(100% - 22px);
+    }
+    button {
+      cursor: pointer;
+      background-color: var(--success-color);
+      border: none;
+      width: 100%;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    button:disabled {
+      background-color: #4a5568;
+      cursor: not-allowed;
+    }
     .message {
       padding: 10px;
       margin-top: 15px;
       border-radius: 5px;
-      display: none; /* Escondido por padrão */
+      display: none;
+      text-align: center;
     }
-    .success {
-      background-color: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+    .success { background-color: var(--success-color); color: white; }
+    .error { background-color: var(--error-color); color: white; }
+    
+    #dados-recentes-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 15px;
     }
-    .error {
-      background-color: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+    .base-card {
+        background-color: #3c4a61;
+        border-radius: 8px;
+        padding: 15px;
+    }
+    .base-card h3 {
+        margin-top: 0;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            grid-template-columns: 1fr;
+        }
     }
   </style>
 </head>
 <body>
-  <h1>Inscreva-se para receber alertas ambientais</h1>
-  <form id="subscribe-form">
-    <label for="email">Seu e-mail:</label>
-    <input type="email" id="email" name="email" required>
-    <button type="submit" id="submit-button">Inscrever</button>
-  </form>
 
-  <!-- Divs para as mensagens -->
-  <div id="message-success" class="message success"></div>
-  <div id="message-error" class="message error"></div>
+  <div class="container">
+    <div class="full-width">
+      <h1>Dashboard de Monitoramento Ecobot</h1>
+    </div>
+
+    <div class="card full-width">
+      <h2>Dados Atuais</h2>
+      <div id="dados-recentes-container"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Painel de Alertas</h2>
+        <p>O sistema monitora continuamente o risco de queimadas baseado na combinação de temperatura alta e umidade baixa.</p>
+        <p>Os alertas são enviados automaticamente para os emails inscritos.</p>
+    </div>
+
+    <div class="card">
+      <h2>Inscreva-se para Alertas</h2>
+      <form id="subscribe-form">
+        <label for="email">Seu e-mail:</label>
+        <input type="email" id="email" name="email" required placeholder="seunome@example.com">
+        <button type="submit" id="submit-button">Inscrever</button>
+      </form>
+      <div id="message-success" class="message success"></div>
+      <div id="message-error" class="message error"></div>
+    </div>
+
+    <div class="card full-width">
+      <h2>Histórico de Alertas</h2>
+      <table id="alerts-history-table">
+        <thead>
+          <tr>
+            <th>Nível</th>
+            <th>Base</th>
+            <th>Mensagens</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- As linhas de alerta serão inseridas aqui pelo JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
   <script>
+    // --- Elementos do DOM ---
     const form = document.getElementById('subscribe-form');
     const emailInput = document.getElementById('email');
     const submitButton = document.getElementById('submit-button');
     const msgSuccess = document.getElementById('message-success');
     const msgError = document.getElementById('message-error');
 
+    // --- Inscrição de Email ---
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-      
-      // Desabilitar botão para evitar cliques múltiplos
       submitButton.disabled = true;
       submitButton.innerText = 'Enviando...';
-
-      // Limpar mensagens antigas
       msgSuccess.style.display = 'none';
       msgError.style.display = 'none';
 
       try {
         const response = await fetch('/subscribe', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: emailInput.value }),
         });
-
         const responseText = await response.text();
-
         if (response.ok) {
           msgSuccess.innerText = responseText;
           msgSuccess.style.display = 'block';
-          emailInput.value = ''; // Limpa o campo de e-mail
+          emailInput.value = '';
         } else {
-          msgError.innerText = responseText; // Mostra a mensagem de erro do servidor
+          msgError.innerText = responseText;
           msgError.style.display = 'block';
         }
       } catch (error) {
         msgError.innerText = 'Um erro de rede ocorreu. Tente novamente.';
         msgError.style.display = 'block';
       } finally {
-        // Habilitar o botão novamente
         submitButton.disabled = false;
         submitButton.innerText = 'Inscrever';
       }
     });
+
+    // --- Busca e Exibição dos Dados ---
+    async function fetchData() {
+      try {
+        // 1. Buscar e exibir dados recentes
+        const recentesRes = await fetch('/api/dados-recentes');
+        const recentesData = await recentesRes.json();
+        const recentesContainer = document.getElementById('dados-recentes-container');
+        recentesContainer.innerHTML = ''; // Limpar antes de adicionar
+        recentesData.forEach(base => {
+            const card = document.createElement('div');
+            card.className = 'base-card';
+            card.innerHTML = `
+                <h3>${base.nome}</h3>
+                ${base.error ? `<p>${base.error}</p>` : `
+                <p><strong>Temperatura:</strong> ${base.temp !== null ? base.temp + '°C' : 'N/A'}</p>
+                <p><strong>Umidade:</strong> ${base.umid !== null ? base.umid + '%' : 'N/A'}</p>
+                <p><strong>CO2:</strong> ${base.co2 !== null ? base.co2 + 'ppm' : 'N/A'}</p>
+                <p><small>Atualizado: ${base.timestamp ? new Date(base.timestamp).toLocaleString('pt-BR') : 'N/A'}</small></p>
+                `}
+            `;
+            recentesContainer.appendChild(card);
+        });
+
+        // 2. Buscar e exibir histórico de alertas na nova tabela
+        const alertsRes = await fetch('/api/alerts');
+        const alertsData = await alertsRes.json();
+        const tableBody = document.querySelector('#alerts-history-table tbody');
+        tableBody.innerHTML = ''; // Limpar antes de adicionar
+
+        alertsData.forEach(alert => {
+            const row = tableBody.insertRow();
+            row.className = `nivel-${alert.nivel}`; // Adiciona classe 'nivel-critico' ou 'nivel-aviso'
+            
+            row.insertCell(0).innerText = alert.nivel.toUpperCase();
+            row.insertCell(1).innerText = alert.base;
+            row.insertCell(2).innerText = alert.mensagens.join('; ');
+            row.insertCell(3).innerText = new Date(alert.timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+        });
+
+      } catch (error) {
+        console.error("Erro ao buscar dados para o dashboard:", error);
+      }
+    }
+
+    // Carregar os dados quando a página for aberta e depois a cada 30 segundos
+    fetchData();
+    setInterval(fetchData, 30000);
   </script>
 </body>
 </html>
