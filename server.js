@@ -95,29 +95,36 @@ app.post('/subscribe', requireDatabase, async (req, res) => {
   if (!email) { return res.status(400).send('O e-mail é obrigatório.'); }
   
   try {
+    console.log(`📧 Tentando inscrever: ${email}`);
     const client = await pool.connect();
+    console.log(`✅ Conexão obtida do pool`);
+    
     try {
       // Verifica se o e-mail já existe
+      console.log(`🔍 Verificando se email existe...`);
       const existing = await client.query('SELECT * FROM subscribers WHERE email = $1', [email]);
       if (existing.rows.length > 0) {
+        console.log(`⚠️ Email já existe: ${email}`);
         return res.status(409).send('Este e-mail já está inscrito.');
       }
       
       // Insere o novo e-mail
+      console.log(`➕ Inserindo novo email...`);
       await client.query('INSERT INTO subscribers(email) VALUES($1)', [email]);
+      console.log(`✅ Email inserido no banco`);
       
-      // Envia e-mail de boas-vindas (apenas se EMAIL_USER estiver configurado)
+      // Envia e-mail de boas-vindas em background (não aguarda)
       if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        await transporter.sendMail({
+        console.log(`📤 Iniciando envio de email em background...`);
+        transporter.sendMail({
             from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: '✅ Inscrição Confirmada no Ecobot Alertas',
             html: `<h2>Olá!</h2><p>Obrigado por se inscrever no sistema de alertas ambientais do Ecobot.</p><p>Você agora receberá e-mails de aviso e de alerta crítico baseados nos dados de nossos sensores.</p><p>Atenciosamente,<br>Equipe Ecobot</p>`
-        });
-        console.log(`E-mail de boas-vindas enviado para ${email}`);
+        }).catch(err => console.error(`❌ Erro ao enviar email: ${err.message}`));
       }
       
-      res.status(200).send('Inscrito com sucesso! E-mail de confirmação enviado.');
+      res.status(200).send('Inscrito com sucesso! E-mail de confirmação será enviado em breve.');
 
     } finally {
       client.release();
