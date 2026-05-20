@@ -1,5 +1,0 @@
-[build]
-providers = ["nodejs-pnpm", "nodejs-npm", "nodejs"]
-
-[start]
-cmd = "node server.js"
