@@ -1,1 +1,2 @@
-web: bash start.sh
+web: node server.js
+release: npm run setup

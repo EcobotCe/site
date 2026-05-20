@@ -1,17 +1,12 @@
 require('dotenv').config();
 
-console.log('🔧 Iniciando servidor...');
-console.log(`📌 NODE_ENV: ${process.env.NODE_ENV || 'não definido'}`);
-console.log(`🔌 PORT solicitada: ${process.env.PORT || 'não definida, usando 8080'}`);
-
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const cron = require('node-cron');
-const { exec } = require('child_process');
+const { Pool } = require('pg');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
-const { Pool } = require('pg');
+const cron = require('node-cron');
 
 const app = express();
 const port = process.env.PORT || 8080; // Padrão para Railway é 8080
