@@ -2757,12 +2757,18 @@
             const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
 
             try {
+                // Usar AbortController para timeout customizado (60 segundos)
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 60000);
+
                 const response = await fetch(`${backendUrl}/subscribe`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email }),
+                    signal: controller.signal
                 });
 
+                clearTimeout(timeout);
                 const texto = await response.text();
 
                 if (response.ok) {
@@ -2775,7 +2781,11 @@
                 }
             } catch (erro) {
                 console.error('Erro ao inscrever no backend:', erro);
-                showToast('❌ Não foi possível conectar ao servidor. Verifique a conexão.', 'error');
+                if (erro.name === 'AbortError') {
+                    showToast('⏱️ Requisição expirou. Servidor pode estar lento. Tente novamente.', 'error');
+                } else {
+                    showToast('❌ Não foi possível conectar ao servidor. Verifique a conexão.', 'error');
+                }
             }
         }
     </script>
