@@ -67,6 +67,15 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/test-json', (req, res) => {
+  res.json({
+    test: 'Express is running!',
+    time: new Date().toISOString(),
+    port: port,
+    node_env: process.env.NODE_ENV
+  });
+});
+
 app.get('/health', (req, res) => {
   console.log('🚀 HEALTH ENDPOINT CHAMADO');
   const response = { 
