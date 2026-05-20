@@ -68,11 +68,16 @@ app.get('/', (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-  res.status(200).json({ 
+  console.log('🚀 HEALTH ENDPOINT CHAMADO');
+  const response = { 
     status: 'ok',
     timestamp: new Date().toISOString(),
-    database: pool ? 'connected' : 'disconnected'
-  });
+    database: pool ? 'connected' : 'disconnected',
+    server: 'Express.js 4.18.2 - NOVO',
+    ambiente: process.env.NODE_ENV || 'production'
+  };
+  console.log('Enviando JSON:', response);
+  res.status(200).json(response);
 });
 
 // --- Endpoint de Inscrição (Refatorado para DB) ---
