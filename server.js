@@ -1,12 +1,17 @@
 require('dotenv').config();
 
+console.log('🔧 Iniciando servidor...');
+console.log(`📌 NODE_ENV: ${process.env.NODE_ENV || 'não definido'}`);
+console.log(`🔌 PORT solicitada: ${process.env.PORT || 'não definida, usando 8080'}`);
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { Pool } = require('pg');
+const cron = require('node-cron');
+const { exec } = require('child_process');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
-const cron = require('node-cron');
+const { Pool } = require('pg');
 
 const app = express();
 const port = process.env.PORT || 8080; // Padrão para Railway é 8080
@@ -43,24 +48,9 @@ app.use(cors({
   origin: (origin, callback) => {
     // Permite requisições sem origin (ex: curl, Postman, server-side)
     if (!origin) return callback(null, true);
-    
-    // Permite variações da URL do Railway (com ou sem .up)
-    if (origin.includes('web-production-7eff7') && origin.includes('railway.app')) {
+    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
-    // Permite localhost e 127.0.0.1 em desenvolvimento
-    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-      return callback(null, true);
-    }
-    
-    // Verifica CORS_ORIGINS configurado
-    if (allowedOrigins.length > 0 && allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    
-    // Se nenhuma condição foi atendida, nega
-    console.log(`⚠️ CORS rejeitado para origin: ${origin}`);
     return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
   }
 }));
@@ -82,83 +72,50 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/test-json', (req, res) => {
-  res.json({
-    test: 'Express is running!',
-    time: new Date().toISOString(),
-    port: port,
-    node_env: process.env.NODE_ENV
-  });
-});
-
 app.get('/health', (req, res) => {
-  console.log('🚀 HEALTH ENDPOINT CHAMADO');
-  const response = { 
+  res.status(200).json({ 
     status: 'ok',
     timestamp: new Date().toISOString(),
-    database: pool ? 'connected' : 'disconnected',
-    server: 'Express.js 4.18.2 - NOVO',
-    ambiente: process.env.NODE_ENV || 'production',
-    cors_env: process.env.CORS_ORIGINS || 'NOT SET',
-    cors_parsed: allowedOrigins
-  };
-  console.log('Enviando JSON:', response);
-  res.status(200).json(response);
+    database: pool ? 'connected' : 'disconnected'
+  });
 });
 
 // --- Endpoint de Inscrição (Refatorado para DB) ---
 app.post('/subscribe', requireDatabase, async (req, res) => {
-  console.log(`📨 [DEBUG] Body recebido:`, JSON.stringify(req.body));
-  console.log(`📨 [DEBUG] Type de req.body:`, typeof req.body);
-  console.log(`📨 [DEBUG] Content-Type header:`, req.headers['content-type']);
-  
   const { email } = req.body;
-  console.log(`📨 [DEBUG] Email extraído: ${email}`);
-  
   if (!email) { return res.status(400).send('O e-mail é obrigatório.'); }
   
   try {
-    console.log(`📧 Tentando inscrever: ${email}`);
     const client = await pool.connect();
-    console.log(`✅ Conexão obtida do pool`);
-    
     try {
       // Verifica se o e-mail já existe
-      console.log(`🔍 Verificando se email existe...`);
       const existing = await client.query('SELECT * FROM subscribers WHERE email = $1', [email]);
       if (existing.rows.length > 0) {
-        console.log(`⚠️ Email já existe: ${email}`);
         return res.status(409).send('Este e-mail já está inscrito.');
       }
       
       // Insere o novo e-mail
-      console.log(`➕ Inserindo novo email...`);
       await client.query('INSERT INTO subscribers(email) VALUES($1)', [email]);
-      console.log(`✅ Email inserido no banco`);
       
-      // Envia e-mail de boas-vindas em background (não aguarda)
+      // Envia e-mail de boas-vindas (apenas se EMAIL_USER estiver configurado)
       if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        console.log(`📤 Iniciando envio de email em background...`);
-        transporter.sendMail({
+        await transporter.sendMail({
             from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: '✅ Inscrição Confirmada no Ecobot Alertas',
             html: `<h2>Olá!</h2><p>Obrigado por se inscrever no sistema de alertas ambientais do Ecobot.</p><p>Você agora receberá e-mails de aviso e de alerta crítico baseados nos dados de nossos sensores.</p><p>Atenciosamente,<br>Equipe Ecobot</p>`
-        }).catch(err => console.error(`❌ Erro ao enviar email: ${err.message}`));
+        });
+        console.log(`E-mail de boas-vindas enviado para ${email}`);
       }
       
-      res.status(200).send('Inscrito com sucesso! E-mail de confirmação será enviado em breve.');
+      res.status(200).send('Inscrito com sucesso! E-mail de confirmação enviado.');
 
     } finally {
       client.release();
     }
   } catch (error) {
-    console.error('❌ Erro ao inscrever e-mail:');
-    console.error('Tipo:', error.constructor.name);
-    console.error('Mensagem:', error.message);
-    console.error('Stack:', error.stack);
-    if (error.code) console.error('Código:', error.code);
-    res.status(500).send(`Erro: ${error.message}`);
+    console.error('Erro ao inscrever e-mail:', error);
+    res.status(500).send('Ocorreu um erro no servidor.');
   }
 });
 
