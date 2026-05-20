@@ -83,7 +83,9 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     database: pool ? 'connected' : 'disconnected',
     server: 'Express.js 4.18.2 - NOVO',
-    ambiente: process.env.NODE_ENV || 'production'
+    ambiente: process.env.NODE_ENV || 'production',
+    cors_env: process.env.CORS_ORIGINS || 'NOT SET',
+    cors_parsed: allowedOrigins
   };
   console.log('Enviando JSON:', response);
   res.status(200).json(response);
