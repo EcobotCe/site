@@ -91,7 +91,13 @@ app.get('/health', (req, res) => {
 
 // --- Endpoint de Inscrição (Refatorado para DB) ---
 app.post('/subscribe', requireDatabase, async (req, res) => {
+  console.log(`📨 [DEBUG] Body recebido:`, JSON.stringify(req.body));
+  console.log(`📨 [DEBUG] Type de req.body:`, typeof req.body);
+  console.log(`📨 [DEBUG] Content-Type header:`, req.headers['content-type']);
+  
   const { email } = req.body;
+  console.log(`📨 [DEBUG] Email extraído: ${email}`);
+  
   if (!email) { return res.status(400).send('O e-mail é obrigatório.'); }
   
   try {
