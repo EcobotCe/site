@@ -130,8 +130,12 @@ app.post('/subscribe', requireDatabase, async (req, res) => {
       client.release();
     }
   } catch (error) {
-    console.error('Erro ao inscrever e-mail:', error);
-    res.status(500).send('Ocorreu um erro no servidor.');
+    console.error('❌ Erro ao inscrever e-mail:');
+    console.error('Tipo:', error.constructor.name);
+    console.error('Mensagem:', error.message);
+    console.error('Stack:', error.stack);
+    if (error.code) console.error('Código:', error.code);
+    res.status(500).send(`Erro: ${error.message}`);
   }
 });
 
