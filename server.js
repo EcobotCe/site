@@ -43,9 +43,24 @@ app.use(cors({
   origin: (origin, callback) => {
     // Permite requisições sem origin (ex: curl, Postman, server-side)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+    
+    // Permite variações da URL do Railway (com ou sem .up)
+    if (origin.includes('web-production-7eff7') && origin.includes('railway.app')) {
       return callback(null, true);
     }
+    
+    // Permite localhost e 127.0.0.1 em desenvolvimento
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+      return callback(null, true);
+    }
+    
+    // Verifica CORS_ORIGINS configurado
+    if (allowedOrigins.length > 0 && allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Se nenhuma condição foi atendida, nega
+    console.log(`⚠️ CORS rejeitado para origin: ${origin}`);
     return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
   }
 }));
