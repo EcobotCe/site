@@ -35,6 +35,66 @@ const LIMITES = {
   co2: { max: 1000, critico: 1500 }
 };
 
+const normalizeMensagens = (mensagens) => {
+  return Array.isArray(mensagens) ? mensagens.map(m => String(m).trim()) : [];
+};
+
+const isSameAlert = (lastMensagens, currentMensagens) => {
+  const last = normalizeMensagens(lastMensagens);
+  const current = normalizeMensagens(currentMensagens);
+  if (last.length !== current.length) return false;
+  return last.every((msg, index) => msg === current[index]);
+};
+
+const shouldSendAlert = async (client, baseNome, nivel, mensagens) => {
+  const { rows } = await client.query(
+    'SELECT mensagens FROM alerts WHERE base = $1 AND nivel = $2 ORDER BY timestamp DESC LIMIT 1',
+    [baseNome, nivel]
+  );
+  if (rows.length === 0) return true;
+  return !isSameAlert(rows[0].mensagens, mensagens);
+};
+
+const sendAlertEmail = async (listaEmails, subject, html) => {
+  if (listaEmails.length === 0) return;
+  await transporter.sendMail({
+    from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
+    to: process.env.EMAIL_USER,
+    bcc: listaEmails.join(', '),
+    subject,
+    html
+  });
+};
+
+const handleAlert = async (client, baseNome, nivel, mensagens) => {
+  if (!await shouldSendAlert(client, baseNome, nivel, mensagens)) {
+    console.log(`Alerta ${nivel} para ${baseNome} já enviado anteriormente com a mesma mensagem. Pulando envio.`);
+    return;
+  }
+
+  await client.query(
+    'INSERT INTO alerts(nivel, base, mensagens, timestamp) VALUES($1, $2, $3, NOW())',
+    [nivel, baseNome, mensagens]
+  );
+
+  const { rows } = await client.query('SELECT email FROM subscribers');
+  const listaEmails = rows.map(r => r.email);
+  if (listaEmails.length === 0) {
+    console.log('Nenhum inscrito encontrado para envio de alertas. Alerta registrado apenas no banco.');
+    return;
+  }
+
+  const html = `<h2>${nivel === 'critico' ? '🚨 ALERTA CRÍTICO' : nivel === 'aviso' ? '⚠️ Aviso de Condições' : '⚠️ Estação Offline'}</h2><ul>${mensagens.map(m => `<li>${m}</li>`).join('')}</ul><p>Verifique a condição da base ${baseNome}.</p>`;
+  const subject = nivel === 'critico'
+    ? `🚨 ALERTA CRÍTICO na base ${baseNome}`
+    : nivel === 'aviso'
+      ? `⚠️ Aviso de Condições na base ${baseNome}`
+      : `⚠️ Estação Offline na base ${baseNome}`;
+
+  await sendAlertEmail(listaEmails, subject, html);
+  console.log(`E-mails de alerta (${nivel}) enviados para ${listaEmails.length} inscritos.`);
+};
+
 const checkAlerts = async () => {
   const client = await pool.connect();
   try {
@@ -50,7 +110,11 @@ const checkAlerts = async () => {
         });
 
         const dados = Array.isArray(response.data?.result) ? response.data.result : [];
-        if (dados.length === 0) continue;
+        if (dados.length === 0) {
+          console.log(`⚠️ Base ${base.nome} sem dados ou offline. Registrando alerta de offline.`);
+          await handleAlert(client, base.nome, 'offline', [`Base ${base.nome} está sem dados ou offline.`]);
+          continue;
+        }
 
         const getVal = (pref) => {
             const item = dados.find(d => d.variable && d.variable.toLowerCase().includes(pref));
@@ -82,32 +146,9 @@ const checkAlerts = async () => {
 
         // Se houver alertas, processar e enviar e-mails
         if (alertasCriticos.length > 0 || alertasAviso.length > 0) {
-          const { rows } = await client.query('SELECT email FROM subscribers');
-          const listaEmails = rows.map(r => r.email);
-
-          if (listaEmails.length > 0) {
-            const nivel = alertasCriticos.length > 0 ? 'critico' : 'aviso';
-            const subject = nivel === 'critico' ? `🚨 ALERTA CRÍTICO na base ${base.nome}` : `⚠️ Aviso de Condições na base ${base.nome}`;
-            const mensagens = [...alertasCriticos, ...alertasAviso];
-            const html = `<h2>${subject}</h2><ul>${mensagens.map(m => `<li>${m}</li>`).join('')}</ul><p>Estes dados requerem atenção.</p>`;
-            
-            // Salva o alerta no banco de dados
-            await client.query(
-              'INSERT INTO alerts(nivel, base, mensagens, timestamp) VALUES($1, $2, $3, NOW())',
-              [nivel, base.nome, mensagens]
-            );
-            console.log(`Alerta (${nivel}) salvo no banco de dados para a base ${base.nome}.`);
-
-            // Envia os e-mails usando BCC para não expor a lista de inscritos
-            await transporter.sendMail({
-              from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
-              to: process.env.EMAIL_USER, // remetente como destinatário principal
-              bcc: listaEmails.join(', '),
-              subject: subject,
-              html: html
-            });
-            console.log(`E-mails de alerta (${nivel}) enviados para ${listaEmails.length} inscritos.`);
-          }
+          const nivel = alertasCriticos.length > 0 ? 'critico' : 'aviso';
+          const mensagens = [...alertasCriticos, ...alertasAviso];
+          await handleAlert(client, base.nome, nivel, mensagens);
         }
       } catch (err) {
         console.error(`Erro ao processar a base ${base.nome}:`, err.message);
