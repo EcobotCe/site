@@ -80,7 +80,7 @@
         }
         // NO INÍCIO DO SEU SCRIPT - DECLARE UMA ÚNICA VEZ
         // ========== CONFIGURAÇÃO DE AMBIENTE ==========
-        const API_URL = 'https://web-production-7eff7up.railway.app';
+        const API_URL = 'https://web-production-f4dae.up.railway.app';
         const ECOBOT_BACKEND_URL = 'https://web-production-f4dae.up.railway.app';
         const TAGO_API_BASE = 'https://api.tago.io/data';
         const TAGO_FETCH_QTY = 60;
@@ -1274,8 +1274,7 @@
                             <i class="fa-solid fa-bell mr-1"></i> Inscrever
                         </button>
                     </div>
-                    <p class="text-[10px] text-slate-500">Você receberá e-mails do servidor quando os sensores
-                        detectarem condições críticas.</p>
+                    <p class="text-[10px] text-slate-500">Você receberá e-mails do servidor quando os sensores detectarem condições críticas.</p>
                 </div>
             </div>
         </div>
@@ -2762,7 +2761,7 @@
                 const controller = new AbortController();
                 const timeout = setTimeout(() => controller.abort(), 60000);
 
-                const response = await fetch(`${ECOBOT_BACKEND_URL}/web-production-f4dae.up.railway.app/subscribe`, {
+                const response = await fetch(`${backendUrl}/subscribe`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email }),
