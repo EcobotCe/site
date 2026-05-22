@@ -56,6 +56,30 @@ const setupDatabase = async (retries = 3) => {
           );
         `);
         console.log('✅ Tabela "base_states" criada ou já existente.');
+        
+        // Tabela para armazenar bases adicionadas por usuários, disponíveis para todos
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS bases (
+            id SERIAL PRIMARY KEY,
+            nome VARCHAR(255) UNIQUE NOT NULL,
+            token TEXT NOT NULL,
+            lat NUMERIC NULL,
+            lon NUMERIC NULL,
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
+        console.log('✅ Tabela "bases" criada ou já existente.');
+
+        const envBases = [];
+        if (process.env.TAGO_TOKEN_1) envBases.push({ nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 });
+        if (process.env.TAGO_TOKEN_2) envBases.push({ nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 });
+        for (const envBase of envBases) {
+          await client.query(
+            `INSERT INTO bases(nome, token) VALUES($1, $2) ON CONFLICT (nome) DO NOTHING`,
+            [envBase.nome, envBase.token]
+          );
+        }
+        if (envBases.length > 0) console.log('✅ Bases padrão do ambiente inseridas em bases, se não existiam.');
         console.log('\n✅ Setup do banco de dados concluído com sucesso!\n');
         return true;
 

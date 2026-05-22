@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { Pool } = require('pg');
+const fs = require('fs').promises;
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 const { exec } = require('child_process');
@@ -18,16 +19,39 @@ console.log(`✨ Porta final para listen: ${port}`);
 let pool = null;
 const DB_URL = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
 
-if (DB_URL) {
-  try {
-    pool = new Pool({
-      connectionString: DB_URL,
-      ssl: { rejectUnauthorized: false }
-    });
-    console.log(`✅ Pool de conexão com banco de dados configurado (${process.env.DATABASE_URL ? 'DATABASE_URL' : 'DATABASE_PUBLIC_URL'})`);
-  } catch (err) {
-    console.warn('⚠️ Erro ao configurar pool de banco de dados:', err.message);
+const scheduleAlertsCron = () => {
+  if (!pool) {
+    console.warn('⚠️ Cron de alertas não será agendado porque o banco de dados não está acessível.');
+    return;
   }
+  cron.schedule('*/5 * * * *', () => {
+    console.log('Executando a verificação de alertas via cron...');
+    exec('node check-alerts.js', (err, stdout, stderr) => {
+      if (err) { console.error('Erro ao executar check-alerts.js:', err); return; }
+      if (stdout) { console.log('Saída de check-alerts.js:', stdout); }
+      if (stderr) { console.error('Erros de check-alerts.js:', stderr); }
+    });
+  });
+};
+
+if (DB_URL) {
+  const candidatePool = new Pool({
+    connectionString: DB_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
+  candidatePool.connect()
+    .then(client => {
+      client.release();
+      pool = candidatePool;
+      console.log(`✅ Pool de conexão com banco de dados configurado (${process.env.DATABASE_URL ? 'DATABASE_URL' : 'DATABASE_PUBLIC_URL'})`);
+      scheduleAlertsCron();
+    })
+    .catch(err => {
+      console.warn('⚠️ Falha ao conectar ao banco de dados no startup:', err.message);
+      candidatePool.end().catch(() => {});
+      console.warn('⚠️ Recursos de banco de dados estarão indisponíveis. Usando fallback de arquivo/env.');
+    });
 } else {
   console.warn('⚠️ DATABASE_URL e DATABASE_PUBLIC_URL não configuradas. Recursos de banco de dados estarão indisponíveis.');
 }
@@ -63,6 +87,45 @@ const requireDatabase = (req, res, next) => {
     });
   }
   next();
+};
+
+const getEnvBaseDefaults = () => {
+  const bases = [];
+  if (process.env.TAGO_TOKEN_1) {
+    bases.push({ id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 });
+  }
+  if (process.env.TAGO_TOKEN_2) {
+    bases.push({ id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 });
+  }
+  return bases;
+};
+
+const BASES_FILE = path.join(__dirname, 'data', 'bases.json');
+
+const getBasesFromDb = async () => {
+  if (pool) {
+    try {
+      const client = await pool.connect();
+      try {
+        const { rows } = await client.query('SELECT id, nome, token, lat, lon FROM bases ORDER BY id');
+        return rows;
+      } finally {
+        client.release();
+      }
+    } catch (err) {
+      console.error('Erro ao acessar o banco para listar bases:', err.message);
+      // continuar para fallback de arquivo
+    }
+  }
+
+  // Fallback para arquivo local quando não há banco
+  try {
+    const text = await fs.readFile(BASES_FILE, 'utf8');
+    const parsed = JSON.parse(text || '[]');
+    return parsed;
+  } catch (err) {
+    return getEnvBaseDefaults();
+  }
 };
 
 app.get('/', (req, res) => {
@@ -189,12 +252,115 @@ app.get('/api/alerts', requireDatabase, async (req, res) => {
   }
 });
 
+app.get('/api/bases', async (req, res) => {
+  try {
+    const bases = await getBasesFromDb();
+    res.status(200).json(bases);
+  } catch (error) {
+    console.error('Erro ao listar bases:', error.message);
+    res.status(500).json({ error: 'Falha ao carregar bases' });
+  }
+});
+
+app.post('/api/bases', async (req, res) => {
+  const { id, nome, token, lat, lon } = req.body;
+  if (!nome || !token) {
+    return res.status(400).json({ error: 'O nome e o token são obrigatórios.' });
+  }
+  const latValue = lat !== undefined && lat !== null && lat !== '' ? parseFloat(lat) : null;
+  const lonValue = lon !== undefined && lon !== null && lon !== '' ? parseFloat(lon) : null;
+
+  try {
+    if (pool) {
+      const client = await pool.connect();
+      try {
+        if (id) {
+          const result = await client.query(
+            'UPDATE bases SET nome = $1, token = $2, lat = $3, lon = $4 WHERE id = $5 RETURNING id, nome, token, lat, lon',
+            [nome, token, latValue, lonValue, id]
+          );
+          if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Base não encontrada.' });
+          }
+          return res.status(200).json(result.rows[0]);
+        }
+        const result = await client.query(
+          'INSERT INTO bases(nome, token, lat, lon) VALUES($1, $2, $3, $4) RETURNING id, nome, token, lat, lon',
+          [nome, token, latValue, lonValue]
+        );
+        return res.status(201).json(result.rows[0]);
+      } finally {
+        client.release();
+      }
+    }
+
+    // Fallback para arquivo
+    await fs.mkdir(path.join(__dirname, 'data'), { recursive: true });
+    let bases = [];
+    try { bases = JSON.parse(await fs.readFile(BASES_FILE, 'utf8') || '[]'); } catch (e) { bases = []; }
+    if (id) {
+      const idx = bases.findIndex(b => b.id == id);
+      if (idx === -1) return res.status(404).json({ error: 'Base não encontrada.' });
+      bases[idx] = { ...bases[idx], nome, token, lat: latValue, lon: lonValue };
+      await fs.writeFile(BASES_FILE, JSON.stringify(bases, null, 2));
+      return res.status(200).json(bases[idx]);
+    }
+    const newId = bases.length ? Math.max(...bases.map(b => b.id || 0)) + 1 : 1;
+    const newBase = { id: newId, nome, token, lat: latValue, lon: lonValue };
+    bases.push(newBase);
+    await fs.writeFile(BASES_FILE, JSON.stringify(bases, null, 2));
+    return res.status(201).json(newBase);
+  } catch (error) {
+    console.error('Erro ao salvar base:', error.message);
+    res.status(500).json({ error: 'Falha ao salvar a base' });
+  }
+});
+
+app.delete('/api/bases/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  if (Number.isNaN(id)) {
+    return res.status(400).json({ error: 'ID inválido.' });
+  }
+  try {
+    if (pool) {
+      const client = await pool.connect();
+      try {
+        const result = await client.query('DELETE FROM bases WHERE id = $1', [id]);
+        if (result.rowCount === 0) return res.status(404).json({ error: 'Base não encontrada.' });
+        return res.status(200).json({ message: 'Base removida com sucesso.' });
+      } finally {
+        client.release();
+      }
+    }
+
+    // Fallback arquivo
+    await fs.mkdir(path.join(__dirname, 'data'), { recursive: true });
+    let bases = [];
+    try { bases = JSON.parse(await fs.readFile(BASES_FILE, 'utf8') || '[]'); } catch (e) { bases = []; }
+    const idx = bases.findIndex(b => b.id == id);
+    if (idx === -1) return res.status(404).json({ error: 'Base não encontrada.' });
+    bases.splice(idx, 1);
+    await fs.writeFile(BASES_FILE, JSON.stringify(bases, null, 2));
+    return res.status(200).json({ message: 'Base removida com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao remover base:', error.message);
+    res.status(500).json({ error: 'Falha ao remover a base' });
+  }
+});
+
 // --- Endpoint de Dados Recentes (sem alteração, pois não usa persistência) ---
 app.get('/api/dados-recentes', async (req, res) => {
-  const BASES = [
-    { id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 },
-    { id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 }
-  ];
+  let BASES = [];
+  if (pool) {
+    try {
+      BASES = await getBasesFromDb();
+    } catch (err) {
+      console.error('Erro ao carregar bases do banco de dados:', err.message);
+    }
+  }
+  if (!BASES || BASES.length === 0) {
+    BASES = getEnvBaseDefaults();
+  }
   const resultados = [];
   for (const base of BASES) {
     if (!base.token) continue;
@@ -242,15 +408,8 @@ app.get('/api/test-tago', async (req, res) => {
   }
 });
 
-// --- Tarefa Agendada (sem alteração aqui) ---
-cron.schedule('*/5 * * * *', () => {
-  console.log('Executando a verificação de alertas via cron...');
-  exec('node check-alerts.js', (err, stdout, stderr) => {
-    if (err) { console.error('Erro ao executar check-alerts.js:', err); return; }
-    if (stdout) { console.log('Saída de check-alerts.js:', stdout); }
-    if (stderr) { console.error('Erros de check-alerts.js:', stderr); }
-  });
-});
+// --- Tarefa Agendada ---
+scheduleAlertsCron();
 
 const server = app.listen(port, () => {
   console.log(`🚀 Servidor iniciado com sucesso na porta ${port}`);

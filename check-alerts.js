@@ -3,19 +3,17 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 
-// --- Diagnóstico de Conexão ---
-const DB_URL = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
+// --- Diagnóstico de Conexão (não-fatal) ---
+const DB_URL = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL || null;
 if (!DB_URL) {
-  console.error('ERRO FATAL (check-alerts.js): Nem DATABASE_URL nem DATABASE_PUBLIC_URL foram encontradas!');
-  process.exit(1);
+  console.warn('⚠️ Aviso (check-alerts.js): DATABASE_URL não configurada — usando fallback de ambiente/arquivo.');
 }
-// --- Fim do Diagnóstico ---
 
-// Configuração do Banco de Dados
-const pool = new Pool({
-  connectionString: DB_URL,
-  ssl: { rejectUnauthorized: false }
-});
+// Configuração do Banco de Dados (pode ser nulo)
+let pool = null;
+if (DB_URL) {
+  pool = new Pool({ connectionString: DB_URL, ssl: { rejectUnauthorized: false } });
+}
 
 // Configuração do Nodemailer
 const transporter = nodemailer.createTransport({
@@ -23,11 +21,34 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
 });
 
-// Bases para monitorar
-const BASES = [
-    { id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 },
-    { id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 }
-];
+// Busca as bases configuradas no banco de dados
+const fs = require('fs').promises;
+const BASES_FILE = require('path').join(__dirname, 'data', 'bases.json');
+
+const getBasesFromDb = async (client) => {
+  if (client) {
+    const { rows } = await client.query('SELECT id, nome, token, lat, lon FROM bases ORDER BY id');
+    return rows;
+  }
+  // fallback arquivo
+  try {
+    const txt = await fs.readFile(BASES_FILE, 'utf8');
+    return JSON.parse(txt || '[]');
+  } catch (err) {
+    return getDefaultEnvBases();
+  }
+};
+
+const getDefaultEnvBases = () => {
+  const bases = [];
+  if (process.env.TAGO_TOKEN_1) {
+    bases.push({ id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 });
+  }
+  if (process.env.TAGO_TOKEN_2) {
+    bases.push({ id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 });
+  }
+  return bases;
+};
 
 // Limites de alerta
 const LIMITES = {
@@ -99,6 +120,17 @@ const ensureTables = async (client) => {
   `);
 
   await client.query(`
+    CREATE TABLE IF NOT EXISTS bases (
+      id SERIAL PRIMARY KEY,
+      nome VARCHAR(255) UNIQUE NOT NULL,
+      token TEXT NOT NULL,
+      lat NUMERIC NULL,
+      lon NUMERIC NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `);
+
+  await client.query(`
     CREATE TABLE IF NOT EXISTS base_states (
       base TEXT PRIMARY KEY,
       last_nivel TEXT,
@@ -140,12 +172,27 @@ const handleAlert = async (client, baseNome, nivel, mensagens) => {
 };
 
 const checkAlerts = async () => {
-  const client = await pool.connect();
+  if (!pool) {
+    console.warn('⚠️ Banco de dados indisponível. Verificação de alertas será ignorada.');
+    return;
+  }
+
+  let client;
+  try {
+    client = await pool.connect();
+  } catch (err) {
+    console.error('❌ Não foi possível conectar ao banco para verificação de alertas:', err.message);
+    return;
+  }
+
   try {
     console.log('Iniciando verificação de alertas...');
     await ensureTables(client);
-
-    for (const base of BASES) {
+    let bases = await getBasesFromDb(client);
+    if (!bases || bases.length === 0) {
+      bases = getDefaultEnvBases();
+    }
+    for (const base of bases) {
       if (!base.token) continue;
 
       try {
@@ -216,8 +263,14 @@ const checkAlerts = async () => {
   } catch (err) {
     console.error('Erro fatal na execução de checkAlerts:', err);
   } finally {
-    await client.release();
+    if (client) {
+      await client.release();
+    }
   }
 };
 
-checkAlerts().finally(() => pool.end());
+checkAlerts().finally(() => {
+  if (pool) {
+    pool.end().catch(err => console.error('Erro ao encerrar pool de banco:', err.message));
+  }
+});

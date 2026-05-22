@@ -1617,27 +1617,48 @@
         // ------------------------------------------------
         // 2. VARIÁVEIS GLOBAIS & INICIALIZAÇÃO
         // ------------------------------------------------
-        const basesPadrao = [
-            { id: Date.now(), nome: "EEEPDJWM", token: "b8880259-b7b8-4317-add7-f8499b2b331c", lat: -6.4010, lon: -38.8620 },
-            { id: Date.now() + 1, nome: "EEEPDJWM 2.0", token: "2fcbccc4-3614-43a6-81c9-270f56c3c109", lat: -6.4010, lon: -38.8620 }
-        ];
-
-        let redeBases = JSON.parse(localStorage.getItem('ecobot_bases')) || basesPadrao;
+        let redeBases = [];
         let baseSelecionada = null;
         let editingBaseId = null;
         let chartInstance = null;
         let intervalSync = null;
 
         window.onload = function () {
-            atualizarInterfaceBases();
-            mudarIdioma('pt');
-            carregarConfiguracoesAlertas(); // Carregar alertas salvos
-            carregarCredenciaisInterface(); // Carregar credenciais nos campos
-            setTimeout(() => {
-                document.getElementById('splash-screen').classList.add('opacity-0');
-                setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 1000);
-            }, 1500);
+            carregarBases().finally(() => {
+                atualizarInterfaceBases();
+                mudarIdioma('pt');
+                carregarConfiguracoesAlertas(); // Carregar alertas salvos
+                carregarCredenciaisInterface(); // Carregar credenciais nos campos
+                setTimeout(() => {
+                    document.getElementById('splash-screen').classList.add('opacity-0');
+                    setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 1000);
+                }, 1500);
+            });
         };
+
+        async function carregarBases() {
+            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+            try {
+                const response = await fetch(`${backendUrl}/api/bases`);
+                if (!response.ok) {
+                    throw new Error('Falha ao carregar bases do servidor');
+                }
+                const bases = await response.json();
+                if (Array.isArray(bases) && bases.length > 0) {
+                    redeBases = bases.map(base => ({
+                        ...base,
+                        lat: base.lat !== null ? parseFloat(base.lat) : null,
+                        lon: base.lon !== null ? parseFloat(base.lon) : null
+                    }));
+                    if (!baseSelecionada) baseSelecionada = redeBases[0];
+                }
+            } catch (err) {
+                console.error('Erro ao carregar bases do servidor:', err);
+                if (!redeBases.length) {
+                    redeBases = [];
+                }
+            }
+        }
 
         // ------------------------------------------------
         // 3. NAVEGAÇÃO & MODAIS
@@ -1846,29 +1867,43 @@
                 return;
             }
 
-            if (editingBaseId) {
-                const baseIndex = redeBases.findIndex(b => b.id == editingBaseId);
-                if (baseIndex >= 0) {
-                    redeBases[baseIndex] = { ...redeBases[baseIndex], nome, token, lat: lat || null, lon: lon || null };
-                    if (baseSelecionada && baseSelecionada.id === editingBaseId) {
-                        baseSelecionada = redeBases[baseIndex];
-                    }
-                }
-            } else {
-                redeBases.push({ id: Date.now(), nome, token, lat: lat || null, lon: lon || null });
-                if (!baseSelecionada) {
-                    baseSelecionada = redeBases[0];
-                }
-            }
+            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+            const payload = { nome, token, lat: lat || null, lon: lon || null };
 
-            localStorage.setItem('ecobot_bases', JSON.stringify(redeBases));
-            editingBaseId = null;
-            fecharModalAdicionarBase();
-            atualizarInterfaceBases();
-            if (redeBases.length === 1 && !baseSelecionada) {
-                mudarBase(redeBases[0].id);
-            } else if (baseSelecionada && document.getElementById('view-dashboard').classList.contains('active-view')) {
-                sincronizarTago();
+            try {
+                let response;
+                if (editingBaseId) {
+                    payload.id = editingBaseId;
+                    response = await fetch(`${backendUrl}/api/bases`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    response = await fetch(`${backendUrl}/api/bases`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+                if (!response.ok) {
+                    const errorBody = await response.json().catch(() => ({}));
+                    throw new Error(errorBody.error || 'Não foi possível salvar a base.');
+                }
+                const savedBase = await response.json();
+                await carregarBases();
+                if (!baseSelecionada || editingBaseId) {
+                    baseSelecionada = savedBase;
+                }
+                editingBaseId = null;
+                fecharModalAdicionarBase();
+                atualizarInterfaceBases();
+                if (document.getElementById('view-dashboard').classList.contains('active-view')) {
+                    sincronizarTago();
+                }
+            } catch (err) {
+                console.error('Erro ao salvar base:', err);
+                alert(idiomaAtual === 'pt' ? 'Erro ao salvar base. Verifique o console.' : 'Error saving base. Check console.');
             }
         }
 
@@ -1884,18 +1919,24 @@
                     : 'Are you sure you want to delete this base?';
             if (!confirm(confirmMsg)) return;
 
-            const index = redeBases.findIndex(b => b.id == id);
-            if (index === -1) return;
-
-            const removed = redeBases.splice(index, 1)[0];
-            if (baseSelecionada && baseSelecionada.id == removed.id) {
-                baseSelecionada = redeBases[0] || null;
-            }
-
-            localStorage.setItem('ecobot_bases', JSON.stringify(redeBases));
-            atualizarInterfaceBases();
-            if (baseSelecionada && document.getElementById('view-dashboard').classList.contains('active-view')) {
-                sincronizarTago();
+            try {
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const response = await fetch(`${backendUrl}/api/bases/${id}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    const errorBody = await response.json().catch(() => ({}));
+                    throw new Error(errorBody.error || 'Não foi possível excluir a base.');
+                }
+                await carregarBases();
+                if (baseSelecionada && baseSelecionada.id == id) {
+                    baseSelecionada = redeBases[0] || null;
+                }
+                atualizarInterfaceBases();
+                if (baseSelecionada && document.getElementById('view-dashboard').classList.contains('active-view')) {
+                    sincronizarTago();
+                }
+            } catch (err) {
+                console.error('Erro ao excluir base:', err);
+                alert(idiomaAtual === 'pt' ? 'Erro ao excluir base. Verifique o console.' : 'Error deleting base. Check console.');
             }
         }
 
