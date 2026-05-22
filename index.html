@@ -1085,7 +1085,7 @@
                     class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all">
                 </div>
                 <div class="flex justify-between items-start mb-6 relative z-10">
-                    <p class="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">Nível de CO₂</p>
+                    <p class="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">Nível de gás (%)</p>
                     <div
                         class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center text-purple-500 text-xl border border-purple-500/30 group-hover:scale-110 transition-transform shadow-inner">
                         <i class="fa-solid fa-cloud"></i>
@@ -1114,9 +1114,9 @@
             </div>
             <p id="semaforo-status" class="text-slate-400 text-sm font-medium">Analisando condições ambientais...</p>
             <div class="mt-4 text-xs text-slate-500">
-                <p><strong>Verde:</strong> Condições ideais (Temp ≤30°C, Umi ≥40%, CO₂ ≤5%)</p>
-                <p><strong>Amarelo:</strong> Atenção (Temp >30°C, Umi <40%, CO₂>5%)</p>
-                <p><strong>Vermelho:</strong> Crítico (Temp >35°C, Umi <30%, CO₂>10%)</p>
+                <p><strong>Verde:</strong> Condições ideais (Temp ≤30°C, Umi ≥40%, Gás ≤5%)</p>
+                <p><strong>Amarelo:</strong> Atenção (Temp >30°C, Umi <40%, Gás >5%)</p>
+                <p><strong>Vermelho:</strong> Crítico (Temp >35°C, Umi <30%, Gás >10%)</p>
             </div>
         </div>
 
@@ -1340,7 +1340,7 @@
                                     <i class="fa-solid fa-cloud"></i>
                                 </div>
                                 <div>
-                                    <p class="text-white font-bold">Nível de CO₂ Crítico</p>
+                                    <p class="text-white font-bold">Nível de gás crítico</p>
                                     <p class="text-xs text-slate-400">Quando atingir > 10%</p>
                                 </div>
                             </label>
@@ -1477,7 +1477,7 @@
                 btn_modal_gps: "Usar Meu GPS", btn_modal_manual: "Escolher Base Manualmente",
                 lbl_rede: "Base de Monitoramento:", btn_tago: "DADOS EM TEMPO REAL",
                 txt_offline_titulo: "CONEXÃO PERDIDA", txt_offline_sub: "Os dados pararam de chegar ou a estação está desligada. Aguardando nuvem...",
-                txt_alerta: "ALERTA: NÍVEL DE GÁS ELEVADO!", lbl_temp: "Temperatura", lbl_umi: "Umidade", lbl_gas: "Nível de CO2",
+                txt_alerta: "ALERTA: NÍVEL DE GÁS ELEVADO!", lbl_temp: "Temperatura", lbl_umi: "Umidade", lbl_gas: "Nível de gás (%)",
                 txt_hist: "Sincronizado", txt_adm_titulo: "Controle do Sistema",
                 btn_adicionar_base: "Adicionar Base", txt_adicionar_base_titulo: "Adicionar Nova Base",
                 txt_adicionar_base_sub: "Adicione sua própria base de monitoramento ambiental para acompanhar os dados em tempo real.",
@@ -1518,7 +1518,7 @@
                 btn_modal_gps: "Use My GPS", btn_modal_manual: "Choose Base Manually",
                 lbl_rede: "Monitoring Base:", btn_tago: "REAL-TIME DATA",
                 txt_offline_titulo: "CONNECTION LOST", txt_offline_sub: "Data stopped arriving or station is offline. Waiting for cloud...",
-                txt_alerta: "ALERT: HIGH GAS LEVEL!", lbl_temp: "Temperature", lbl_umi: "Humidity", lbl_gas: "CO2 Concentration",
+                txt_alerta: "ALERT: HIGH GAS LEVEL!", lbl_temp: "Temperature", lbl_umi: "Humidity", lbl_gas: "Gas (%)",
                 txt_hist: "Synchronized", txt_adm_titulo: "System Control",
                 btn_adicionar_base: "Add Base", txt_adicionar_base_titulo: "Add New Base",
                 txt_adicionar_base_sub: "Add your own environmental monitoring base to track data in real time.",
@@ -1559,7 +1559,7 @@
                 btn_modal_gps: "Usar Mi GPS", btn_modal_manual: "Elegir Base Manualmente",
                 lbl_rede: "Base de Monitoreo:", btn_tago: "DATOS EN TIEMPO REAL",
                 txt_offline_titulo: "CONEXIÓN PERDIDA", txt_offline_sub: "Esperando a la nube...",
-                txt_alerta: "¡ALERTA: NIVEL DE GAS ALTO!", lbl_temp: "Temperatura", lbl_umi: "Humedad", lbl_gas: "Concentración de CO2",
+                txt_alerta: "¡ALERTA: NIVEL DE GAS ALTO!", lbl_temp: "Temperatura", lbl_umi: "Humedad", lbl_gas: "Concentración de gas (%)",
                 txt_hist: "Sincronizado", txt_adm_titulo: "Control del Sistema",
                 btn_adicionar_base: "Agregar Base", txt_adicionar_base_titulo: "Agregar Nueva Base",
                 txt_adicionar_base_sub: "Agregue su propia base de monitoreo ambiental para rastrear datos en tiempo real.",
@@ -1985,29 +1985,29 @@
 
                 const valT = t.length > 0 ? safeParse(t[t.length - 1].value) : null;
                 const valU = u.length > 0 ? safeParse(u[u.length - 1].value) : null;
-                const valC = g.length > 0 ? safeParse(g[g.length - 1].value) : null;  // CO2
+                const valC = g.length > 0 ? safeParse(g[g.length - 1].value) : null;  // gás em porcentagem
 
                 // Dados globais sincronizados
                 window.dadosAtuais = { temp: t, umi: u, gas: g };
                 window.elionTemp = valT;
                 window.elionUmi = valU;
-                window.elionCo2 = valC;
+                window.elionGas = valC;
 
                 // Atualização dos cards
                 document.getElementById('temp').innerText = valT !== null ? valT : '--';
                 document.getElementById('umi').innerText = valU !== null ? valU : '--';
-                document.getElementById('co2').innerText = valC !== null ? valC : '--';
+                document.getElementById('co2').innerText = valC !== null ? valC + '%' : '--';
 
-                // Alerta baseado em CO2 e base ativa
+                // Alerta baseado em gás e base ativa
                 const baseNomeAlerta = baseSelecionada ? baseSelecionada.nome : 'Desconhecida';
                 const alertaCO2Ativo = valC !== null && valC > 10;
 
                 if (alertaCO2Ativo) {
                     document.getElementById('alerta-gas').classList.remove('hidden');
-                    document.getElementById('alerta-gas-text').innerHTML = `ALERTA: NÍVEL DE CO₂ ELEVADO na base <strong>${baseNomeAlerta}</strong>!`;
+                    document.getElementById('alerta-gas-text').innerHTML = `ALERTA: NÍVEL DE GÁS ELEVADO na base <strong>${baseNomeAlerta}</strong>!`;
 
                     // Enviar alerta por email/WhatsApp se configurado e se ainda não foi enviado para esta condição
-                    const mensagemAlerta = `🚨 ALERTA CRÍTICO: Nível de CO₂ elevado detectado!\nValor atual: ${valC} ppm\nLimite: 10 ppm`;
+                    const mensagemAlerta = `🚨 ALERTA CRÍTICO: Nível de gás elevado detectado!\nValor atual: ${valC}%\nLimite: 10%`;
                     enviarAlerta('co2', mensagemAlerta, baseNomeAlerta, valC);
                 } else {
                     document.getElementById('alerta-gas').classList.add('hidden');
@@ -2097,7 +2097,7 @@
                         datasets: [
                             { label: 'Temperatura', data: dataT, spanGaps: true, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#f97316', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y' },
                             { label: 'Umidade', data: dataU, spanGaps: true, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#3b82f6', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y' },
-                            { label: 'CO₂', data: dataG, spanGaps: true, borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#eab308', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y1' }
+                            { label: 'Gás (%)', data: dataG, spanGaps: true, borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#eab308', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y1' }
                         ]
                     },
                     options: {
@@ -2485,7 +2485,7 @@
                         enviarAlerta('temp', mensagemTemp, baseNomeSemaforo, tempVal);
                     }
                     if (co2Val !== null && co2Val > 10) {
-                        const mensagemCO2 = `🚨 ALERTA CRÍTICO: Nível de CO₂ muito elevado!\nValor atual: ${co2Val} ppm\nLimite: 10 ppm`;
+                        const mensagemCO2 = `🚨 ALERTA CRÍTICO: Nível de gás muito elevado!\nValor atual: ${co2Val}%\nLimite: 10%`;
                         enviarAlerta('co2', mensagemCO2, baseNomeSemaforo, co2Val);
                     }
                     if (umiVal !== null && umiVal < 30) {
@@ -2505,7 +2505,7 @@
                     const alertaKey = `alerta_${new Date().toDateString()}`;
                     if (!sessionStorage.getItem(alertaKey)) {
                         if (co2Val !== null && co2Val > 5) {
-                            const mensagemCO2 = `⚠️ ALERTA: Nível de CO₂ elevado detectado\nValor atual: ${co2Val} ppm\nLimite de atenção: 5 ppm`;
+                            const mensagemCO2 = `⚠️ ALERTA: Nível de gás elevado detectado\nValor atual: ${co2Val}%\nLimite de atenção: 5%`;
                             enviarAlerta('co2', mensagemCO2, baseNomeSemaforo, co2Val);
                         }
                         if (riscoQueimadaAtivo) {

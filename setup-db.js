@@ -4,14 +4,15 @@ const { Pool } = require('pg');
 console.log('Iniciando script de setup do banco de dados...');
 console.log(`Variável DATABASE_URL existe: ${!!process.env.DATABASE_URL}`);
 
-if (!process.env.DATABASE_URL) {
-  console.warn('⚠️ AVISO: DATABASE_URL não configurada. Pulando setup do banco de dados.');
-  console.warn('A aplicação iniciará sem as tabelas. Configure DATABASE_URL para uso completo.');
+const DB_URL = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
+if (!DB_URL) {
+  console.warn('⚠️ AVISO: DATABASE_URL e DATABASE_PUBLIC_URL não configuradas. Pulando setup do banco de dados.');
+  console.warn('A aplicação iniciará sem as tabelas. Configure DATABASE_URL ou DATABASE_PUBLIC_URL para uso completo.');
   process.exit(0); // Sai gracefully, permite que o servidor inicie mesmo assim
 }
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: DB_URL,
   ssl: { rejectUnauthorized: false }
 });
 
@@ -45,6 +46,16 @@ const setupDatabase = async (retries = 3) => {
           );
         `);
         console.log('✅ Tabela "alerts" criada ou já existente.');
+        // Tabela para armazenar o último estado observado de cada base (evitar reenvio de alertas)
+        await client.query(`
+          CREATE TABLE IF NOT EXISTS base_states (
+            base VARCHAR(100) PRIMARY KEY,
+            last_nivel VARCHAR(50),
+            last_mensagens TEXT[],
+            updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+          );
+        `);
+        console.log('✅ Tabela "base_states" criada ou já existente.');
         console.log('\n✅ Setup do banco de dados concluído com sucesso!\n');
         return true;
 

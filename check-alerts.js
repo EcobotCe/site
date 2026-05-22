@@ -4,15 +4,16 @@ const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 
 // --- Diagnóstico de Conexão ---
-if (!process.env.DATABASE_URL) {
-  console.error('ERRO FATAL (check-alerts.js): A variável de ambiente DATABASE_URL não foi encontrada!');
-  process.exit(1); 
+const DB_URL = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
+if (!DB_URL) {
+  console.error('ERRO FATAL (check-alerts.js): Nem DATABASE_URL nem DATABASE_PUBLIC_URL foram encontradas!');
+  process.exit(1);
 }
 // --- Fim do Diagnóstico ---
 
 // Configuração do Banco de Dados
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString: DB_URL,
   ssl: { rejectUnauthorized: false }
 });
 
@@ -32,7 +33,7 @@ const BASES = [
 const LIMITES = {
   temp: { min: 10, max: 35, critico: 40 },
   umid: { min: 30, max: 70, critico_max: 85, critico_min: 20 },
-  co2: { max: 1000, critico: 1500 }
+  gas: { max: 10, critico: 20 }
 };
 
 const normalizeMensagens = (mensagens) => {
@@ -66,6 +67,47 @@ const sendAlertEmail = async (listaEmails, subject, html) => {
   });
 };
 
+const getLastState = async (client, baseNome) => {
+  const { rows } = await client.query('SELECT last_nivel, last_mensagens FROM base_states WHERE base = $1', [baseNome]);
+  return rows.length ? rows[0] : null;
+};
+
+const setState = async (client, baseNome, nivel, mensagens) => {
+  await client.query(
+    `INSERT INTO base_states(base, last_nivel, last_mensagens, updated_at) VALUES($1, $2, $3, NOW())
+     ON CONFLICT (base) DO UPDATE SET last_nivel = EXCLUDED.last_nivel, last_mensagens = EXCLUDED.last_mensagens, updated_at = EXCLUDED.updated_at`,
+    [baseNome, nivel, mensagens]
+  );
+};
+
+const ensureTables = async (client) => {
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS subscribers (
+      email TEXT PRIMARY KEY,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `);
+
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS alerts (
+      id SERIAL PRIMARY KEY,
+      nivel TEXT NOT NULL,
+      base TEXT NOT NULL,
+      mensagens TEXT[] NOT NULL,
+      timestamp TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS base_states (
+      base TEXT PRIMARY KEY,
+      last_nivel TEXT,
+      last_mensagens TEXT[],
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    );
+  `);
+};
+
 const handleAlert = async (client, baseNome, nivel, mensagens) => {
   if (!await shouldSendAlert(client, baseNome, nivel, mensagens)) {
     console.log(`Alerta ${nivel} para ${baseNome} já enviado anteriormente com a mesma mensagem. Pulando envio.`);
@@ -93,12 +135,15 @@ const handleAlert = async (client, baseNome, nivel, mensagens) => {
 
   await sendAlertEmail(listaEmails, subject, html);
   console.log(`E-mails de alerta (${nivel}) enviados para ${listaEmails.length} inscritos.`);
+  // Atualiza estado da base
+  await setState(client, baseNome, nivel, mensagens);
 };
 
 const checkAlerts = async () => {
   const client = await pool.connect();
   try {
     console.log('Iniciando verificação de alertas...');
+    await ensureTables(client);
 
     for (const base of BASES) {
       if (!base.token) continue;
@@ -123,7 +168,7 @@ const checkAlerts = async () => {
 
         const temp = getVal('temp');
         const umid = getVal('umid');
-        const co2 = getVal('co2') ?? getVal('gas');
+        const gas = getVal('co2') ?? getVal('gas');
 
         const alertasCriticos = [];
         const alertasAviso = [];
@@ -139,13 +184,27 @@ const checkAlerts = async () => {
           else if (umid > LIMITES.umid.max || umid < LIMITES.umid.min) alertasAviso.push(`Umidade fora do ideal: ${umid}%.`);
         }
 
-        if (co2 !== null) {
-          if (co2 > LIMITES.co2.critico) alertasCriticos.push(`Nível de CO2 CRÍTICO: ${co2} ppm.`);
-          else if (co2 > LIMITES.co2.max) alertasAviso.push(`Nível de CO2 elevado: ${co2} ppm.`);
+        if (gas !== null) {
+          if (gas > LIMITES.gas.critico) alertasCriticos.push(`Nível de gás CRÍTICO: ${gas}%.`);
+          else if (gas > LIMITES.gas.max) alertasAviso.push(`Nível de gás elevado: ${gas}%.`);
         }
 
-        // Se houver alertas, processar e enviar e-mails
-        if (alertasCriticos.length > 0 || alertasAviso.length > 0) {
+        // Verifica estado anterior para enviar recuperação se necessário
+        const lastState = await getLastState(client, base.nome);
+
+        if (alertasCriticos.length === 0 && alertasAviso.length === 0) {
+          // Nenhum alerta atual -> se anteriormente havia alerta (ou offline), enviar recuperação
+          const wasProblem = lastState && lastState.last_nivel && lastState.last_nivel !== 'ok' && lastState.last_nivel !== 'recuperacao';
+          if (wasProblem) {
+            const recMsg = [`Base ${base.nome} voltou ao normal.`];
+            await handleAlert(client, base.nome, 'recuperacao', recMsg);
+            // Marca como ok
+            await setState(client, base.nome, 'ok', []);
+          } else {
+            // Garante que estado esteja marcado como ok
+            await setState(client, base.nome, 'ok', []);
+          }
+        } else {
           const nivel = alertasCriticos.length > 0 ? 'critico' : 'aviso';
           const mensagens = [...alertasCriticos, ...alertasAviso];
           await handleAlert(client, base.nome, nivel, mensagens);

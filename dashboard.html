@@ -49,7 +49,7 @@
                 ${base.error ? `<p>${base.error}</p>` : `
                 <p><strong>Temperatura:</strong> ${base.temp !== null ? base.temp + '°C' : 'N/A'}</p>
                 <p><strong>Umidade:</strong> ${base.umid !== null ? base.umid + '%' : 'N/A'}</p>
-                <p><strong>CO2:</strong> ${base.co2 !== null ? base.co2 + 'ppm' : 'N/A'}</p>
+                <p><strong>Gás (%):</strong> ${base.gas !== null ? base.gas + '%' : 'N/A'}</p>
                 <p><small>Última atualização: ${base.timestamp ? new Date(base.timestamp).toLocaleString('pt-BR') : 'N/A'}</small></p>
                 `}
             `;

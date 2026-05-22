@@ -6,6 +6,7 @@ const path = require('path');
 const { Pool } = require('pg');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
+const { exec } = require('child_process');
 const cron = require('node-cron');
 
 const app = express();
@@ -15,19 +16,20 @@ console.log(`✨ Porta final para listen: ${port}`);
 
 // Configuração do Pool de Conexões (permitir ser undefined inicialmente)
 let pool = null;
+const DB_URL = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL;
 
-if (process.env.DATABASE_URL) {
+if (DB_URL) {
   try {
     pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: DB_URL,
       ssl: { rejectUnauthorized: false }
     });
-    console.log('✅ Pool de conexão com banco de dados configurado');
+    console.log(`✅ Pool de conexão com banco de dados configurado (${process.env.DATABASE_URL ? 'DATABASE_URL' : 'DATABASE_PUBLIC_URL'})`);
   } catch (err) {
     console.warn('⚠️ Erro ao configurar pool de banco de dados:', err.message);
   }
 } else {
-  console.warn('⚠️ DATABASE_URL não configurada. Recursos de banco de dados estarão indisponíveis.');
+  console.warn('⚠️ DATABASE_URL e DATABASE_PUBLIC_URL não configuradas. Recursos de banco de dados estarão indisponíveis.');
 }
 
 const transporter = nodemailer.createTransport({
@@ -210,7 +212,7 @@ app.get('/api/dados-recentes', async (req, res) => {
         nome: base.nome,
         temp: getVal('temp'),
         umid: getVal('umid'),
-        co2: getVal('co2') ?? getVal('gas'),
+        gas: getVal('co2') ?? getVal('gas'),
         timestamp: dados.length > 0 ? dados[0].time : null
       });
     } catch (error) {
