@@ -1079,7 +1079,7 @@
             </div>
 
             <!-- NOVO CARD CO₂ -->
-            <div id="card-co2"
+            <div id="card-gas"
                 class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-2 md:col-span-1 hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(168,85,247,0.3)] transition-all duration-300 animate-slide-in-right delay-04s">
                 <div
                     class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all">
@@ -1091,7 +1091,7 @@
                         <i class="fa-solid fa-cloud"></i>
                     </div>
                 </div>
-                <p id="co2"
+                <p id="gas"
                     class="relative z-10 text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-lg tracking-tighter">
                     --</p>
                 <span class="text-xs text-purple-400">%</span>
@@ -1327,14 +1327,14 @@
                     </div>
                 </div>
 
-                <!-- Alerta CO2 -->
+                <!-- Alerta Gás -->
                 <div
                     class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-purple-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 animate-fade-in delay-06s">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
-                            <input type="checkbox" id="ativar-co2" class="w-5 h-5 cursor-pointer"
+                            <input type="checkbox" id="ativar-gas" class="w-5 h-5 cursor-pointer"
                                 onchange="atualizarAlertas()">
-                            <label for="ativar-co2" class="cursor-pointer flex items-center gap-3">
+                            <label for="ativar-gas" class="cursor-pointer flex items-center gap-3">
                                 <div
                                     class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-500 text-lg">
                                     <i class="fa-solid fa-cloud"></i>
@@ -1346,9 +1346,9 @@
                             </label>
                         </div>
                     </div>
-                    <div id="canais-co2" class="flex gap-4 ml-8 hidden">
+                    <div id="canais-gas" class="flex gap-4 ml-8 hidden">
                         <label class="flex items-center gap-2 text-sm cursor-pointer">
-                            <input type="checkbox" class="alerta-canal" data-alerta="co2" data-canal="email">
+                            <input type="checkbox" class="alerta-canal" data-alerta="gas" data-canal="email">
                             <span class="text-slate-300"><i
                                     class="fa-solid fa-envelope mr-2 text-ecogreen"></i>Email</span>
                         </label>
@@ -1996,19 +1996,19 @@
                 // Atualização dos cards
                 document.getElementById('temp').innerText = valT !== null ? valT : '--';
                 document.getElementById('umi').innerText = valU !== null ? valU : '--';
-                document.getElementById('co2').innerText = valC !== null ? valC + '%' : '--';
+                document.getElementById('gas').innerText = valC !== null ? valC + '%' : '--';
 
                 // Alerta baseado em gás e base ativa
                 const baseNomeAlerta = baseSelecionada ? baseSelecionada.nome : 'Desconhecida';
-                const alertaCO2Ativo = valC !== null && valC > 10;
+                const alertaGasAtivo = valC !== null && valC > 10;
 
-                if (alertaCO2Ativo) {
+                if (alertaGasAtivo) {
                     document.getElementById('alerta-gas').classList.remove('hidden');
                     document.getElementById('alerta-gas-text').innerHTML = `ALERTA: NÍVEL DE GÁS ELEVADO na base <strong>${baseNomeAlerta}</strong>!`;
 
                     // Enviar alerta por email/WhatsApp se configurado e se ainda não foi enviado para esta condição
                     const mensagemAlerta = `🚨 ALERTA CRÍTICO: Nível de gás elevado detectado!\nValor atual: ${valC}%\nLimite: 10%`;
-                    enviarAlerta('co2', mensagemAlerta, baseNomeAlerta, valC);
+                    enviarAlerta('gas', mensagemAlerta, baseNomeAlerta, valC);
                 } else {
                     document.getElementById('alerta-gas').classList.add('hidden');
                 }
@@ -2134,7 +2134,7 @@
 
         // Função para atualizar alertas baseado nos checkboxes principais
         function atualizarAlertas() {
-            const alertTypes = ['temp', 'co2', 'umi', 'queimada'];
+            const alertTypes = ['temp', 'gas', 'umi', 'queimada'];
 
             alertTypes.forEach(tipo => {
                 const checkbox = document.getElementById(`ativar-${tipo}`);
@@ -2183,7 +2183,7 @@
 
             const valorAtualNum = parseFloat(String(valorAtual).replace(',', '.'));
             const ultimoValorNum = estadoAtual.ultimoValor !== null ? parseFloat(String(estadoAtual.ultimoValor).replace(',', '.')) : null;
-            const limiteMudanca = tipo === 'co2' ? 5 : tipo === 'temp' ? 2 : 5;
+            const limiteMudanca = tipo === 'gas' ? 5 : tipo === 'temp' ? 2 : 5;
             const mudouSuficiente = estadoAtual.ultimoValor === null || isNaN(valorAtualNum) || isNaN(ultimoValorNum)
                 ? String(valorAtual) !== String(estadoAtual.ultimoValor)
                 : Math.abs(valorAtualNum - ultimoValorNum) >= limiteMudanca;
@@ -2447,15 +2447,15 @@
 
                 const temp = window.dadosAtuais ? getLast(window.dadosAtuais.temp) : null;
                 const umi = window.dadosAtuais ? getLast(window.dadosAtuais.umi) : null;
-                const co2 = window.dadosAtuais ? getLast(window.dadosAtuais.gas) : null;
+                const gas = window.dadosAtuais ? getLast(window.dadosAtuais.gas) : null;
 
                 const tempText = temp !== null ? temp : document.getElementById('temp').textContent.trim();
                 const umiText = umi !== null ? umi : document.getElementById('umi').textContent.trim();
-                const co2Text = co2 !== null ? co2 : document.getElementById('co2').textContent.trim();
+                const gasText = gas !== null ? gas : document.getElementById('gas').textContent.trim();
 
                 const tempVal = (typeof temp === 'number') ? temp : (tempText !== '--' && tempText !== '') ? parseFloat(String(tempText).replace(',', '.')) : null;
                 const umiVal = (typeof umi === 'number') ? umi : (umiText !== '--' && umiText !== '') ? parseFloat(String(umiText).replace(',', '.')) : null;
-                const co2Val = (typeof co2 === 'number') ? co2 : (co2Text !== '--' && co2Text !== '') ? parseFloat(String(co2Text).replace(',', '.')) : null;
+                const gasVal = (typeof gas === 'number') ? gas : (gasText !== '--' && gasText !== '') ? parseFloat(String(gasText).replace(',', '.')) : null;
 
                 const semaforoVerde = document.getElementById('semaforo-verde');
                 const semaforoAmarelo = document.getElementById('semaforo-amarelo');
@@ -2474,7 +2474,7 @@
                 const riscoQueimadaAtivo = tempVal !== null && umiVal !== null && tempVal >= 32 && umiVal <= 40;
                 const mensagemQueimada = `⚠️ ALERTA DE RISCO DE QUEIMADA: Temperatura ${tempVal !== null ? `${tempVal}°C` : 'N/D'} e umidade ${umiVal !== null ? `${umiVal}%` : 'N/D'}. Condições secas para fogo.`;
 
-                if ((tempVal !== null && tempVal > 35) || (co2Val !== null && co2Val > 10) || (umiVal !== null && umiVal < 30)) {
+                if ((tempVal !== null && tempVal > 35) || (gasVal !== null && gasVal > 10) || (umiVal !== null && umiVal < 30)) {
                     semaforoVermelho.classList.add('eco-pulse');
                     status.textContent = '🚨 Condições críticas detectadas!';
                     status.style.color = '#ef4444';
@@ -2484,9 +2484,9 @@
                         const mensagemTemp = `🚨 ALERTA CRÍTICO: Temperatura muito elevada!\nValor atual: ${tempVal}°C\nLimite: 35°C`;
                         enviarAlerta('temp', mensagemTemp, baseNomeSemaforo, tempVal);
                     }
-                    if (co2Val !== null && co2Val > 10) {
-                        const mensagemCO2 = `🚨 ALERTA CRÍTICO: Nível de gás muito elevado!\nValor atual: ${co2Val}%\nLimite: 10%`;
-                        enviarAlerta('co2', mensagemCO2, baseNomeSemaforo, co2Val);
+                    if (gasVal !== null && gasVal > 10) {
+                        const mensagemGas = `🚨 ALERTA CRÍTICO: Nível de gás muito elevado!\nValor atual: ${gasVal}%\nLimite: 10%`;
+                        enviarAlerta('gas', mensagemGas, baseNomeSemaforo, gasVal);
                     }
                     if (umiVal !== null && umiVal < 30) {
                         const mensagemUmi = `🚨 ALERTA CRÍTICO: Umidade muito baixa!\nValor atual: ${umiVal}%\nLimite mínimo: 30%`;
@@ -2496,7 +2496,7 @@
                         enviarAlerta('queimada', mensagemQueimada, baseNomeSemaforo, `${tempVal}/${umiVal}`);
                     }
                 }
-                else if ((tempVal !== null && tempVal > 30) || (co2Val !== null && co2Val > 5) || (umiVal !== null && umiVal < 40) || riscoQueimadaAtivo) {
+                else if ((tempVal !== null && tempVal > 30) || (gasVal !== null && gasVal > 5) || (umiVal !== null && umiVal < 40) || riscoQueimadaAtivo) {
                     semaforoAmarelo.classList.add('eco-pulse');
                     status.textContent = '⚠️ Atenção - Monitore os níveis ambientais';
                     status.style.color = '#f59e0b';
@@ -2504,9 +2504,9 @@
                     // Enviar alertas para condições de atenção (apenas uma vez por sessão)
                     const alertaKey = `alerta_${new Date().toDateString()}`;
                     if (!sessionStorage.getItem(alertaKey)) {
-                        if (co2Val !== null && co2Val > 5) {
-                            const mensagemCO2 = `⚠️ ALERTA: Nível de gás elevado detectado\nValor atual: ${co2Val}%\nLimite de atenção: 5%`;
-                            enviarAlerta('co2', mensagemCO2, baseNomeSemaforo, co2Val);
+                        if (gasVal !== null && gasVal > 5) {
+                            const mensagemGas = `⚠️ ALERTA: Nível de gás elevado detectado\nValor atual: ${gasVal}%\nLimite de atenção: 5%`;
+                            enviarAlerta('gas', mensagemGas, baseNomeSemaforo, gasVal);
                         }
                         if (riscoQueimadaAtivo) {
                             enviarAlerta('queimada', mensagemQueimada, baseNomeSemaforo, `${tempVal}/${umiVal}`);
@@ -2514,7 +2514,7 @@
                         sessionStorage.setItem(alertaKey, 'sent');
                     }
                 }
-                else if (tempVal !== null || umiVal !== null || co2Val !== null) {
+                else if (tempVal !== null || umiVal !== null || gasVal !== null) {
                     semaforoVerde.classList.add('eco-pulse');
                     status.textContent = '✅ Condições ambientais ideais';
                     status.style.color = '#10b981';
@@ -2540,7 +2540,7 @@
 
             // Recolher configuração de alertas
             const alertas = {};
-            const tiposAlertas = ['temp', 'co2', 'umi', 'queimada'];
+            const tiposAlertas = ['temp', 'gas', 'umi', 'queimada'];
 
             tiposAlertas.forEach(tipo => {
                 const checkbox = document.getElementById(`ativar-${tipo}`);
