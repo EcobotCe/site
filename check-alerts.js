@@ -24,6 +24,11 @@ const transporter = nodemailer.createTransport({
 // Busca as bases configuradas no banco de dados
 const fs = require('fs').promises;
 const BASES_FILE = require('path').join(__dirname, 'data', 'bases.json');
+const SUBSCRIBERS_FILE = require('path').join(__dirname, 'data', 'subscribers.json');
+const ALERTS_FILE = require('path').join(__dirname, 'data', 'alerts.json');
+const BASE_STATES_FILE = require('path').join(__dirname, 'data', 'base_states.json');
+
+const SIMULATE = String(process.env.SIMULATE_EMAILS || '').toLowerCase() === 'true';
 
 const getBasesFromDb = async (client) => {
   if (client) {
@@ -79,6 +84,11 @@ const shouldSendAlert = async (client, baseNome, nivel, mensagens) => {
 
 const sendAlertEmail = async (listaEmails, subject, html) => {
   if (listaEmails.length === 0) return;
+  if (SIMULATE) {
+    console.log(`[SIMULAÇÃO] Enviando e-mail para ${listaEmails.length} inscritos:`, { subject, html });
+    return;
+  }
+
   await transporter.sendMail({
     from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
     to: process.env.EMAIL_USER,
@@ -86,6 +96,28 @@ const sendAlertEmail = async (listaEmails, subject, html) => {
     subject,
     html
   });
+};
+
+// Helpers para modo simulado (arquivos JSON)
+const ensureJsonFile = async (path, def) => {
+  try {
+    await fs.access(path);
+  } catch (e) {
+    await fs.writeFile(path, JSON.stringify(def, null, 2), 'utf8');
+  }
+};
+
+const readJson = async (path, def) => {
+  try {
+    const txt = await fs.readFile(path, 'utf8');
+    return JSON.parse(txt || '[]');
+  } catch (e) {
+    return def;
+  }
+};
+
+const writeJson = async (path, data) => {
+  await fs.writeFile(path, JSON.stringify(data, null, 2), 'utf8');
 };
 
 const getLastState = async (client, baseNome) => {
@@ -172,17 +204,90 @@ const handleAlert = async (client, baseNome, nivel, mensagens) => {
 };
 
 const checkAlerts = async () => {
-  if (!pool) {
+  // Se não houver pool, mas estivermos em modo SIMULATE, criamos um client simulado
+  if (!pool && !SIMULATE) {
     console.warn('⚠️ Banco de dados indisponível. Verificação de alertas será ignorada.');
     return;
   }
 
   let client;
-  try {
-    client = await pool.connect();
-  } catch (err) {
-    console.error('❌ Não foi possível conectar ao banco para verificação de alertas:', err.message);
-    return;
+  if (SIMULATE) {
+    // garante arquivos
+    await ensureJsonFile(BASES_FILE, []);
+    await ensureJsonFile(SUBSCRIBERS_FILE, []);
+    await ensureJsonFile(ALERTS_FILE, []);
+    await ensureJsonFile(BASE_STATES_FILE, []);
+
+    client = {
+      query: async (sql, params) => {
+        const q = sql.trim().toLowerCase();
+        // SELECT bases
+        if (q.startsWith('select id, nome, token') || q.includes('from bases order by')) {
+          const bases = await readJson(BASES_FILE, []);
+          return { rows: bases };
+        }
+
+        // SELECT mensagens FROM alerts WHERE base = $1 AND nivel = $2 ORDER BY timestamp DESC LIMIT 1
+        if (q.startsWith('select mensagens from alerts')) {
+          const [base, nivel] = params;
+          const alerts = await readJson(ALERTS_FILE, []);
+          const found = alerts.filter(a => a.base === base && a.nivel === nivel).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          return { rows: found.length ? [{ mensagens: found[0].mensagens }] : [] };
+        }
+
+        // INSERT INTO alerts(...)
+        if (q.startsWith('insert into alerts')) {
+          const [nivel, base, mensagens] = params;
+          const alerts = await readJson(ALERTS_FILE, []);
+          const newA = { id: (alerts.length ? alerts[alerts.length-1].id + 1 : 1), nivel, base, mensagens, timestamp: new Date().toISOString() };
+          alerts.push(newA);
+          await writeJson(ALERTS_FILE, alerts);
+          return { rows: [] };
+        }
+
+        // SELECT email FROM subscribers
+        if (q.startsWith('select email from subscribers')) {
+          const subs = await readJson(SUBSCRIBERS_FILE, []);
+          return { rows: subs.map(s => ({ email: s.email })) };
+        }
+
+        // SELECT last_nivel, last_mensagens FROM base_states WHERE base = $1
+        if (q.startsWith('select last_nivel, last_mensagens from base_states')) {
+          const [base] = params;
+          const states = await readJson(BASE_STATES_FILE, []);
+          const found = states.find(s => s.base === base);
+          return { rows: found ? [{ last_nivel: found.last_nivel, last_mensagens: found.last_mensagens }] : [] };
+        }
+
+        // INSERT INTO base_states ... ON CONFLICT DO UPDATE
+        if (q.startsWith('insert into base_states')) {
+          const [base, nivel, mensagens] = params;
+          const states = await readJson(BASE_STATES_FILE, []);
+          const idx = states.findIndex(s => s.base === base);
+          const now = new Date().toISOString();
+          if (idx === -1) {
+            states.push({ base, last_nivel: nivel, last_mensagens: mensagens, updated_at: now });
+          } else {
+            states[idx] = { base, last_nivel: nivel, last_mensagens: mensagens, updated_at: now };
+          }
+          await writeJson(BASE_STATES_FILE, states);
+          return { rows: [] };
+        }
+
+        // Fallback vazio
+        return { rows: [] };
+      },
+      release: async () => { /* noop */ }
+    };
+  }
+
+  if (!client && pool) {
+    try {
+      client = await pool.connect();
+    } catch (err) {
+      console.error('❌ Não foi possível conectar ao banco para verificação de alertas:', err.message);
+      return;
+    }
   }
 
   try {
@@ -196,12 +301,21 @@ const checkAlerts = async () => {
       if (!base.token) continue;
 
       try {
-        const response = await axios.get('https://api.tago.io/data?qty=1', {
-          headers: { 'Device-Token': base.token },
-          timeout: 10000
-        });
-
-        const dados = Array.isArray(response.data?.result) ? response.data.result : [];
+        let dados = [];
+        if (SIMULATE) {
+          // gera dados simulados para teste
+          if (String(base.token || '').toLowerCase().includes('teste') || String(base.nome || '').toLowerCase().includes('teste')) {
+            dados = [ { variable: 'temp', value: 45 }, { variable: 'umid', value: 10 }, { variable: 'gas', value: 30 } ];
+          } else {
+            dados = [ { variable: 'temp', value: 24.5 }, { variable: 'umid', value: 55 }, { variable: 'gas', value: 3 } ];
+          }
+        } else {
+          const response = await axios.get('https://api.tago.io/data?qty=1', {
+            headers: { 'Device-Token': base.token },
+            timeout: 10000
+          });
+          dados = Array.isArray(response.data?.result) ? response.data.result : [];
+        }
         if (dados.length === 0) {
           console.log(`⚠️ Base ${base.nome} sem dados ou offline. Registrando alerta de offline.`);
           await handleAlert(client, base.nome, 'offline', [`Base ${base.nome} está sem dados ou offline.`]);

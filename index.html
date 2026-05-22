@@ -1637,7 +1637,7 @@
         };
 
         async function carregarBases() {
-            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
             try {
                 const response = await fetch(`${backendUrl}/api/bases`);
                 if (!response.ok) {
@@ -1867,7 +1867,7 @@
                 return;
             }
 
-            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
             const payload = { nome, token, lat: lat || null, lon: lon || null };
 
             try {
@@ -1920,7 +1920,7 @@
             if (!confirm(confirmMsg)) return;
 
             try {
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
                 const response = await fetch(`${backendUrl}/api/bases/${id}`, { method: 'DELETE' });
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => ({}));
@@ -1956,7 +1956,7 @@
 
             try {
                 // Busca os dados mais recentes para preencher o gráfico corretamente
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
                 const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(baseSelecionada.token)}&qty=${TAGO_FETCH_QTY}`;
                 const directUrl = `${TAGO_API_BASE}?qty=${TAGO_FETCH_QTY}`;
 
@@ -2338,7 +2338,7 @@
 
             try {
                 const token = baseSelecionada.token;
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
                 const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(token)}&qty=1`;
                 const directUrl = `https://api.tago.io/data?qty=1`;
 
