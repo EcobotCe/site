@@ -5,11 +5,7 @@ const { Pool } = require('pg');
 
 // ─── Banco de Dados ───────────────────────────────────────────────────────────
 const DB_URL = process.env.DATABASE_URL || process.env.DATABASE_PUBLIC_URL || null;
-
-if (!DB_URL) {
-  console.error('❌ DATABASE_URL não configurada. Encerrando.');
-  process.exit(1);
-}
+if (!DB_URL) { console.error('❌ DATABASE_URL não configurada. Encerrando.'); process.exit(1); }
 
 const pool = new Pool({ connectionString: DB_URL, ssl: { rejectUnauthorized: false } });
 
@@ -26,220 +22,259 @@ const LIMITES = {
   gas:  { max: 10, critico: 20 }
 };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-// Deduplicação: compara apenas nível + base via base_states.
-// Não compara o texto da mensagem — assim "Temp CRÍTICA: 42°C" e
-// "Temp CRÍTICA: 43°C" não disparam dois e-mails seguidos para o
-// mesmo tipo de problema.
-const shouldSendAlert = async (client, baseNome, nivel) => {
-  const { rows } = await client.query(
-    'SELECT last_nivel FROM base_states WHERE base = $1',
-    [baseNome]
-  );
-  // Sem estado anterior → sempre envia
-  if (rows.length === 0) return true;
-  // Só envia se o nível mudou (ex: ok→critico, aviso→critico, critico→ok)
-  return rows[0].last_nivel !== nivel;
+// Mapa de tipos de alerta para a coluna de preferência
+// nivel gerado  → coluna em subscriber_preferences
+const NIVEL_PARA_TIPO = {
+  critico:     null,       // crítico sempre envia (inclui todas as categorias)
+  aviso:       null,       // aviso sempre envia
+  offline:     'alertar_offline',
+  recuperacao: 'alertar_recuperacao',
 };
+
+// Tipo por categoria de sensor → coluna de preferência
+const SENSOR_PREF = {
+  temp: 'alertar_temp',
+  umid: 'alertar_umid',
+  gas:  'alertar_gas',
+};
+
+// ─── Estado da Base ───────────────────────────────────────────────────────────
+// BUG CORRIGIDO: o estado agora armazena nível POR SENSOR, não global.
+// Assim 99→1→99 em gás funciona independente do estado de temperatura.
+// Estrutura: base_states.last_nivel = JSON com { temp, umid, gas, offline }
+// Ex: { "temp": "ok", "umid": "critico", "gas": "ok", "offline": false }
 
 const getLastState = async (client, baseNome) => {
   const { rows } = await client.query(
     'SELECT last_nivel, last_mensagens FROM base_states WHERE base = $1',
     [baseNome]
   );
-  return rows.length ? rows[0] : null;
+  if (!rows.length) return { niveis: {}, last_nivel: null };
+  let niveis = {};
+  try { niveis = JSON.parse(rows[0].last_nivel || '{}'); } catch { niveis = {}; }
+  return { niveis, last_nivel: rows[0].last_nivel };
 };
 
-const setState = async (client, baseNome, nivel, mensagens) => {
+const setState = async (client, baseNome, nivelObj, mensagens) => {
+  const nivelJson = JSON.stringify(nivelObj);
   await client.query(
     `INSERT INTO base_states(base, last_nivel, last_mensagens, updated_at)
      VALUES($1, $2, $3, NOW())
      ON CONFLICT (base) DO UPDATE
-       SET last_nivel    = EXCLUDED.last_nivel,
+       SET last_nivel     = EXCLUDED.last_nivel,
            last_mensagens = EXCLUDED.last_mensagens,
-           updated_at    = EXCLUDED.updated_at`,
-    [baseNome, nivel, mensagens]
+           updated_at     = EXCLUDED.updated_at`,
+    [baseNome, nivelJson, mensagens]
   );
+};
+
+// ─── Busca inscritos com filtro por preferência ────────────────────────────
+const getInscritosParaTipo = async (client, tipo) => {
+  // tipo = 'alertar_temp' | 'alertar_umid' | 'alertar_gas' | 'alertar_offline'
+  //        | 'alertar_recuperacao' | null (crítico → todos)
+  let query, params;
+  if (!tipo) {
+    // Crítico: envia para todos os inscritos
+    query = 'SELECT email FROM subscribers';
+    params = [];
+  } else {
+    query = `SELECT s.email FROM subscribers s
+             LEFT JOIN subscriber_preferences p ON p.email = s.email
+             WHERE COALESCE(p.${tipo}, true) = true`;
+    params = [];
+  }
+  const { rows } = await client.query(query, params);
+  return rows.map(r => r.email);
 };
 
 // ─── Envio de E-mail ──────────────────────────────────────────────────────────
 const sendAlertEmail = async (listaEmails, subject, html) => {
-  if (listaEmails.length === 0) return;
-
+  if (listaEmails.length === 0) return false;
   await transporter.sendMail({
     from: `"Ecobot Alertas" <${process.env.EMAIL_USER}>`,
-    to: process.env.EMAIL_USER,   // remetente aparece no "Para"
-    bcc: listaEmails.join(', '),  // inscritos em BCC (privacidade)
+    to: process.env.EMAIL_USER,
+    bcc: listaEmails.join(', '),
     subject,
     html
   });
-
-  console.log(`📧 E-mail "${subject}" enviado para ${listaEmails.length} inscrito(s).`);
+  console.log(`📧 "${subject}" → ${listaEmails.length} inscrito(s).`);
+  return true;
 };
 
-// ─── Lógica de Alerta ─────────────────────────────────────────────────────────
-const handleAlert = async (client, baseNome, nivel, mensagens) => {
-  // Checa deduplicação
-  if (!await shouldSendAlert(client, baseNome, nivel)) {
-    console.log(`ℹ️  Alerta [${nivel}] para "${baseNome}" já enviado com a mesma mensagem. Pulando.`);
+// ─── Monta e envia e-mail de alerta ───────────────────────────────────────────
+const enviarEmailAlerta = async (client, baseNome, nivel, mensagens, tipo) => {
+  const listaEmails = await getInscritosParaTipo(client, tipo);
+  if (listaEmails.length === 0) {
+    console.log(`  ⚠️  Nenhum inscrito para receber alerta [${nivel}].`);
     return;
   }
+
+  const icone   = nivel === 'critico'     ? '🚨 ALERTA CRÍTICO'
+                : nivel === 'aviso'       ? '⚠️ Aviso de Condições'
+                : nivel === 'recuperacao' ? '✅ Recuperação'
+                : '📡 Estação Offline';
+
+  const subject = nivel === 'critico'     ? `🚨 ALERTA CRÍTICO na base ${baseNome}`
+                : nivel === 'aviso'       ? `⚠️ Aviso de Condições — ${baseNome}`
+                : nivel === 'recuperacao' ? `✅ Base ${baseNome} voltou ao normal`
+                : `📡 Estação ${baseNome} está Offline`;
+
+  const html = `
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto">
+      <h2 style="color:#14b8a6">${icone} — ${baseNome}</h2>
+      <ul>${mensagens.map(m => `<li>${m}</li>`).join('')}</ul>
+      <p>Verifique a condição da base <strong>${baseNome}</strong>.</p>
+      <hr/><small style="color:#888">Ecobot Alertas Ambientais</small>
+    </div>`;
+
+  await sendAlertEmail(listaEmails, subject, html);
 
   // Grava no histórico
   await client.query(
     'INSERT INTO alerts(nivel, base, mensagens, timestamp) VALUES($1, $2, $3, NOW())',
     [nivel, baseNome, mensagens]
   );
-
-  // Atualiza estado da base
-  await setState(client, baseNome, nivel, mensagens);
-
-  // Busca inscritos
-  const { rows } = await client.query('SELECT email FROM subscribers');
-  const listaEmails = rows.map(r => r.email);
-
-  if (listaEmails.length === 0) {
-    console.log(`⚠️  Alerta [${nivel}] registrado para "${baseNome}", mas não há inscritos para notificar.`);
-    return;
-  }
-
-  // Monta e-mail
-  const icone = nivel === 'critico' ? '🚨 ALERTA CRÍTICO'
-              : nivel === 'aviso'   ? '⚠️ Aviso de Condições'
-              : nivel === 'recuperacao' ? '✅ Recuperação'
-              : '⚠️ Estação Offline';
-
-  const html = `
-    <h2>${icone} — Base ${baseNome}</h2>
-    <ul>${mensagens.map(m => `<li>${m}</li>`).join('')}</ul>
-    <p>Verifique a condição da base <strong>${baseNome}</strong>.</p>
-    <hr/>
-    <small>Ecobot Alertas Ambientais</small>
-  `;
-
-  const subject = nivel === 'critico'     ? `🚨 ALERTA CRÍTICO na base ${baseNome}`
-                : nivel === 'aviso'       ? `⚠️ Aviso de Condições na base ${baseNome}`
-                : nivel === 'recuperacao' ? `✅ Base ${baseNome} voltou ao normal`
-                : `⚠️ Estação Offline na base ${baseNome}`;
-
-  await sendAlertEmail(listaEmails, subject, html);
 };
 
 // ─── Loop Principal ───────────────────────────────────────────────────────────
 const checkAlerts = async () => {
   let client;
-  try {
-    client = await pool.connect();
-  } catch (err) {
-    console.error('❌ Não foi possível conectar ao banco:', err.message);
-    return;
-  }
+  try { client = await pool.connect(); }
+  catch (err) { console.error('❌ Não foi possível conectar ao banco:', err.message); return; }
 
   try {
     console.log('🔍 Iniciando verificação de alertas...');
 
-    // Busca APENAS as bases cadastradas no banco — sem fallback de env vars
-    const { rows: bases } = await client.query(
-      'SELECT id, nome, token, lat, lon FROM bases ORDER BY id'
-    );
-
+    const { rows: bases } = await client.query('SELECT id, nome, token FROM bases ORDER BY id');
     if (!bases || bases.length === 0) {
-      console.log('ℹ️  Nenhuma base cadastrada no banco. Nada a verificar.');
+      console.log('ℹ️  Nenhuma base cadastrada. Nada a verificar.');
       return;
     }
-
-    console.log(`📋 ${bases.length} base(s) encontrada(s): ${bases.map(b => b.nome).join(', ')}`);
+    console.log(`📋 ${bases.length} base(s): ${bases.map(b => b.nome).join(', ')}`);
 
     for (const base of bases) {
-      if (!base.token) {
-        console.warn(`⚠️  Base "${base.nome}" sem token. Pulando.`);
-        continue;
-      }
+      if (!base.token) { console.warn(`⚠️  "${base.nome}" sem token. Pulando.`); continue; }
 
       try {
-        console.log(`\n→ Verificando base "${base.nome}"...`);
+        console.log(`\n→ Verificando "${base.nome}"...`);
 
-        // Busca dados do Tago.io
         const response = await axios.get('https://api.tago.io/data?qty=1', {
           headers: { 'Device-Token': base.token },
           timeout: 10000
         });
         const dados = Array.isArray(response.data?.result) ? response.data.result : [];
 
+        const { niveis: lastNiveis } = await getLastState(client, base.nome);
+        // niveis: { temp: 'ok'|'aviso'|'critico', umid: ..., gas: ..., offline: true|false }
+
         if (dados.length === 0) {
-          console.log(`  ⚠️  Sem dados — registrando alerta de offline.`);
-          await handleAlert(client, base.nome, 'offline', [`Base ${base.nome} está sem dados ou offline.`]);
+          // ── Offline
+          if (!lastNiveis.offline) {
+            console.log(`  📡 Offline detectado. Enviando alerta.`);
+            await enviarEmailAlerta(client, base.nome, 'offline',
+              [`Base ${base.nome} está sem dados ou offline.`], 'alertar_offline');
+            await setState(client, base.nome, { ...lastNiveis, offline: true }, []);
+          } else {
+            console.log(`  📡 Offline (já notificado).`);
+          }
           continue;
         }
 
-        // Extrai valores dos sensores
+        // ── Online — extrai sensores
         const getVal = (pref) => {
-          const item = dados.find(d => d.variable && d.variable.toLowerCase().includes(pref));
+          const item = dados.find(d => d.variable?.toLowerCase().includes(pref));
           return item ? parseFloat(String(item.value).replace(',', '.')) : null;
         };
-
         const temp = getVal('temp');
         const umid = getVal('umid');
         const gas  = getVal('co2') ?? getVal('gas');
-
         console.log(`  📊 temp=${temp ?? 'N/A'}°C  umid=${umid ?? 'N/A'}%  gas=${gas ?? 'N/A'}%`);
 
+        // Se voltou do offline, notifica recuperação
+        if (lastNiveis.offline) {
+          await enviarEmailAlerta(client, base.nome, 'recuperacao',
+            [`Base ${base.nome} voltou a enviar dados.`], 'alertar_recuperacao');
+        }
+
+        // ── Avalia cada sensor individualmente (CORREÇÃO DO BUG 99→1→99)
+        const novosNiveis = { ...lastNiveis, offline: false };
         const alertasCriticos = [];
         const alertasAviso    = [];
 
-        if (temp !== null) {
-          if (temp > LIMITES.temp.critico)                              alertasCriticos.push(`Temperatura CRÍTICA: ${temp}°C.`);
-          else if (temp > LIMITES.temp.max || temp < LIMITES.temp.min) alertasAviso.push(`Temperatura fora do ideal: ${temp}°C.`);
-        }
-
-        if (umid !== null) {
-          if (umid > LIMITES.umid.critico_max || umid < LIMITES.umid.critico_min) alertasCriticos.push(`Umidade CRÍTICA: ${umid}%.`);
-          else if (umid > LIMITES.umid.max || umid < LIMITES.umid.min)            alertasAviso.push(`Umidade fora do ideal: ${umid}%.`);
-        }
-
-        if (gas !== null) {
-          if (gas > LIMITES.gas.critico)    alertasCriticos.push(`Nível de gás CRÍTICO: ${gas}%.`);
-          else if (gas > LIMITES.gas.max)   alertasAviso.push(`Nível de gás elevado: ${gas}%.`);
-        }
-
-        const lastState = await getLastState(client, base.nome);
-
-        if (alertasCriticos.length === 0 && alertasAviso.length === 0) {
-          // Tudo normal — verifica se estava em problema antes para enviar recuperação
-          const wasProblem = lastState?.last_nivel &&
-                             lastState.last_nivel !== 'ok' &&
-                             lastState.last_nivel !== 'recuperacao';
-
-          if (wasProblem) {
-            console.log(`  ✅ Base voltou ao normal. Enviando e-mail de recuperação.`);
-            await handleAlert(client, base.nome, 'recuperacao', [`Base ${base.nome} voltou ao normal.`]);
+        // Função que verifica sensor e detecta mudança de nível
+        const avaliar = (sensor, valor, nivelAtual) => {
+          if (valor === null) return; // sensor ausente, não altera estado
+          let novoNivel;
+          if (sensor === 'temp') {
+            if (valor > LIMITES.temp.critico)                               novoNivel = 'critico';
+            else if (valor > LIMITES.temp.max || valor < LIMITES.temp.min)  novoNivel = 'aviso';
+            else                                                             novoNivel = 'ok';
+          } else if (sensor === 'umid') {
+            if (valor > LIMITES.umid.critico_max || valor < LIMITES.umid.critico_min) novoNivel = 'critico';
+            else if (valor > LIMITES.umid.max || valor < LIMITES.umid.min)            novoNivel = 'aviso';
+            else                                                                       novoNivel = 'ok';
+          } else if (sensor === 'gas') {
+            if (valor > LIMITES.gas.critico)   novoNivel = 'critico';
+            else if (valor > LIMITES.gas.max)  novoNivel = 'aviso';
+            else                               novoNivel = 'ok';
           }
-          // Sempre garante estado ok
-          await setState(client, base.nome, 'ok', []);
-          console.log(`  ✅ Tudo normal.`);
-        } else {
-          const nivel     = alertasCriticos.length > 0 ? 'critico' : 'aviso';
-          const mensagens = [...alertasCriticos, ...alertasAviso];
-          console.log(`  🔔 Alertas: ${mensagens.join(' | ')}`);
-          await handleAlert(client, base.nome, nivel, mensagens);
+
+          novosNiveis[sensor] = novoNivel;
+          const anterior = nivelAtual || 'ok';
+
+          // Só acumula alerta se o nível MUDOU
+          if (novoNivel !== anterior) {
+            if (novoNivel === 'critico') alertasCriticos.push({ sensor, novoNivel, valor });
+            else if (novoNivel === 'aviso') alertasAviso.push({ sensor, novoNivel, valor });
+            // Se voltou ao 'ok', é recuperação parcial — não gera alerta de sensor individual
+          }
+        };
+
+        avaliar('temp', temp, lastNiveis.temp);
+        avaliar('umid', umid, lastNiveis.umid);
+        avaliar('gas',  gas,  lastNiveis.gas);
+
+        // ── Envia alertas por sensor com mudança de nível
+        const nomeSensor = { temp: 'Temperatura', umid: 'Umidade', gas: 'Gás' };
+        const unidade    = { temp: '°C', umid: '%', gas: '%' };
+
+        for (const { sensor, novoNivel, valor } of alertasCriticos) {
+          const msg = `${nomeSensor[sensor]} CRÍTICA: ${valor}${unidade[sensor]}`;
+          await enviarEmailAlerta(client, base.nome, 'critico', [msg], null);
         }
+        for (const { sensor, novoNivel, valor } of alertasAviso) {
+          const msg = `${nomeSensor[sensor]} fora do ideal: ${valor}${unidade[sensor]}`;
+          await enviarEmailAlerta(client, base.nome, 'aviso', [msg], SENSOR_PREF[sensor]);
+        }
+
+        // Recuperações parciais (sensor voltou ao ok)
+        for (const sensor of ['temp', 'umid', 'gas']) {
+          const anterior = lastNiveis[sensor] || 'ok';
+          const novo = novosNiveis[sensor];
+          if (anterior !== 'ok' && anterior !== undefined && novo === 'ok') {
+            const msg = `${nomeSensor[sensor]} voltou ao normal.`;
+            await enviarEmailAlerta(client, base.nome, 'recuperacao', [msg], 'alertar_recuperacao');
+          }
+        }
+
+        // Salva novo estado global
+        await setState(client, base.nome, novosNiveis, []);
+        console.log(`  💾 Estado salvo: ${JSON.stringify(novosNiveis)}`);
 
       } catch (err) {
-        console.error(`  ❌ Erro ao processar base "${base.nome}":`, err.message);
+        console.error(`  ❌ Erro em "${base.nome}":`, err.message);
       }
     }
 
-    console.log('\n✅ Verificação de alertas concluída.');
+    console.log('\n✅ Verificação concluída.');
 
   } catch (err) {
-    console.error('❌ Erro fatal em checkAlerts:', err.message);
+    console.error('❌ Erro fatal:', err.message);
   } finally {
     client.release();
   }
 };
 
-// ─── Execução ─────────────────────────────────────────────────────────────────
 checkAlerts().finally(() => {
   pool.end().catch(err => console.error('Erro ao encerrar pool:', err.message));
 });

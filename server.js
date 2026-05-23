@@ -213,6 +213,55 @@ app.get('/unsubscribe', requireDatabase, async (req, res) => {
   }
 });
 
+// --- Preferências de Alertas por Inscrito ---
+app.get('/api/preferences', requireDatabase, async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ error: 'E-mail obrigatório.' });
+  const client = await pool.connect();
+  try {
+    const { rows } = await client.query(
+      `SELECT alertar_temp, alertar_umid, alertar_gas, alertar_offline, alertar_recuperacao
+       FROM subscriber_preferences WHERE email = $1`,
+      [email]
+    );
+    if (rows.length === 0) {
+      // Sem registro = todos os alertas ativos (padrão)
+      return res.json({ alertar_temp: true, alertar_umid: true, alertar_gas: true, alertar_offline: true, alertar_recuperacao: true });
+    }
+    res.json(rows[0]);
+  } finally { client.release(); }
+});
+
+app.post('/api/preferences', requireDatabase, async (req, res) => {
+  const { email, alertar_temp, alertar_umid, alertar_gas, alertar_offline, alertar_recuperacao } = req.body;
+  if (!email) return res.status(400).json({ error: 'E-mail obrigatório.' });
+  const client = await pool.connect();
+  try {
+    // Verifica se o e-mail está inscrito
+    const { rows } = await client.query('SELECT email FROM subscribers WHERE email = $1', [email]);
+    if (rows.length === 0) return res.status(404).json({ error: 'E-mail não encontrado na lista de inscritos.' });
+
+    await client.query(
+      `INSERT INTO subscriber_preferences(email, alertar_temp, alertar_umid, alertar_gas, alertar_offline, alertar_recuperacao, updated_at)
+       VALUES($1,$2,$3,$4,$5,$6,NOW())
+       ON CONFLICT(email) DO UPDATE SET
+         alertar_temp        = EXCLUDED.alertar_temp,
+         alertar_umid        = EXCLUDED.alertar_umid,
+         alertar_gas         = EXCLUDED.alertar_gas,
+         alertar_offline     = EXCLUDED.alertar_offline,
+         alertar_recuperacao = EXCLUDED.alertar_recuperacao,
+         updated_at          = NOW()`,
+      [email,
+       alertar_temp        ?? true,
+       alertar_umid        ?? true,
+       alertar_gas         ?? true,
+       alertar_offline     ?? true,
+       alertar_recuperacao ?? true]
+    );
+    res.json({ ok: true });
+  } finally { client.release(); }
+});
+
 // --- Endpoint de Histórico de Alertas (Refatorado para DB) ---
 app.get('/api/alerts', requireDatabase, async (req, res) => {
   try {
