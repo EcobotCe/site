@@ -62,14 +62,18 @@ const transporter = nodemailer.createTransport({
 });
 
 const allowedOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',').map(o => o.trim())
+  ? process.env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)
   : [];
 
 app.use(cors({
   origin: (origin, callback) => {
     // Permite requisições sem origin (ex: curl, Postman, server-side)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+    // Se nenhuma origem configurada, bloqueia tudo com origin (seguro em produção)
+    if (allowedOrigins.length === 0) {
+      return callback(new Error(`CORS_ORIGINS não configurado. Origem bloqueada: ${origin}`));
+    }
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
     return callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
@@ -89,42 +93,15 @@ const requireDatabase = (req, res, next) => {
   next();
 };
 
-const getEnvBaseDefaults = () => {
-  const bases = [];
-  if (process.env.TAGO_TOKEN_1) {
-    bases.push({ id: 1, nome: 'EEEPDJWM', token: process.env.TAGO_TOKEN_1 });
-  }
-  if (process.env.TAGO_TOKEN_2) {
-    bases.push({ id: 2, nome: 'EEEPDJWM 2.0', token: process.env.TAGO_TOKEN_2 });
-  }
-  return bases;
-};
-
-const BASES_FILE = path.join(__dirname, 'data', 'bases.json');
-
+// Busca bases APENAS do banco de dados
 const getBasesFromDb = async () => {
-  if (pool) {
-    try {
-      const client = await pool.connect();
-      try {
-        const { rows } = await client.query('SELECT id, nome, token, lat, lon FROM bases ORDER BY id');
-        return rows;
-      } finally {
-        client.release();
-      }
-    } catch (err) {
-      console.error('Erro ao acessar o banco para listar bases:', err.message);
-      // continuar para fallback de arquivo
-    }
-  }
-
-  // Fallback para arquivo local quando não há banco
+  if (!pool) return [];
+  const client = await pool.connect();
   try {
-    const text = await fs.readFile(BASES_FILE, 'utf8');
-    const parsed = JSON.parse(text || '[]');
-    return parsed;
-  } catch (err) {
-    return getEnvBaseDefaults();
+    const { rows } = await client.query('SELECT id, nome, token, lat, lon FROM bases ORDER BY id');
+    return rows;
+  } finally {
+    client.release();
   }
 };
 
@@ -294,23 +271,11 @@ app.post('/api/bases', async (req, res) => {
       }
     }
 
-    // Fallback para arquivo
-    await fs.mkdir(path.join(__dirname, 'data'), { recursive: true });
-    let bases = [];
-    try { bases = JSON.parse(await fs.readFile(BASES_FILE, 'utf8') || '[]'); } catch (e) { bases = []; }
-    if (id) {
-      const idx = bases.findIndex(b => b.id == id);
-      if (idx === -1) return res.status(404).json({ error: 'Base não encontrada.' });
-      bases[idx] = { ...bases[idx], nome, token, lat: latValue, lon: lonValue };
-      await fs.writeFile(BASES_FILE, JSON.stringify(bases, null, 2));
-      return res.status(200).json(bases[idx]);
-    }
-    const newId = bases.length ? Math.max(...bases.map(b => b.id || 0)) + 1 : 1;
-    const newBase = { id: newId, nome, token, lat: latValue, lon: lonValue };
-    bases.push(newBase);
-    await fs.writeFile(BASES_FILE, JSON.stringify(bases, null, 2));
-    return res.status(201).json(newBase);
+    return res.status(503).json({ error: 'Banco de dados indisponível.' });
   } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({ error: 'Já existe uma base com esse nome.' });
+    }
     console.error('Erro ao salvar base:', error.message);
     res.status(500).json({ error: 'Falha ao salvar a base' });
   }
@@ -333,33 +298,24 @@ app.delete('/api/bases/:id', async (req, res) => {
       }
     }
 
-    // Fallback arquivo
-    await fs.mkdir(path.join(__dirname, 'data'), { recursive: true });
-    let bases = [];
-    try { bases = JSON.parse(await fs.readFile(BASES_FILE, 'utf8') || '[]'); } catch (e) { bases = []; }
-    const idx = bases.findIndex(b => b.id == id);
-    if (idx === -1) return res.status(404).json({ error: 'Base não encontrada.' });
-    bases.splice(idx, 1);
-    await fs.writeFile(BASES_FILE, JSON.stringify(bases, null, 2));
-    return res.status(200).json({ message: 'Base removida com sucesso.' });
+    return res.status(503).json({ error: 'Banco de dados indisponível.' });
   } catch (error) {
     console.error('Erro ao remover base:', error.message);
     res.status(500).json({ error: 'Falha ao remover a base' });
   }
 });
 
-// --- Endpoint de Dados Recentes (sem alteração, pois não usa persistência) ---
+// --- Endpoint de Dados Recentes ---
 app.get('/api/dados-recentes', async (req, res) => {
   let BASES = [];
-  if (pool) {
-    try {
-      BASES = await getBasesFromDb();
-    } catch (err) {
-      console.error('Erro ao carregar bases do banco de dados:', err.message);
-    }
+  try {
+    BASES = await getBasesFromDb();
+  } catch (err) {
+    console.error('Erro ao carregar bases do banco de dados:', err.message);
+    return res.status(503).json({ error: 'Banco de dados indisponível.' });
   }
   if (!BASES || BASES.length === 0) {
-    BASES = getEnvBaseDefaults();
+    return res.status(200).json([]);
   }
   const resultados = [];
   for (const base of BASES) {
@@ -407,9 +363,6 @@ app.get('/api/test-tago', async (req, res) => {
     res.status(status).json({ error: 'Falha ao contactar a API do TagO.io.', detalhe: msg });
   }
 });
-
-// --- Tarefa Agendada ---
-scheduleAlertsCron();
 
 const server = app.listen(port, () => {
   console.log(`🚀 Servidor iniciado com sucesso na porta ${port}`);
