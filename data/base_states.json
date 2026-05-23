@@ -1,0 +1,12 @@
+[
+  {
+    "base": "Base Teste Local",
+    "last_nivel": "critico",
+    "last_mensagens": [
+      "Temperatura CRÍTICA: 45°C.",
+      "Umidade CRÍTICA: 10%.",
+      "Nível de gás CRÍTICO: 30%."
+    ],
+    "updated_at": "2026-05-22T20:50:14.090Z"
+  }
+]

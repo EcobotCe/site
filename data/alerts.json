@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "nivel": "critico",
+    "base": "Base Teste Local",
+    "mensagens": [
+      "Temperatura CRÍTICA: 45°C.",
+      "Umidade CRÍTICA: 10%.",
+      "Nível de gás CRÍTICO: 30%."
+    ],
+    "timestamp": "2026-05-22T20:50:14.069Z"
+  }
+]

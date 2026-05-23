@@ -14,8 +14,6 @@
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -1017,12 +1015,10 @@
 
         <div id="base-management" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8"></div>
 
-        <div id="status-badge" class="mb-8 w-max">
-
-            <span data-i18n="txt_aguardando"
+        <div id="status-badge" class="mb-8 flex items-center gap-4 flex-wrap">
+            <span id="badge-conexao" data-i18n="txt_aguardando"
                 class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">Aguardando
                 Conexão...</span>
-
         </div>
 
         <div id="alerta-gas"
@@ -1244,183 +1240,84 @@
             </div>
         </header>
 
-        <!-- Seção de Canais de Contato -->
+        <!-- Seção de Inscrição de E-mail -->
         <div
             class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter">
-            <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
-                <i class="fa-solid fa-phone text-ecogreen"></i> Seus Canais de Contato
+            <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-2 flex items-center gap-3">
+                <i class="fa-solid fa-envelope text-ecogreen"></i> Receber Alertas por E-mail
             </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Email para alertas via EmailJS (local) -->
-                <div class="space-y-3">
-                    <label class="text-sm text-slate-400 font-medium flex items-center gap-2">
-                        <input type="checkbox" id="usar-email" class="w-4 h-4 cursor-pointer"
-                            onchange="atualizarCamposAlertas()">
-                        <i class="fa-solid fa-envelope text-ecogreen"></i> Receber por Email (alertas automáticos)
-                    </label>
-                    <input type="email" id="email-alerta" placeholder="seuemail@exemplo.com"
-                        class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
-                </div>
-                <!-- Inscrição no backend (lista de notificações do servidor) -->
-                <div class="space-y-3">
-                    <label class="text-sm text-slate-400 font-medium flex items-center gap-2">
-                        <i class="fa-solid fa-server text-ecogreen"></i> Inscrever no servidor de alertas
-                    </label>
-                    <div class="flex gap-2">
-                        <input type="email" id="email_input" placeholder="seuemail@exemplo.com"
-                            class="flex-1 bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
-                        <button type="button" onclick="subscreverAlertas()"
-                            class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-3 px-5 rounded-xl transition-all text-sm whitespace-nowrap shadow-md hover:-translate-y-0.5">
-                            <i class="fa-solid fa-bell mr-1"></i> Inscrever
-                        </button>
-                    </div>
-                    <p class="text-[10px] text-slate-500">Você receberá e-mails do servidor quando os sensores detectarem condições críticas.</p>
-                </div>
+            <p class="text-xs text-slate-500 mb-6">Insira seu e-mail para ser notificado pelo servidor quando os sensores detectarem condições críticas.</p>
+            <div class="flex gap-3">
+                <input type="email" id="email_input" placeholder="seuemail@exemplo.com"
+                    class="flex-1 bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3.5 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
+                <button type="button" onclick="subscreverAlertas()"
+                    class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-3.5 px-6 rounded-xl transition-all text-sm whitespace-nowrap shadow-md hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-bell"></i> Inscrever
+                </button>
             </div>
         </div>
-        </div>
 
-        <div
-            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-01s">
-            <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
-                <i class="fa-solid fa-key text-ecogreen"></i> EmailJS configurado automaticamente
-            </h3>
-            <p class="text-sm text-slate-400">O envio de alertas por email usa credenciais internas do sistema. Basta
-                configurar seu email de destino no painel de alertas.</p>
-        </div>
 
-        <!-- Seção de Tipos de Alertas -->
+
+        <!-- O que o servidor monitora -->
         <div
             class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-02s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
-                <i class="fa-solid fa-sliders text-ecogreen"></i> Escolha seus Alertas
+                <i class="fa-solid fa-shield-halved text-ecogreen"></i> O que o servidor monitora
             </h3>
-            <p class="text-xs text-slate-400 mb-6 font-medium">Selecione os alertas que deseja receber e escolha o
-                canal:</p>
-
-            <div class="space-y-4">
-                <!-- Alerta Temperatura -->
-                <div
-                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-orange-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 animate-fade-in delay-04s">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="ativar-temp" class="w-5 h-5 cursor-pointer"
-                                onchange="atualizarAlertas()">
-                            <label for="ativar-temp" class="cursor-pointer flex items-center gap-3">
-                                <div
-                                    class="w-12 h-12 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-500 text-lg">
-                                    <i class="fa-solid fa-temperature-three-quarters"></i>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold">Temperatura Crítica</p>
-                                    <p class="text-xs text-slate-400">Quando atingir > 35°C</p>
-                                </div>
-                            </label>
-                        </div>
+            <p class="text-xs text-slate-400 mb-6">Ao se inscrever, você será notificado automaticamente por e-mail quando qualquer uma das condições abaixo for detectada:</p>
+            <div class="space-y-3">
+                <div class="glass-highlight p-4 rounded-2xl border border-orange-500/20 flex items-center gap-4">
+                    <div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400 shrink-0">
+                        <i class="fa-solid fa-temperature-three-quarters"></i>
                     </div>
-                    <div id="canais-temp" class="flex gap-4 ml-8 hidden">
-                        <label class="flex items-center gap-2 text-sm cursor-pointer">
-                            <input type="checkbox" class="alerta-canal" data-alerta="temp" data-canal="email">
-                            <span class="text-slate-300"><i
-                                    class="fa-solid fa-envelope mr-2 text-ecogreen"></i>Email</span>
-                        </label>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Temperatura Crítica</p>
+                        <p class="text-xs text-slate-400">Acima de 40°C (crítico) ou fora de 10–35°C (aviso)</p>
                     </div>
+                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
                 </div>
-
-                <!-- Alerta Gás -->
-                <div
-                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-purple-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/10 animate-fade-in delay-06s">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="ativar-gas" class="w-5 h-5 cursor-pointer"
-                                onchange="atualizarAlertas()">
-                            <label for="ativar-gas" class="cursor-pointer flex items-center gap-3">
-                                <div
-                                    class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-500 text-lg">
-                                    <i class="fa-solid fa-cloud"></i>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold">Nível de gás crítico</p>
-                                    <p class="text-xs text-slate-400">Quando atingir > 10%</p>
-                                </div>
-                            </label>
-                        </div>
+                <div class="glass-highlight p-4 rounded-2xl border border-blue-500/20 flex items-center gap-4">
+                    <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
+                        <i class="fa-solid fa-droplet"></i>
                     </div>
-                    <div id="canais-gas" class="flex gap-4 ml-8 hidden">
-                        <label class="flex items-center gap-2 text-sm cursor-pointer">
-                            <input type="checkbox" class="alerta-canal" data-alerta="gas" data-canal="email">
-                            <span class="text-slate-300"><i
-                                    class="fa-solid fa-envelope mr-2 text-ecogreen"></i>Email</span>
-                        </label>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Umidade Crítica</p>
+                        <p class="text-xs text-slate-400">Abaixo de 20% ou acima de 85% (crítico); fora de 30–70% (aviso)</p>
                     </div>
+                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
                 </div>
-
-                <!-- Alerta Umidade -->
-                <div
-                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-ecogreen/40 transition-all duration-300 hover:shadow-lg hover:shadow-ecogreen/10 animate-fade-in delay-08s">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="ativar-umi" class="w-5 h-5 cursor-pointer"
-                                onchange="atualizarAlertas()">
-                            <label for="ativar-umi" class="cursor-pointer flex items-center gap-3">
-                                <div
-                                    class="w-12 h-12 bg-ecogreen/20 rounded-xl flex items-center justify-center text-ecogreen text-lg">
-                                    <i class="fa-solid fa-droplet"></i>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold">Umidade Muito Baixa</p>
-                                    <p class="text-xs text-slate-400">Quando atingir < 30%</p>
-                                </div>
-                            </label>
-                        </div>
+                <div class="glass-highlight p-4 rounded-2xl border border-purple-500/20 flex items-center gap-4">
+                    <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 shrink-0">
+                        <i class="fa-solid fa-cloud"></i>
                     </div>
-                    <div id="canais-umi" class="flex gap-4 ml-8 hidden">
-                        <label class="flex items-center gap-2 text-sm cursor-pointer">
-                            <input type="checkbox" class="alerta-canal" data-alerta="umi" data-canal="email">
-                            <span class="text-slate-300"><i
-                                    class="fa-solid fa-envelope mr-2 text-ecogreen"></i>Email</span>
-                        </label>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Nível de Gás Elevado</p>
+                        <p class="text-xs text-slate-400">Acima de 20% (crítico) ou acima de 10% (aviso)</p>
                     </div>
+                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
                 </div>
-
-                <!-- Alerta Queimada -->
-                <div
-                    class="glass-highlight p-5 rounded-2xl border border-ecogreen/20 hover:border-red-400/30 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/10 animate-fade-in delay-1s">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex items-center gap-3">
-                            <input type="checkbox" id="ativar-queimada" class="w-5 h-5 cursor-pointer"
-                                onchange="atualizarAlertas()">
-                            <label for="ativar-queimada" class="cursor-pointer flex items-center gap-3">
-                                <div
-                                    class="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center text-red-500 text-lg">
-                                    <i class="fa-solid fa-fire"></i>
-                                </div>
-                                <div>
-                                    <p class="text-white font-bold">Risco de Queimada</p>
-                                    <p class="text-xs text-slate-400">Combinação de temp alta + umidade baixa</p>
-                                </div>
-                            </label>
-                        </div>
+                <div class="glass-highlight p-4 rounded-2xl border border-slate-500/20 flex items-center gap-4">
+                    <div class="w-10 h-10 bg-slate-500/20 rounded-xl flex items-center justify-center text-slate-400 shrink-0">
+                        <i class="fa-solid fa-satellite-dish"></i>
                     </div>
-                    <div id="canais-queimada" class="flex gap-4 ml-8 hidden">
-                        <label class="flex items-center gap-2 text-sm cursor-pointer">
-                            <input type="checkbox" class="alerta-canal" data-alerta="queimada" data-canal="email">
-                            <span class="text-slate-300"><i
-                                    class="fa-solid fa-envelope mr-2 text-ecogreen"></i>Email</span>
-                        </label>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Base Offline</p>
+                        <p class="text-xs text-slate-400">Quando uma estação parar de enviar dados</p>
                     </div>
+                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
+                </div>
+                <div class="glass-highlight p-4 rounded-2xl border border-ecogreen/20 flex items-center gap-4">
+                    <div class="w-10 h-10 bg-ecogreen/20 rounded-xl flex items-center justify-center text-ecogreen shrink-0">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-semibold text-sm">Recuperação</p>
+                        <p class="text-xs text-slate-400">Quando a base voltar ao normal após um alerta</p>
+                    </div>
+                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
                 </div>
             </div>
-
-            <button type="button" onclick="salvarConfiguracoesAlertas()"
-                class="w-full mt-8 bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-4 rounded-xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] hover:-translate-y-1 uppercase tracking-wider text-sm relative overflow-hidden group">
-                <span class="relative z-10 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-save"></i> Salvar Todas as Configurações
-                </span>
-                <div
-                    class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-ecogreen opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                </div>
-            </button>
         </div>
 
         <!-- Histórico de Alertas -->
@@ -1627,8 +1524,6 @@
             carregarBases().finally(() => {
                 atualizarInterfaceBases();
                 mudarIdioma('pt');
-                carregarConfiguracoesAlertas(); // Carregar alertas salvos
-                carregarCredenciaisInterface(); // Carregar credenciais nos campos
                 setTimeout(() => {
                     document.getElementById('splash-screen').classList.add('opacity-0');
                     setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 1000);
@@ -1637,7 +1532,7 @@
         };
 
         async function carregarBases() {
-            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
             try {
                 const response = await fetch(`${backendUrl}/api/bases`);
                 if (!response.ok) {
@@ -1676,6 +1571,9 @@
                 // Atualiza imediatamente e depois a cada 30 segundos
                 sincronizarTago();
                 if (!intervalSync) intervalSync = setInterval(sincronizarTago, 30000);
+            } else if (viewId === 'alertas') {
+                carregarHistoricoAlertas();
+                if (intervalSync) { clearInterval(intervalSync); intervalSync = null; }
             } else {
                 if (intervalSync) { clearInterval(intervalSync); intervalSync = null; }
             }
@@ -1856,7 +1754,7 @@
             setTimeout(() => { document.getElementById('modal-adicionar-base').classList.add('hidden'); }, 400);
         }
 
-        function salvarNovaBase() {
+        async function salvarNovaBase() {
             const nome = document.getElementById('nova-nome').value;
             const token = document.getElementById('nova-token').value;
             const lat = document.getElementById('nova-lat').value;
@@ -1867,7 +1765,7 @@
                 return;
             }
 
-            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
             const payload = { nome, token, lat: lat || null, lon: lon || null };
 
             try {
@@ -1911,7 +1809,7 @@
             abrirModalAdicionarBase(id);
         }
 
-        function removerBase(id) {
+        async function removerBase(id) {
             const confirmMsg = idiomaAtual === 'pt'
                 ? 'Tem certeza que deseja excluir esta base?'
                 : idiomaAtual === 'es'
@@ -1920,7 +1818,7 @@
             if (!confirm(confirmMsg)) return;
 
             try {
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
                 const response = await fetch(`${backendUrl}/api/bases/${id}`, { method: 'DELETE' });
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => ({}));
@@ -1956,7 +1854,7 @@
 
             try {
                 // Busca os dados mais recentes para preencher o gráfico corretamente
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
                 const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(baseSelecionada.token)}&qty=${TAGO_FETCH_QTY}`;
                 const directUrl = `${TAGO_API_BASE}?qty=${TAGO_FETCH_QTY}`;
 
@@ -2013,10 +1911,7 @@
                 const baseNomeBadge = baseSelecionada ? baseSelecionada.nome : 'Base não selecionada';
                 const statusNote = dicionario[idiomaAtual].txt_status_note;
 
-                document.getElementById('status-badge').innerHTML = `
-                    <span class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">${baseNomeBadge}</span>
-                    <p class="text-[10px] text-slate-400 mt-2">${statusNote}</p>
-                `;
+                document.getElementById('badge-conexao').textContent = baseNomeBadge;
 
                 const safeParse = (val) => {
                     if (val === null || val === undefined) return null;
@@ -2088,7 +1983,7 @@
             let horasUnicas = [...new Set(todosDados.map(d => {
                 let date = new Date(d.time);
                 return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-            }))].sort().slice(-15);
+            }))].sort().slice(-5);
 
             const dataT = horasUnicas.map(hora => {
                 let dado = arrT.find(d => {
@@ -2271,58 +2166,102 @@
             }
         }
 
-        let EMAILJS_SERVICE_ID = 'service_9snjnhb'; // Configure no painel admin
-        let EMAILJS_TEMPLATE_ID = 'template_sisx6u9'; // Configure no painel admin
-        let EMAILJS_USER_ID = 'FS9fOYvVSD-vMtAWs'; // Configure no painel admin
-        let emailjsInitialized = false;
+        // ------------------------------------------------
+        // EmailJS REMOVIDO — alertas por e-mail são gerenciados
+        // exclusivamente pelo backend (Nodemailer + /subscribe).
+        // As funções abaixo são stubs para não quebrar chamadas existentes.
+        // ------------------------------------------------
+        function iniciarEmailJS() { return false; }
+        function carregarCredenciaisEmailJS() {}
+        function atualizarCredenciais(tipo, valor) { showToast('Credenciais gerenciadas pelo servidor.', 'warning'); }
+        function validarCredenciais() { return []; }
+        function carregarCredenciaisInterface() { carregarCredenciaisEmailJS(); }
 
-        function iniciarEmailJS() {
-            if (typeof emailjs === 'undefined') {
-                console.warn('EmailJS não carregado. Verifique o script do CDN.');
-                return false;
-            }
-
-            if (EMAILJS_USER_ID && !emailjsInitialized && emailjs.init) {
-                emailjs.init(EMAILJS_USER_ID);
-                emailjsInitialized = true;
-                return true;
-            }
-
-            return emailjsInitialized;
+        async function enviarEmail(destinatario, assunto, corpo, baseNome) {
+            // E-mails são enviados pelo backend automaticamente via Nodemailer.
+            // Esta função não faz nada no front-end para evitar duplicatas.
+            console.log('[enviarEmail] Ignorado — backend gerencia envio de alertas.');
+            return false;
         }
 
-        function carregarCredenciaisEmailJS() {
-            const savedService = localStorage.getItem('emailjs_service_id');
-            const savedTemplate = localStorage.getItem('emailjs_template_id');
-            const savedUser = localStorage.getItem('emailjs_user_id');
-
-            if (savedService) EMAILJS_SERVICE_ID = savedService;
-            if (savedTemplate) EMAILJS_TEMPLATE_ID = savedTemplate;
-            if (savedUser) EMAILJS_USER_ID = savedUser;
-
-            iniciarEmailJS();
+        async function testarConectividadeEmailJS() {
+            const statusElement = document.getElementById('status-emailjs');
+            if (!statusElement) return;
+            statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xs"></i> <span class="text-xs text-green-500">Gerenciado pelo servidor</span>';
+            showToast('✅ Alertas por e-mail são gerenciados pelo servidor backend (Nodemailer).', 'success');
         }
 
-        // Função para atualizar credenciais
-        function atualizarCredenciais(tipo, valor) {
-            if (tipo === 'emailjs_service_id') { EMAILJS_SERVICE_ID = valor; localStorage.setItem('emailjs_service_id', valor); }
-            if (tipo === 'emailjs_template_id') { EMAILJS_TEMPLATE_ID = valor; localStorage.setItem('emailjs_template_id', valor); }
-            if (tipo === 'emailjs_user_id') {
-                EMAILJS_USER_ID = valor;
-                localStorage.setItem('emailjs_user_id', valor);
-                iniciarEmailJS();
+        function validarCredenciaisInterface() {
+            const statusElement = document.getElementById('status-credenciais');
+            if (statusElement) {
+                statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i> Status: E-mail gerenciado pelo servidor';
             }
-            showToast(`✅ ${tipo} atualizado com sucesso`, 'success');
         }
 
-        // Função para validar credenciais de envio de email
-        // Para obter as credenciais: acesse https://www.emailjs.com/, crie conta, service, template e copie os IDs
-        function validarCredenciais() {
-            const erros = [];
-            if (!EMAILJS_USER_ID || EMAILJS_USER_ID.includes('XXXXXXXX') || EMAILJS_USER_ID.length < 10) erros.push('❌ EmailJS Public Key não configurada ou inválida');
-            if (!EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.includes('YOUR_SERVICE_ID') || !EMAILJS_SERVICE_ID.startsWith('service_')) erros.push('❌ EmailJS Service ID não configurado ou inválido');
-            if (!EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID === 'template_alerta' || !EMAILJS_TEMPLATE_ID.startsWith('template_')) erros.push('❌ EmailJS Template ID não configurado ou inválido');
-            return erros;
+        // ------------------------------------------------
+        // HISTÓRICO DE ALERTAS — busca do backend e renderiza
+        // ------------------------------------------------
+        async function carregarHistoricoAlertas() {
+            const container = document.getElementById('historico-alertas');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="flex items-center justify-center py-6 gap-3 text-slate-400">
+                    <i class="fa-solid fa-circle-notch fa-spin text-ecogreen"></i>
+                    <span class="text-sm">Carregando histórico...</span>
+                </div>`;
+
+            try {
+                const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
+                const response = await fetch(`${backendUrl}/api/alerts`);
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const alertas = await response.json();
+
+                if (!Array.isArray(alertas) || alertas.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-slate-500 py-8">
+                            <i class="fa-solid fa-inbox text-4xl mb-4 block"></i>
+                            <p>Nenhum alerta registrado ainda.</p>
+                        </div>`;
+                    return;
+                }
+
+                const nivelClasses = {
+                    critico:    { bg: 'bg-red-500/10 border-red-500/30',     badge: 'bg-red-500/20 text-red-400',     icon: 'fa-triangle-exclamation', label: 'CRÍTICO' },
+                    aviso:      { bg: 'bg-yellow-500/10 border-yellow-500/30', badge: 'bg-yellow-500/20 text-yellow-400', icon: 'fa-exclamation-circle',  label: 'AVISO' },
+                    offline:    { bg: 'bg-slate-500/10 border-slate-500/30',  badge: 'bg-slate-500/20 text-slate-400',  icon: 'fa-plug-circle-xmark',    label: 'OFFLINE' },
+                    recuperacao:{ bg: 'bg-green-500/10 border-green-500/30',  badge: 'bg-green-500/20 text-green-400',  icon: 'fa-circle-check',         label: 'RECUPERADO' },
+                    ok:         { bg: 'bg-green-500/10 border-green-500/30',  badge: 'bg-green-500/20 text-green-400',  icon: 'fa-circle-check',         label: 'OK' }
+                };
+
+                container.innerHTML = alertas.slice(0, 20).map(alerta => {
+                    const cfg = nivelClasses[alerta.nivel] || nivelClasses.aviso;
+                    const data = new Date(alerta.timestamp).toLocaleString('pt-BR');
+                    const msgs = Array.isArray(alerta.mensagens) ? alerta.mensagens.join(' • ') : alerta.mensagens;
+                    return `
+                        <div class="flex gap-3 items-start p-4 rounded-xl border ${cfg.bg} transition-all">
+                            <span class="flex-shrink-0 mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${cfg.badge}">
+                                <i class="fa-solid ${cfg.icon} mr-1"></i>${cfg.label}
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-white font-medium truncate">${alerta.base}</p>
+                                <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">${msgs}</p>
+                            </div>
+                            <span class="flex-shrink-0 text-[10px] text-slate-500 whitespace-nowrap">${data}</span>
+                        </div>`;
+                }).join('');
+
+            } catch (err) {
+                console.error('Erro ao carregar histórico de alertas:', err);
+                container.innerHTML = `
+                    <div class="text-center text-slate-500 py-8">
+                        <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-3xl mb-3 block"></i>
+                        <p class="text-sm">Não foi possível carregar o histórico.</p>
+                        <button type="button" onclick="carregarHistoricoAlertas()" class="mt-3 text-ecogreen text-xs underline">Tentar novamente</button>
+                    </div>`;
+            }
         }
 
         // Funções de teste de conectividade
@@ -2338,7 +2277,7 @@
 
             try {
                 const token = baseSelecionada.token;
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:3001' : window.location.origin);
+                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
                 const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(token)}&qty=1`;
                 const directUrl = `https://api.tago.io/data?qty=1`;
 
@@ -2379,97 +2318,6 @@
                     '❌ CORS ou rede bloqueada. Execute em servidor local (ex: Live Server) ou use o servidor backend.' :
                     '❌ Erro na conexão com API TagO';
                 showToast(errorMsg, 'error');
-            }
-        }
-
-        async function testarConectividadeEmailJS() {
-            const statusElement = document.getElementById('status-emailjs');
-            statusElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-green-400 text-xs"></i> <span class="text-xs text-green-400">Testando...</span>';
-
-            try {
-                const erros = validarCredenciais();
-                if (erros.length > 0) {
-                    throw new Error(erros.join('; '));
-                }
-
-                if (typeof emailjs === 'undefined') {
-                    throw new Error('Biblioteca EmailJS não carregada');
-                }
-
-                iniciarEmailJS();
-
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xs"></i> <span class="text-xs text-green-500">Pronto</span>';
-                showToast('✅ EmailJS configurado e pronto', 'success');
-            } catch (err) {
-                console.error('Erro na conectividade EmailJS:', err);
-                statusElement.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 text-xs"></i> <span class="text-xs text-red-500">Erro</span>';
-                showToast(`❌ EmailJS não configurado corretamente: ${err.message || err}`, 'error');
-            }
-        }
-
-        // Função para validar credenciais na interface
-        function validarCredenciaisInterface() {
-            const erros = validarCredenciais();
-            const statusElement = document.getElementById('status-credenciais');
-
-            if (erros.length === 0) {
-                statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i> Status: Todas as credenciais configuradas';
-                showToast('✅ Todas as credenciais estão configuradas corretamente!', 'success');
-            } else {
-                statusElement.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500"></i> Status: ${erros.length} erro(s) encontrado(s)`;
-                showToast(`⚠️ ${erros.length} credencial(is) precisa(m) ser configurada(s)`, 'warning');
-                console.warn('Credenciais incompletas:', erros);
-            }
-        }
-
-        // Função para enviar email usando EmailJS
-        async function enviarEmail(destinatario, assunto, corpo, baseNome = 'Ecobot') {
-            try {
-                // 1. Valida se o usuário preencheu as chaves no painel
-                const erros = validarCredenciais();
-                if (erros.length > 0) {
-                    console.warn('Credenciais incompletas:', erros);
-                    showToast('⚠️ Configure o EmailJS no Painel Admin.', 'warning');
-                    return false;
-                }
-
-                // 2. Prepara os dados que vão para o Template
-                const templateParams = {
-                    to_email: destinatario,
-                    reply_to: destinatario,
-                    from_name: 'Ecobot',
-                    subject: assunto,
-                    message: corpo,
-                    date: new Date().toLocaleString('pt-BR'),
-                    base: baseNome || 'Ecobot'
-                };
-
-                // 3. Inicializa EmailJS e dispara o e-mail
-                if (typeof emailjs === 'undefined') {
-                    throw new Error('Biblioteca EmailJS não encontrada');
-                }
-
-                iniciarEmailJS();
-
-                const response = await emailjs.send(
-                    EMAILJS_SERVICE_ID,
-                    EMAILJS_TEMPLATE_ID,
-                    templateParams
-                );
-
-                showToast(`📧 Alerta enviado para ${destinatario}`, 'success');
-                console.log('✅ Email disparado com sucesso!', response.status, response.text);
-                return true;
-
-            } catch (err) {
-                console.error('❌ Erro no EmailJS:', err);
-                const detalhe = err && typeof err === 'object' ?
-                    (err.text || err.message || JSON.stringify(err)) :
-                    String(err);
-                showToast(`❌ Falha ao enviar email: ${detalhe}`, 'error');
-                return false;
             }
         }
 
