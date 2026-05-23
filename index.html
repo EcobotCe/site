@@ -14,8 +14,6 @@
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
     <script>
         tailwind.config = {
             theme: {
@@ -1283,10 +1281,9 @@
         <div
             class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-01s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
-                <i class="fa-solid fa-key text-ecogreen"></i> EmailJS configurado automaticamente
+                <i class="fa-solid fa-server text-ecogreen"></i> Envio de e-mail gerenciado pelo servidor
             </h3>
-            <p class="text-sm text-slate-400">O envio de alertas por email usa credenciais internas do sistema. Basta
-                configurar seu email de destino no painel de alertas.</p>
+            <p class="text-sm text-slate-400">Os alertas automáticos são enviados pelo servidor (Nodemailer) para todos os e-mails cadastrados na lista abaixo. Para receber alertas, inscreva seu e-mail no campo acima.</p>
         </div>
 
         <!-- Seção de Tipos de Alertas -->
@@ -1676,6 +1673,9 @@
                 // Atualiza imediatamente e depois a cada 30 segundos
                 sincronizarTago();
                 if (!intervalSync) intervalSync = setInterval(sincronizarTago, 30000);
+            } else if (viewId === 'alertas') {
+                carregarHistoricoAlertas();
+                if (intervalSync) { clearInterval(intervalSync); intervalSync = null; }
             } else {
                 if (intervalSync) { clearInterval(intervalSync); intervalSync = null; }
             }
@@ -1856,7 +1856,7 @@
             setTimeout(() => { document.getElementById('modal-adicionar-base').classList.add('hidden'); }, 400);
         }
 
-        function salvarNovaBase() {
+        async function salvarNovaBase() {
             const nome = document.getElementById('nova-nome').value;
             const token = document.getElementById('nova-token').value;
             const lat = document.getElementById('nova-lat').value;
@@ -1911,7 +1911,7 @@
             abrirModalAdicionarBase(id);
         }
 
-        function removerBase(id) {
+        async function removerBase(id) {
             const confirmMsg = idiomaAtual === 'pt'
                 ? 'Tem certeza que deseja excluir esta base?'
                 : idiomaAtual === 'es'
@@ -2271,58 +2271,102 @@
             }
         }
 
-        let EMAILJS_SERVICE_ID = 'service_9snjnhb'; // Configure no painel admin
-        let EMAILJS_TEMPLATE_ID = 'template_sisx6u9'; // Configure no painel admin
-        let EMAILJS_USER_ID = 'FS9fOYvVSD-vMtAWs'; // Configure no painel admin
-        let emailjsInitialized = false;
+        // ------------------------------------------------
+        // EmailJS REMOVIDO — alertas por e-mail são gerenciados
+        // exclusivamente pelo backend (Nodemailer + /subscribe).
+        // As funções abaixo são stubs para não quebrar chamadas existentes.
+        // ------------------------------------------------
+        function iniciarEmailJS() { return false; }
+        function carregarCredenciaisEmailJS() {}
+        function atualizarCredenciais(tipo, valor) { showToast('Credenciais gerenciadas pelo servidor.', 'warning'); }
+        function validarCredenciais() { return []; }
+        function carregarCredenciaisInterface() { carregarCredenciaisEmailJS(); }
 
-        function iniciarEmailJS() {
-            if (typeof emailjs === 'undefined') {
-                console.warn('EmailJS não carregado. Verifique o script do CDN.');
-                return false;
-            }
-
-            if (EMAILJS_USER_ID && !emailjsInitialized && emailjs.init) {
-                emailjs.init(EMAILJS_USER_ID);
-                emailjsInitialized = true;
-                return true;
-            }
-
-            return emailjsInitialized;
+        async function enviarEmail(destinatario, assunto, corpo, baseNome) {
+            // E-mails são enviados pelo backend automaticamente via Nodemailer.
+            // Esta função não faz nada no front-end para evitar duplicatas.
+            console.log('[enviarEmail] Ignorado — backend gerencia envio de alertas.');
+            return false;
         }
 
-        function carregarCredenciaisEmailJS() {
-            const savedService = localStorage.getItem('emailjs_service_id');
-            const savedTemplate = localStorage.getItem('emailjs_template_id');
-            const savedUser = localStorage.getItem('emailjs_user_id');
-
-            if (savedService) EMAILJS_SERVICE_ID = savedService;
-            if (savedTemplate) EMAILJS_TEMPLATE_ID = savedTemplate;
-            if (savedUser) EMAILJS_USER_ID = savedUser;
-
-            iniciarEmailJS();
+        async function testarConectividadeEmailJS() {
+            const statusElement = document.getElementById('status-emailjs');
+            if (!statusElement) return;
+            statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xs"></i> <span class="text-xs text-green-500">Gerenciado pelo servidor</span>';
+            showToast('✅ Alertas por e-mail são gerenciados pelo servidor backend (Nodemailer).', 'success');
         }
 
-        // Função para atualizar credenciais
-        function atualizarCredenciais(tipo, valor) {
-            if (tipo === 'emailjs_service_id') { EMAILJS_SERVICE_ID = valor; localStorage.setItem('emailjs_service_id', valor); }
-            if (tipo === 'emailjs_template_id') { EMAILJS_TEMPLATE_ID = valor; localStorage.setItem('emailjs_template_id', valor); }
-            if (tipo === 'emailjs_user_id') {
-                EMAILJS_USER_ID = valor;
-                localStorage.setItem('emailjs_user_id', valor);
-                iniciarEmailJS();
+        function validarCredenciaisInterface() {
+            const statusElement = document.getElementById('status-credenciais');
+            if (statusElement) {
+                statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i> Status: E-mail gerenciado pelo servidor';
             }
-            showToast(`✅ ${tipo} atualizado com sucesso`, 'success');
         }
 
-        // Função para validar credenciais de envio de email
-        // Para obter as credenciais: acesse https://www.emailjs.com/, crie conta, service, template e copie os IDs
-        function validarCredenciais() {
-            const erros = [];
-            if (!EMAILJS_USER_ID || EMAILJS_USER_ID.includes('XXXXXXXX') || EMAILJS_USER_ID.length < 10) erros.push('❌ EmailJS Public Key não configurada ou inválida');
-            if (!EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.includes('YOUR_SERVICE_ID') || !EMAILJS_SERVICE_ID.startsWith('service_')) erros.push('❌ EmailJS Service ID não configurado ou inválido');
-            if (!EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID === 'template_alerta' || !EMAILJS_TEMPLATE_ID.startsWith('template_')) erros.push('❌ EmailJS Template ID não configurado ou inválido');
-            return erros;
+        // ------------------------------------------------
+        // HISTÓRICO DE ALERTAS — busca do backend e renderiza
+        // ------------------------------------------------
+        async function carregarHistoricoAlertas() {
+            const container = document.getElementById('historico-alertas');
+            if (!container) return;
+
+            container.innerHTML = `
+                <div class="flex items-center justify-center py-6 gap-3 text-slate-400">
+                    <i class="fa-solid fa-circle-notch fa-spin text-ecogreen"></i>
+                    <span class="text-sm">Carregando histórico...</span>
+                </div>`;
+
+            try {
+                const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
+                const response = await fetch(`${backendUrl}/api/alerts`);
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const alertas = await response.json();
+
+                if (!Array.isArray(alertas) || alertas.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-slate-500 py-8">
+                            <i class="fa-solid fa-inbox text-4xl mb-4 block"></i>
+                            <p>Nenhum alerta registrado ainda.</p>
+                        </div>`;
+                    return;
+                }
+
+                const nivelClasses = {
+                    critico:    { bg: 'bg-red-500/10 border-red-500/30',     badge: 'bg-red-500/20 text-red-400',     icon: 'fa-triangle-exclamation', label: 'CRÍTICO' },
+                    aviso:      { bg: 'bg-yellow-500/10 border-yellow-500/30', badge: 'bg-yellow-500/20 text-yellow-400', icon: 'fa-exclamation-circle',  label: 'AVISO' },
+                    offline:    { bg: 'bg-slate-500/10 border-slate-500/30',  badge: 'bg-slate-500/20 text-slate-400',  icon: 'fa-plug-circle-xmark',    label: 'OFFLINE' },
+                    recuperacao:{ bg: 'bg-green-500/10 border-green-500/30',  badge: 'bg-green-500/20 text-green-400',  icon: 'fa-circle-check',         label: 'RECUPERADO' },
+                    ok:         { bg: 'bg-green-500/10 border-green-500/30',  badge: 'bg-green-500/20 text-green-400',  icon: 'fa-circle-check',         label: 'OK' }
+                };
+
+                container.innerHTML = alertas.slice(0, 20).map(alerta => {
+                    const cfg = nivelClasses[alerta.nivel] || nivelClasses.aviso;
+                    const data = new Date(alerta.timestamp).toLocaleString('pt-BR');
+                    const msgs = Array.isArray(alerta.mensagens) ? alerta.mensagens.join(' • ') : alerta.mensagens;
+                    return `
+                        <div class="flex gap-3 items-start p-4 rounded-xl border ${cfg.bg} transition-all">
+                            <span class="flex-shrink-0 mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${cfg.badge}">
+                                <i class="fa-solid ${cfg.icon} mr-1"></i>${cfg.label}
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm text-white font-medium truncate">${alerta.base}</p>
+                                <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">${msgs}</p>
+                            </div>
+                            <span class="flex-shrink-0 text-[10px] text-slate-500 whitespace-nowrap">${data}</span>
+                        </div>`;
+                }).join('');
+
+            } catch (err) {
+                console.error('Erro ao carregar histórico de alertas:', err);
+                container.innerHTML = `
+                    <div class="text-center text-slate-500 py-8">
+                        <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-3xl mb-3 block"></i>
+                        <p class="text-sm">Não foi possível carregar o histórico.</p>
+                        <button type="button" onclick="carregarHistoricoAlertas()" class="mt-3 text-ecogreen text-xs underline">Tentar novamente</button>
+                    </div>`;
+            }
         }
 
         // Funções de teste de conectividade
@@ -2379,97 +2423,6 @@
                     '❌ CORS ou rede bloqueada. Execute em servidor local (ex: Live Server) ou use o servidor backend.' :
                     '❌ Erro na conexão com API TagO';
                 showToast(errorMsg, 'error');
-            }
-        }
-
-        async function testarConectividadeEmailJS() {
-            const statusElement = document.getElementById('status-emailjs');
-            statusElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-green-400 text-xs"></i> <span class="text-xs text-green-400">Testando...</span>';
-
-            try {
-                const erros = validarCredenciais();
-                if (erros.length > 0) {
-                    throw new Error(erros.join('; '));
-                }
-
-                if (typeof emailjs === 'undefined') {
-                    throw new Error('Biblioteca EmailJS não carregada');
-                }
-
-                iniciarEmailJS();
-
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xs"></i> <span class="text-xs text-green-500">Pronto</span>';
-                showToast('✅ EmailJS configurado e pronto', 'success');
-            } catch (err) {
-                console.error('Erro na conectividade EmailJS:', err);
-                statusElement.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 text-xs"></i> <span class="text-xs text-red-500">Erro</span>';
-                showToast(`❌ EmailJS não configurado corretamente: ${err.message || err}`, 'error');
-            }
-        }
-
-        // Função para validar credenciais na interface
-        function validarCredenciaisInterface() {
-            const erros = validarCredenciais();
-            const statusElement = document.getElementById('status-credenciais');
-
-            if (erros.length === 0) {
-                statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i> Status: Todas as credenciais configuradas';
-                showToast('✅ Todas as credenciais estão configuradas corretamente!', 'success');
-            } else {
-                statusElement.innerHTML = `<i class="fa-solid fa-circle-xmark text-red-500"></i> Status: ${erros.length} erro(s) encontrado(s)`;
-                showToast(`⚠️ ${erros.length} credencial(is) precisa(m) ser configurada(s)`, 'warning');
-                console.warn('Credenciais incompletas:', erros);
-            }
-        }
-
-        // Função para enviar email usando EmailJS
-        async function enviarEmail(destinatario, assunto, corpo, baseNome = 'Ecobot') {
-            try {
-                // 1. Valida se o usuário preencheu as chaves no painel
-                const erros = validarCredenciais();
-                if (erros.length > 0) {
-                    console.warn('Credenciais incompletas:', erros);
-                    showToast('⚠️ Configure o EmailJS no Painel Admin.', 'warning');
-                    return false;
-                }
-
-                // 2. Prepara os dados que vão para o Template
-                const templateParams = {
-                    to_email: destinatario,
-                    reply_to: destinatario,
-                    from_name: 'Ecobot',
-                    subject: assunto,
-                    message: corpo,
-                    date: new Date().toLocaleString('pt-BR'),
-                    base: baseNome || 'Ecobot'
-                };
-
-                // 3. Inicializa EmailJS e dispara o e-mail
-                if (typeof emailjs === 'undefined') {
-                    throw new Error('Biblioteca EmailJS não encontrada');
-                }
-
-                iniciarEmailJS();
-
-                const response = await emailjs.send(
-                    EMAILJS_SERVICE_ID,
-                    EMAILJS_TEMPLATE_ID,
-                    templateParams
-                );
-
-                showToast(`📧 Alerta enviado para ${destinatario}`, 'success');
-                console.log('✅ Email disparado com sucesso!', response.status, response.text);
-                return true;
-
-            } catch (err) {
-                console.error('❌ Erro no EmailJS:', err);
-                const detalhe = err && typeof err === 'object' ?
-                    (err.text || err.message || JSON.stringify(err)) :
-                    String(err);
-                showToast(`❌ Falha ao enviar email: ${detalhe}`, 'error');
-                return false;
             }
         }
 
