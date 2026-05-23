@@ -165,14 +165,28 @@ const checkAlerts = async () => {
         const dados = Array.isArray(response.data?.result) ? response.data.result : [];
 
         const { niveis: lastNiveis } = await getLastState(client, base.nome);
-        // niveis: { temp: 'ok'|'aviso'|'critico', umid: ..., gas: ..., offline: true|false }
 
-        if (dados.length === 0) {
+        // ── Verifica se o dado mais recente é antigo demais (> 7 minutos = offline)
+        const OFFLINE_TIMEOUT_MS = 7 * 60 * 1000;
+        const ultimoDado = dados[0];
+        const ultimaLeitura = ultimoDado?.time ? new Date(ultimoDado.time).getTime() : null;
+        const idadeMs = ultimaLeitura ? Date.now() - ultimaLeitura : Infinity;
+        const estaOffline = dados.length === 0 || idadeMs > OFFLINE_TIMEOUT_MS;
+
+        if (ultimaLeitura) {
+          const idadeMin = Math.round(idadeMs / 60000);
+          console.log(`  🕐 Último dado: ${idadeMin} min atrás (${new Date(ultimaLeitura).toISOString()})`);
+        }
+
+        if (estaOffline) {
+          const motivo = dados.length === 0
+            ? 'sem dados no Tago'
+            : `último dado há ${Math.round(idadeMs / 60000)} min (limite: 7 min)`;
           // ── Offline
           if (!lastNiveis.offline) {
-            console.log(`  📡 Offline detectado. Enviando alerta.`);
+            console.log(`  📡 Offline detectado (${motivo}). Enviando alerta.`);
             await enviarEmailAlerta(client, base.nome, 'offline',
-              [`Base ${base.nome} está sem dados ou offline.`], 'alertar_offline');
+              [`Base ${base.nome} está offline. ${motivo}.`], 'alertar_offline');
             await setState(client, base.nome, { ...lastNiveis, offline: true }, []);
           } else {
             console.log(`  📡 Offline (já notificado).`);
@@ -191,6 +205,8 @@ const checkAlerts = async () => {
         console.log(`  📊 temp=${temp ?? 'N/A'}°C  umid=${umid ?? 'N/A'}%  gas=${gas ?? 'N/A'}%`);
 
         // Se voltou do offline, notifica recuperação
+        if (estaOffline) continue; // não processa sensores se offline
+
         if (lastNiveis.offline) {
           await enviarEmailAlerta(client, base.nome, 'recuperacao',
             [`Base ${base.nome} voltou a enviar dados.`], 'alertar_recuperacao');
