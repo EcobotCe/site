@@ -27,24 +27,20 @@ const LIMITES = {
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-const normalizeMensagens = (msgs) =>
-  Array.isArray(msgs) ? msgs.map(m => String(m).trim()) : [];
 
-const isSameAlert = (lastMsgs, currentMsgs) => {
-  const last    = normalizeMensagens(lastMsgs);
-  const current = normalizeMensagens(currentMsgs);
-  if (last.length !== current.length) return false;
-  return last.every((msg, i) => msg === current[i]);
-};
-
-// Verifica se este alerta já foi enviado (mesmo nível + mesma mensagem)
-const shouldSendAlert = async (client, baseNome, nivel, mensagens) => {
+// Deduplicação: compara apenas nível + base via base_states.
+// Não compara o texto da mensagem — assim "Temp CRÍTICA: 42°C" e
+// "Temp CRÍTICA: 43°C" não disparam dois e-mails seguidos para o
+// mesmo tipo de problema.
+const shouldSendAlert = async (client, baseNome, nivel) => {
   const { rows } = await client.query(
-    'SELECT mensagens FROM alerts WHERE base = $1 AND nivel = $2 ORDER BY timestamp DESC LIMIT 1',
-    [baseNome, nivel]
+    'SELECT last_nivel FROM base_states WHERE base = $1',
+    [baseNome]
   );
+  // Sem estado anterior → sempre envia
   if (rows.length === 0) return true;
-  return !isSameAlert(rows[0].mensagens, mensagens);
+  // Só envia se o nível mudou (ex: ok→critico, aviso→critico, critico→ok)
+  return rows[0].last_nivel !== nivel;
 };
 
 const getLastState = async (client, baseNome) => {
@@ -85,7 +81,7 @@ const sendAlertEmail = async (listaEmails, subject, html) => {
 // ─── Lógica de Alerta ─────────────────────────────────────────────────────────
 const handleAlert = async (client, baseNome, nivel, mensagens) => {
   // Checa deduplicação
-  if (!await shouldSendAlert(client, baseNome, nivel, mensagens)) {
+  if (!await shouldSendAlert(client, baseNome, nivel)) {
     console.log(`ℹ️  Alerta [${nivel}] para "${baseNome}" já enviado com a mesma mensagem. Pulando.`);
     return;
   }
