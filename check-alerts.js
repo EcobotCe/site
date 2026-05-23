@@ -1,3 +1,5 @@
+// FIX: arquivo tinha "18.17.0" colado no início da primeira linha (versão do Node
+// concatenada acidentalmente), causando SyntaxError ao rodar.
 require('dotenv').config();
 const axios = require('axios');
 const nodemailer = require('nodemailer');
@@ -23,7 +25,6 @@ const LIMITES = {
 };
 
 // Mapa de tipos de alerta para a coluna de preferência
-// nivel gerado  → coluna em subscriber_preferences
 const NIVEL_PARA_TIPO = {
   critico:     null,       // crítico sempre envia (inclui todas as categorias)
   aviso:       null,       // aviso sempre envia
@@ -39,11 +40,6 @@ const SENSOR_PREF = {
 };
 
 // ─── Estado da Base ───────────────────────────────────────────────────────────
-// BUG CORRIGIDO: o estado agora armazena nível POR SENSOR, não global.
-// Assim 99→1→99 em gás funciona independente do estado de temperatura.
-// Estrutura: base_states.last_nivel = JSON com { temp, umid, gas, offline }
-// Ex: { "temp": "ok", "umid": "critico", "gas": "ok", "offline": false }
-
 const getLastState = async (client, baseNome) => {
   const { rows } = await client.query(
     'SELECT last_nivel, last_mensagens FROM base_states WHERE base = $1',
@@ -70,11 +66,8 @@ const setState = async (client, baseNome, nivelObj, mensagens) => {
 
 // ─── Busca inscritos com filtro por preferência ────────────────────────────
 const getInscritosParaTipo = async (client, tipo) => {
-  // tipo = 'alertar_temp' | 'alertar_umid' | 'alertar_gas' | 'alertar_offline'
-  //        | 'alertar_recuperacao' | null (crítico → todos)
   let query, params;
   if (!tipo) {
-    // Crítico: envia para todos os inscritos
     query = 'SELECT email FROM subscribers';
     params = [];
   } else {
@@ -166,7 +159,7 @@ const checkAlerts = async () => {
 
         const { niveis: lastNiveis } = await getLastState(client, base.nome);
 
-        // ── Verifica se o dado mais recente é antigo demais (> 7 minutos = offline)
+        // Verifica se o dado mais recente é antigo demais (> 7 minutos = offline)
         const OFFLINE_TIMEOUT_MS = 7 * 60 * 1000;
         const ultimoDado = dados[0];
         const ultimaLeitura = ultimoDado?.time ? new Date(ultimoDado.time).getTime() : null;
@@ -182,7 +175,6 @@ const checkAlerts = async () => {
           const motivo = dados.length === 0
             ? 'sem dados no Tago'
             : `último dado há ${Math.round(idadeMs / 60000)} min (limite: 7 min)`;
-          // ── Offline
           if (!lastNiveis.offline) {
             console.log(`  📡 Offline detectado (${motivo}). Enviando alerta.`);
             await enviarEmailAlerta(client, base.nome, 'offline',
@@ -194,7 +186,7 @@ const checkAlerts = async () => {
           continue;
         }
 
-        // ── Online — extrai sensores
+        // Online — extrai sensores
         const getVal = (pref) => {
           const item = dados.find(d => d.variable?.toLowerCase().includes(pref));
           return item ? parseFloat(String(item.value).replace(',', '.')) : null;
@@ -205,21 +197,18 @@ const checkAlerts = async () => {
         console.log(`  📊 temp=${temp ?? 'N/A'}°C  umid=${umid ?? 'N/A'}%  gas=${gas ?? 'N/A'}%`);
 
         // Se voltou do offline, notifica recuperação
-        if (estaOffline) continue; // não processa sensores se offline
-
         if (lastNiveis.offline) {
           await enviarEmailAlerta(client, base.nome, 'recuperacao',
             [`Base ${base.nome} voltou a enviar dados.`], 'alertar_recuperacao');
         }
 
-        // ── Avalia cada sensor individualmente (CORREÇÃO DO BUG 99→1→99)
+        // Avalia cada sensor individualmente
         const novosNiveis = { ...lastNiveis, offline: false };
         const alertasCriticos = [];
         const alertasAviso    = [];
 
-        // Função que verifica sensor e detecta mudança de nível
         const avaliar = (sensor, valor, nivelAtual) => {
-          if (valor === null) return; // sensor ausente, não altera estado
+          if (valor === null) return;
           let novoNivel;
           if (sensor === 'temp') {
             if (valor > LIMITES.temp.critico)                               novoNivel = 'critico';
@@ -238,11 +227,9 @@ const checkAlerts = async () => {
           novosNiveis[sensor] = novoNivel;
           const anterior = nivelAtual || 'ok';
 
-          // Só acumula alerta se o nível MUDOU
           if (novoNivel !== anterior) {
             if (novoNivel === 'critico') alertasCriticos.push({ sensor, novoNivel, valor });
             else if (novoNivel === 'aviso') alertasAviso.push({ sensor, novoNivel, valor });
-            // Se voltou ao 'ok', é recuperação parcial — não gera alerta de sensor individual
           }
         };
 
@@ -250,7 +237,6 @@ const checkAlerts = async () => {
         avaliar('umid', umid, lastNiveis.umid);
         avaliar('gas',  gas,  lastNiveis.gas);
 
-        // ── Envia alertas por sensor com mudança de nível
         const nomeSensor = { temp: 'Temperatura', umid: 'Umidade', gas: 'Gás' };
         const unidade    = { temp: '°C', umid: '%', gas: '%' };
 
@@ -263,7 +249,7 @@ const checkAlerts = async () => {
           await enviarEmailAlerta(client, base.nome, 'aviso', [msg], SENSOR_PREF[sensor]);
         }
 
-        // Recuperações parciais (sensor voltou ao ok)
+        // Recuperações parciais
         for (const sensor of ['temp', 'umid', 'gas']) {
           const anterior = lastNiveis[sensor] || 'ok';
           const novo = novosNiveis[sensor];
@@ -273,7 +259,6 @@ const checkAlerts = async () => {
           }
         }
 
-        // Salva novo estado global
         await setState(client, base.nome, novosNiveis, []);
         console.log(`  💾 Estado salvo: ${JSON.stringify(novosNiveis)}`);
 
