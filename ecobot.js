@@ -637,51 +637,47 @@
                 return isNaN(num) ? null : num;
             };
 
-            let todosDados = [...arrT, ...arrU, ...arrG];
-            if (todosDados.length === 0) return;
+            // ── CORREÇÃO: cada sensor já vem ordenado por tempo (sortByTime).
+            // Pegamos os últimos N valores de CADA sensor diretamente por índice,
+            // sem agrupar por minuto. A base envia a cada 5 min, então os pontos
+            // têm timestamps distintos — agrupar por HH:MM colapsa tudo num único ponto.
+            const MAX_PONTOS = 20;
 
-            let horasUnicas = [...new Set(todosDados.map(d => {
-                let date = new Date(d.time);
-                return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-            }))].sort().slice(-15);
+            const ultT = arrT.slice(-MAX_PONTOS);
+            const ultU = arrU.slice(-MAX_PONTOS);
+            const ultG = arrG.slice(-MAX_PONTOS);
 
-            const dataT = horasUnicas.map(hora => {
-                let dado = arrT.find(d => {
-                    let dt = new Date(d.time);
-                    return `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` === hora;
-                });
-                return dado ? safeParseNum(dado.value) : null;
+            // Usa o array com mais pontos como referência do eixo X
+            const refArr = [ultT, ultU, ultG].reduce((a, b) => a.length >= b.length ? a : b);
+            const labels = refArr.map(d => {
+                if (!d.time) return '';
+                const dt = new Date(d.time);
+                return `${dt.getHours().toString().padStart(2,'0')}:${dt.getMinutes().toString().padStart(2,'0')}`;
             });
 
-            const dataU = horasUnicas.map(hora => {
-                let dado = arrU.find(d => {
-                    let dt = new Date(d.time);
-                    return `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` === hora;
-                });
-                return dado ? safeParseNum(dado.value) : null;
-            });
+            // Valores diretos por índice — sem deduplicar por minuto
+            const dataT = ultT.map(d => safeParseNum(d.value));
+            const dataU = ultU.map(d => safeParseNum(d.value));
+            const dataG = ultG.map(d => safeParseNum(d.value));
 
-            const dataG = horasUnicas.map(hora => {
-                let dado = arrG.find(d => {
-                    let dt = new Date(d.time);
-                    return `${dt.getHours().toString().padStart(2, '0')}:${dt.getMinutes().toString().padStart(2, '0')}` === hora;
-                });
-                return dado ? safeParseNum(dado.value) : null;
-            });
+            // Preenche com null no início para alinhar datasets de tamanhos diferentes
+            const maxLen = labels.length;
+            const padArr = arr => arr.length < maxLen
+                ? [...Array(maxLen - arr.length).fill(null), ...arr]
+                : arr;
+            const paddedT = padArr(dataT);
+            const paddedU = padArr(dataU);
+            const paddedG = padArr(dataG);
 
-            // ATUALIZA O GRÁFICO (EVITA PISCAR E MANTÉM OS ITENS DESMARCADOS)
             if (chartInstance) {
-                chartInstance.data.labels = horasUnicas;
-
-                // Sempre mostrar todos os datasets
-                chartInstance.data.datasets[0].data = dataT;
-                chartInstance.data.datasets[1].data = dataU;
-                chartInstance.data.datasets[2].data = dataG;
+                chartInstance.data.labels = labels;
+                chartInstance.data.datasets[0].data = paddedT;
+                chartInstance.data.datasets[1].data = paddedU;
+                chartInstance.data.datasets[2].data = paddedG;
                 chartInstance.data.datasets[0].hidden = false;
                 chartInstance.data.datasets[1].hidden = false;
                 chartInstance.data.datasets[2].hidden = false;
-
-                chartInstance.update();
+                chartInstance.update('active');
             } else {
                 Chart.defaults.color = 'rgba(255, 255, 255, 0.7)';
                 Chart.defaults.font.family = "'Poppins', sans-serif";
