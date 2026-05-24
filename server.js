@@ -56,6 +56,18 @@ if (DB_URL) {
   console.warn('⚠️ DATABASE_URL e DATABASE_PUBLIC_URL não configuradas.');
 }
 
+
+// ── Cache simples de 60s para /api/dados-recentes ─────────────────────────────
+const _cache = {};
+const CACHE_TTL = 60 * 1000; // 60 segundos
+function cacheGet(key) {
+  const entry = _cache[key];
+  if (!entry) return null;
+  if (Date.now() - entry.ts > CACHE_TTL) { delete _cache[key]; return null; }
+  return entry.data;
+}
+function cacheSet(key, data) { _cache[key] = { ts: Date.now(), data }; }
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
@@ -343,6 +355,11 @@ app.delete('/api/bases/:id', async (req, res) => {
 
 // ── Dados Recentes ─────────────────────────────────────────────────────────────
 app.get('/api/dados-recentes', async (req, res) => {
+  // Cache de 60s para evitar sobrecarga no TagO e no servidor
+  const cacheKey = 'dados-recentes';
+  const cached = cacheGet(cacheKey);
+  if (cached) { return res.json(cached); }
+
   let BASES = [];
   try {
     BASES = await getBasesFromDb();
@@ -358,7 +375,7 @@ app.get('/api/dados-recentes', async (req, res) => {
   for (const base of BASES) {
     if (!base.token) continue;
     try {
-      const response = await axios.get('https://api.tago.io/data?qty=5', {
+      const response = await axios.get('https://api.tago.io/data?qty=60', {
         headers: { 'Device-Token': base.token },
         timeout: 10000
       });
@@ -386,6 +403,7 @@ app.get('/api/dados-recentes', async (req, res) => {
       resultados.push({ nome: base.nome, temp: null, umid: null, gas: null, timestamp: null, dados: [] });
     }
   }
+  cacheSet(cacheKey, resultados);
   res.json(resultados);
 });
 
