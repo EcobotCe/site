@@ -1,57 +1,57 @@
-// ── Ecobot Config ──────────────────────────────────────────
+﻿// â”€â”€ Ecobot Config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// ========== CONFIGURAÇÃO DE AMBIENTE ==========
+// ========== CONFIGURAÃ‡ÃƒO DE AMBIENTE ==========
         const API_URL = 'https://web-production-7eff7.up.railway.app';
         const ECOBOT_BACKEND_URL = 'https://web-production-7eff7.up.railway.app';
         const TAGO_API_BASE = 'https://api.tago.io/data';
         const TAGO_FETCH_QTY = 60;
 
-// ── Ecobot Main ─────────────────────────────────────────────
+// â”€â”€ Ecobot Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 // ------------------------------------------------
-        // 1. DICIONÁRIO DE IDIOMAS
+        // 1. DICIONÃRIO DE IDIOMAS
         // ------------------------------------------------
         const dicionario = {
             pt: {
                 txt_carregando: "Calibrando Sensores...",
-                txt_senha_erro: "Credencial Incorreta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acessar Estações",
-                txt_projeto_titulo: "Projeto", txt_subtitulo: "Unindo robótica de baixo custo e preservação ambiental para combater a invisibilidade dos dados climáticos no interior e construir um futuro inteligente.",
-                btn_ver_dados: "Explorar Dados", titulo_tabela: "Por que escolher a Estação Elion?", tab_recurso: "Recurso",
-                tab_tradicional: "Estações disponíveis no mercado", tab_ecobot: "Estação Elion",
-                linha1_rec: "Custo de Implementação", linha1_trad: "Alto Custo", linha1_eco: "Baixíssimo Custo",
-                linha2_rec: "Instalação", linha2_trad: "Técnico Especializado", linha2_eco: "Rápido e fácil",
-                linha3_rec: "Tecnologia", linha3_trad: "Sistema Fechado", linha3_eco: "Open-Source e Escalável",
-                txt_jornada: "Nossa Jornada", txt_onu: "Alinhado com a ONU 🌍",
-                txt_onu_sub: "O Ecobot responde diretamente aos Objetivos de Desenvolvimento Sustentável (ODS), atuando como ferramenta tecnológica para cidades inteligentes e ação climática global.",
-                txt_ods9: "Indústria, Inovação e Infraestrutura", txt_ods11: "Cidades e Comunidades Sustentáveis", txt_ods13: "Ação Contra a Mudança Global do Clima",
-                txt_acompanhe: "Acompanhe nossa evolução", txt_modal_titulo: "Onde você está?",
-                txt_modal_sub: "Para mostrar a qualidade do ar com precisão, precisamos encontrar a Base Ecobot mais próxima. Não guardamos a sua localização!",
+                txt_senha_erro: "Credencial Incorreta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acessar EstaÃ§Ãµes",
+                txt_projeto_titulo: "Projeto", txt_subtitulo: "Unindo robÃ³tica de baixo custo e preservaÃ§Ã£o ambiental para combater a invisibilidade dos dados climÃ¡ticos no interior e construir um futuro inteligente.",
+                btn_ver_dados: "Explorar Dados", titulo_tabela: "Por que escolher a EstaÃ§Ã£o Elion?", tab_recurso: "Recurso",
+                tab_tradicional: "EstaÃ§Ãµes disponÃ­veis no mercado", tab_ecobot: "EstaÃ§Ã£o Elion",
+                linha1_rec: "Custo de ImplementaÃ§Ã£o", linha1_trad: "Alto Custo", linha1_eco: "BaixÃ­ssimo Custo",
+                linha2_rec: "InstalaÃ§Ã£o", linha2_trad: "TÃ©cnico Especializado", linha2_eco: "RÃ¡pido e fÃ¡cil",
+                linha3_rec: "Tecnologia", linha3_trad: "Sistema Fechado", linha3_eco: "Open-Source e EscalÃ¡vel",
+                txt_jornada: "Nossa Jornada", txt_onu: "Alinhado com a ONU ðŸŒ",
+                txt_onu_sub: "O Ecobot responde diretamente aos Objetivos de Desenvolvimento SustentÃ¡vel (ODS), atuando como ferramenta tecnolÃ³gica para cidades inteligentes e aÃ§Ã£o climÃ¡tica global.",
+                txt_ods9: "IndÃºstria, InovaÃ§Ã£o e Infraestrutura", txt_ods11: "Cidades e Comunidades SustentÃ¡veis", txt_ods13: "AÃ§Ã£o Contra a MudanÃ§a Global do Clima",
+                txt_acompanhe: "Acompanhe nossa evoluÃ§Ã£o", txt_modal_titulo: "Onde vocÃª estÃ¡?",
+                txt_modal_sub: "Para mostrar a qualidade do ar com precisÃ£o, precisamos encontrar a Base Ecobot mais prÃ³xima. NÃ£o guardamos a sua localizaÃ§Ã£o!",
                 btn_modal_gps: "Usar Meu GPS", btn_modal_manual: "Escolher Base Manualmente",
                 lbl_rede: "Base de Monitoramento:", btn_tago: "DADOS EM TEMPO REAL",
-                txt_offline_titulo: "CONEXÃO PERDIDA", txt_offline_sub: "Os dados pararam de chegar ou a estação está desligada. Aguardando nuvem...",
-                txt_alerta: "ALERTA: NÍVEL DE GÁS ELEVADO!", lbl_temp: "Temperatura", lbl_umi: "Umidade", lbl_gas: "Nível de gás (%)",
+                txt_offline_titulo: "CONEXÃƒO PERDIDA", txt_offline_sub: "Os dados pararam de chegar ou a estaÃ§Ã£o estÃ¡ desligada. Aguardando nuvem...",
+                txt_alerta: "ALERTA: NÃVEL DE GÃS ELEVADO!", lbl_temp: "Temperatura", lbl_umi: "Umidade", lbl_gas: "NÃ­vel de gÃ¡s (%)",
                 txt_hist: "Sincronizado", txt_adm_titulo: "Controle do Sistema",
                 btn_adicionar_base: "Adicionar Base", txt_adicionar_base_titulo: "Adicionar Nova Base",
-                txt_adicionar_base_sub: "Adicione sua própria base de monitoramento ambiental para acompanhar os dados em tempo real.",
+                txt_adicionar_base_sub: "Adicione sua prÃ³pria base de monitoramento ambiental para acompanhar os dados em tempo real.",
                 btn_salvar_nova_base: "Adicionar Base",
                 btn_atualizar_base: "Atualizar Base",
                 txt_editar_base_titulo: "Editar Base",
-                txt_pesquisa_inovacao: "Pesquisa & Inovação",
+                txt_pesquisa_inovacao: "Pesquisa & InovaÃ§Ã£o",
                 txt_acesse_celular: "Acesse no Celular",
-                txt_aponte_camera: "Aponte a câmara do seu smartphone para visualizar a dashboard em tempo real.",
-                txt_hero_accent: "Plataforma inteligente para conectar estações ambientais em tempo real.",
+                txt_aponte_camera: "Aponte a cÃ¢mara do seu smartphone para visualizar a dashboard em tempo real.",
+                txt_hero_accent: "Plataforma inteligente para conectar estaÃ§Ãµes ambientais em tempo real.",
                 txt_hero_sync_desc: "Dados atualizados automaticamente.",
-                txt_hero_secure_desc: "Notificações instantâneas para segurança ambiental.",
-                txt_hero_open_desc: "Arquitetura open-source pronta para expansão.",
-                txt_direitos: "© 2026 Projeto Ecobot. Todos os direitos reservados.",
+                txt_hero_secure_desc: "NotificaÃ§Ãµes instantÃ¢neas para seguranÃ§a ambiental.",
+                txt_hero_open_desc: "Arquitetura open-source pronta para expansÃ£o.",
+                txt_direitos: "Â© 2026 Projeto Ecobot. Todos os direitos reservados.",
                 txt_desenvolvido: "Desenvolvido com IA, JavaScript, TailwindCSS & Chart.js",
                 txt_sistema_operante: "Sistema Operante",
-                txt_atualizado_as: "Atualizado às",
-                txt_ultimas_leituras: "Últimas leituras",
+                txt_atualizado_as: "Atualizado Ã s",
+                txt_ultimas_leituras: "Ãšltimas leituras",
                 btn_ver_tago: "Ver dados no tago.io",
                 txt_sincronizando: "Sincronizando com a nuvem...",
-                txt_aguardando: "Aguardando Conexão...",
-                txt_status_note: "Estações mandam dados a cada 5 minutos, mas podem chegar com atraso."
+                txt_aguardando: "Aguardando ConexÃ£o...",
+                txt_status_note: "EstaÃ§Ãµes mandam dados a cada 5 minutos, mas podem chegar com atraso."
             },
             en: {
                 txt_carregando: "Calibrating Sensors...",
@@ -62,7 +62,7 @@
                 linha1_rec: "Implementation Cost", linha1_trad: "High Cost", linha1_eco: "Very Low Cost",
                 linha2_rec: "Installation", linha2_trad: "Specialized Technician", linha2_eco: "Fast and easy",
                 linha3_rec: "Technology", linha3_trad: "Closed System", linha3_eco: "Open-Source & Scalable",
-                txt_jornada: "Our Journey", txt_onu: "Aligned with the UN 🌍",
+                txt_jornada: "Our Journey", txt_onu: "Aligned with the UN ðŸŒ",
                 txt_onu_sub: "Ecobot responds directly to the Sustainable Development Goals (SDG).",
                 txt_ods9: "Industry, Innovation and Infrastructure", txt_ods11: "Sustainable Cities and Communities", txt_ods13: "Climate Action",
                 txt_acompanhe: "Follow our evolution", txt_modal_titulo: "Where are you?",
@@ -84,7 +84,7 @@
                 txt_hero_sync_desc: "Data refreshed automatically.",
                 txt_hero_secure_desc: "Instant alerts for environmental safety.",
                 txt_hero_open_desc: "Open-source architecture ready to scale.",
-                txt_direitos: "© 2026 Ecobot Project. All rights reserved.",
+                txt_direitos: "Â© 2026 Ecobot Project. All rights reserved.",
                 txt_desenvolvido: "Developed with AI, JavaScript, TailwindCSS & Chart.js",
                 txt_sistema_operante: "System Operational",
                 txt_atualizado_as: "Updated at",
@@ -96,44 +96,44 @@
             },
             es: {
                 txt_carregando: "Calibrando Sensores...",
-                txt_senha_erro: "¡Credencial Incorrecta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acceder a Estaciones",
-                txt_projeto_titulo: "Proyecto", txt_subtitulo: "Uniendo robótica de bajo costo y preservación ambiental para combatir la invisibilidad de los datos climáticos.",
-                btn_ver_dados: "Explorar Datos", titulo_tabela: "¿Por qué elegir la Estación Elion?", tab_recurso: "Recurso",
-                tab_tradicional: "Estaciones disponibles en el mercado", tab_ecobot: "Estación Elion",
-                linha1_rec: "Costo de Implementación", linha1_trad: "Alto Costo", linha1_eco: "Costo Muy Bajo",
-                linha2_rec: "Instalación", linha2_trad: "Técnico Especializado", linha2_eco: "Rápido y fácil",
-                linha3_rec: "Tecnología", linha3_trad: "Sistema Cerrado", linha3_eco: "Open-Source y Escalable",
-                txt_jornada: "Nuestra Jornada", txt_onu: "Alineado con la ONU 🌍",
+                txt_senha_erro: "Â¡Credencial Incorrecta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acceder a Estaciones",
+                txt_projeto_titulo: "Proyecto", txt_subtitulo: "Uniendo robÃ³tica de bajo costo y preservaciÃ³n ambiental para combatir la invisibilidad de los datos climÃ¡ticos.",
+                btn_ver_dados: "Explorar Datos", titulo_tabela: "Â¿Por quÃ© elegir la EstaciÃ³n Elion?", tab_recurso: "Recurso",
+                tab_tradicional: "Estaciones disponibles en el mercado", tab_ecobot: "EstaciÃ³n Elion",
+                linha1_rec: "Costo de ImplementaciÃ³n", linha1_trad: "Alto Costo", linha1_eco: "Costo Muy Bajo",
+                linha2_rec: "InstalaciÃ³n", linha2_trad: "TÃ©cnico Especializado", linha2_eco: "RÃ¡pido y fÃ¡cil",
+                linha3_rec: "TecnologÃ­a", linha3_trad: "Sistema Cerrado", linha3_eco: "Open-Source y Escalable",
+                txt_jornada: "Nuestra Jornada", txt_onu: "Alineado con la ONU ðŸŒ",
                 txt_onu_sub: "Ecobot responde directamente a los Objetivos de Desarrollo Sostenible (ODS).",
-                txt_ods9: "Industria, Innovación e Infraestructura", txt_ods11: "Ciudades y Comunidades Sostenibles", txt_ods13: "Acción por el Clima",
-                txt_acompanhe: "Sigue nuestra evolución", txt_modal_titulo: "¿Dónde estás?",
-                txt_modal_sub: "Necesitamos encontrar la base más cercana. ¡No guardamos tu ubicación!",
+                txt_ods9: "Industria, InnovaciÃ³n e Infraestructura", txt_ods11: "Ciudades y Comunidades Sostenibles", txt_ods13: "AcciÃ³n por el Clima",
+                txt_acompanhe: "Sigue nuestra evoluciÃ³n", txt_modal_titulo: "Â¿DÃ³nde estÃ¡s?",
+                txt_modal_sub: "Necesitamos encontrar la base mÃ¡s cercana. Â¡No guardamos tu ubicaciÃ³n!",
                 btn_modal_gps: "Usar Mi GPS", btn_modal_manual: "Elegir Base Manualmente",
                 lbl_rede: "Base de Monitoreo:", btn_tago: "DATOS EN TIEMPO REAL",
-                txt_offline_titulo: "CONEXIÓN PERDIDA", txt_offline_sub: "Esperando a la nube...",
-                txt_alerta: "¡ALERTA: NIVEL DE GAS ALTO!", lbl_temp: "Temperatura", lbl_umi: "Humedad", lbl_gas: "Concentración de gas (%)",
+                txt_offline_titulo: "CONEXIÃ“N PERDIDA", txt_offline_sub: "Esperando a la nube...",
+                txt_alerta: "Â¡ALERTA: NIVEL DE GAS ALTO!", lbl_temp: "Temperatura", lbl_umi: "Humedad", lbl_gas: "ConcentraciÃ³n de gas (%)",
                 txt_hist: "Sincronizado", txt_adm_titulo: "Control del Sistema",
                 btn_adicionar_base: "Agregar Base", txt_adicionar_base_titulo: "Agregar Nueva Base",
                 txt_adicionar_base_sub: "Agregue su propia base de monitoreo ambiental para rastrear datos en tiempo real.",
                 btn_salvar_nova_base: "Agregar Base",
                 btn_atualizar_base: "Actualizar Base",
                 txt_editar_base_titulo: "Editar Base",
-                txt_pesquisa_inovacao: "Investigación e Innovación",
+                txt_pesquisa_inovacao: "InvestigaciÃ³n e InnovaciÃ³n",
                 txt_acesse_celular: "Accede en el Celular",
-                txt_aponte_camera: "Apunta la cámara de tu smartphone para ver el panel en tiempo real.",
+                txt_aponte_camera: "Apunta la cÃ¡mara de tu smartphone para ver el panel en tiempo real.",
                 txt_hero_accent: "Plataforma inteligente para conectar estaciones ambientales en tiempo real.",
-                txt_hero_sync_desc: "Datos actualizados automáticamente.",
-                txt_hero_secure_desc: "Alertas instantáneas para mayor seguridad ambiental.",
+                txt_hero_sync_desc: "Datos actualizados automÃ¡ticamente.",
+                txt_hero_secure_desc: "Alertas instantÃ¡neas para mayor seguridad ambiental.",
                 txt_hero_open_desc: "Arquitectura open-source lista para escalar.",
-                txt_direitos: "© 2026 Proyecto Ecobot. Todos los derechos reservados.",
+                txt_direitos: "Â© 2026 Proyecto Ecobot. Todos los derechos reservados.",
                 txt_desenvolvido: "Desarrollado con IA, JavaScript, TailwindCSS & Chart.js",
                 txt_sistema_operante: "Sistema en Funcionamiento",
                 txt_atualizado_as: "Actualizado a las",
-                txt_ultimas_leituras: "Últimas lecturas",
+                txt_ultimas_leituras: "Ãšltimas lecturas",
                 btn_ver_tago: "Ver datos en tago.io",
                 txt_sincronizando: "Sincronizando con la nube...",
-                txt_aguardando: "Esperando Conexión...",
-                txt_status_note: "Las estaciones envían datos cada 5 minutos, pero puede haber demora."
+                txt_aguardando: "Esperando ConexiÃ³n...",
+                txt_status_note: "Las estaciones envÃ­an datos cada 5 minutos, pero puede haber demora."
             }
         };
 
@@ -167,7 +167,7 @@
         }
 
         // ------------------------------------------------
-        // 2. VARIÁVEIS GLOBAIS & INICIALIZAÇÃO
+        // 2. VARIÃVEIS GLOBAIS & INICIALIZAÃ‡ÃƒO
         // ------------------------------------------------
         let redeBases = [];
         let baseSelecionada = null;
@@ -213,7 +213,7 @@
         }
 
         // ------------------------------------------------
-        // 3. NAVEGAÇÃO & MODAIS
+        // 3. NAVEGAÃ‡ÃƒO & MODAIS
         // ------------------------------------------------
         function navegarPara(viewId) {
             document.querySelectorAll('.page-view').forEach(el => {
@@ -242,7 +242,7 @@
             const icon = document.getElementById('icon_nav_sensores');
 
             if (viewId === 'dashboard') {
-                btnText.innerHTML = idiomaAtual === 'pt' ? 'Voltar ao Início' : idiomaAtual === 'es' ? 'Volver al Inicio' : 'Back to Home';
+                btnText.innerHTML = idiomaAtual === 'pt' ? 'Voltar ao InÃ­cio' : idiomaAtual === 'es' ? 'Volver al Inicio' : 'Back to Home';
                 icon.className = 'fa-solid fa-arrow-left text-ecogreen group-hover:-translate-x-1 transition-transform';
             } else {
                 btnText.innerHTML = dicionario[idiomaAtual]['btn_nav_sensores'];
@@ -280,7 +280,7 @@
                         card.className += ' border-slate-700/50';
                     }
                     const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slice(-6)}` : 'Sem token';
-                    const coords = base.lat || base.lon ? `${base.lat ? `Lat: ${base.lat}` : ''}${base.lat && base.lon ? ' • ' : ''}${base.lon ? `Lon: ${base.lon}` : ''}` : 'Coordenadas não informadas';
+                    const coords = base.lat || base.lon ? `${base.lat ? `Lat: ${base.lat}` : ''}${base.lat && base.lon ? ' â€¢ ' : ''}${base.lon ? `Lon: ${base.lon}` : ''}` : 'Coordenadas nÃ£o informadas';
 
                     card.innerHTML = `
                         <div class="flex items-start justify-between gap-4">
@@ -302,7 +302,7 @@
             });
 
             if (baseManagement && redeBases.length === 0) {
-                baseManagement.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/40 text-slate-400">Nenhuma base cadastrada ainda. Clique em "Adicionar Base" para começar.</div>`;
+                baseManagement.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/40 text-slate-400">Nenhuma base cadastrada ainda. Clique em "Adicionar Base" para comeÃ§ar.</div>`;
             }
         }
 
@@ -351,12 +351,12 @@
                     },
                     (error) => {
                         icon.className = 'fa-solid fa-location-crosshairs text-lg md:text-xl';
-                        alert(idiomaAtual === 'pt' ? "Não foi possível acessar o GPS. Escolha manualmente." : "Cannot access GPS. Please choose manually.");
+                        alert(idiomaAtual === 'pt' ? "NÃ£o foi possÃ­vel acessar o GPS. Escolha manualmente." : "Cannot access GPS. Please choose manually.");
                         acessarSensoresManual();
                     }
                 );
             } else {
-                alert("GPS não suportado.");
+                alert("GPS nÃ£o suportado.");
                 acessarSensoresManual();
             }
         }
@@ -418,7 +418,7 @@
             const lon = document.getElementById('nova-lon').value;
 
             if (!nome || !token) {
-                alert(idiomaAtual === 'pt' ? "Nome e Token são obrigatórios!" : idiomaAtual === 'es' ? "¡Nombre y Token son obligatorios!" : "Name and Token are required!");
+                alert(idiomaAtual === 'pt' ? "Nome e Token sÃ£o obrigatÃ³rios!" : idiomaAtual === 'es' ? "Â¡Nombre y Token son obligatorios!" : "Name and Token are required!");
                 return;
             }
 
@@ -443,7 +443,7 @@
                 }
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => ({}));
-                    throw new Error(errorBody.error || 'Não foi possível salvar a base.');
+                    throw new Error(errorBody.error || 'NÃ£o foi possÃ­vel salvar a base.');
                 }
                 const savedBase = await response.json();
                 await carregarBases();
@@ -470,7 +470,7 @@
             const confirmMsg = idiomaAtual === 'pt'
                 ? 'Tem certeza que deseja excluir esta base?'
                 : idiomaAtual === 'es'
-                    ? '¿Seguro que desea eliminar esta base?'
+                    ? 'Â¿Seguro que desea eliminar esta base?'
                     : 'Are you sure you want to delete this base?';
             if (!confirm(confirmMsg)) return;
 
@@ -479,7 +479,7 @@
                 const response = await fetch(`${backendUrl}/api/bases/${id}`, { method: 'DELETE' });
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => ({}));
-                    throw new Error(errorBody.error || 'Não foi possível excluir a base.');
+                    throw new Error(errorBody.error || 'NÃ£o foi possÃ­vel excluir a base.');
                 }
                 await carregarBases();
                 if (baseSelecionada && baseSelecionada.id == id) {
@@ -497,7 +497,7 @@
 
 
         // ------------------------------------------------
-        // 6. SINCRONIZAÇÃO TAGO.IO & GRÁFICO
+        // 6. SINCRONIZAÃ‡ÃƒO TAGO.IO & GRÃFICO
         // ------------------------------------------------
         function mudarBase(id) {
             baseSelecionada = redeBases.find(b => b.id == id);
@@ -510,7 +510,7 @@
             if (!baseSelecionada) return;
 
             try {
-                // Busca os dados mais recentes para preencher o gráfico corretamente
+                // Busca os dados mais recentes para preencher o grÃ¡fico corretamente
                 const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
                 const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(baseSelecionada.token)}&qty=${TAGO_FETCH_QTY}`;
                 const directUrl = `${TAGO_API_BASE}?qty=${TAGO_FETCH_QTY}`;
@@ -565,7 +565,7 @@
                     return /gas|mq|co2/.test(v);
                 }));
 
-                const baseNomeBadge = baseSelecionada ? baseSelecionada.nome : 'Base não selecionada';
+                const baseNomeBadge = baseSelecionada ? baseSelecionada.nome : 'Base nÃ£o selecionada';
                 const statusNote = dicionario[idiomaAtual].txt_status_note;
 
                 document.getElementById('status-badge').innerHTML = `
@@ -581,7 +581,7 @@
 
                 const valT = t.length > 0 ? safeParse(t[t.length - 1].value) : null;
                 const valU = u.length > 0 ? safeParse(u[u.length - 1].value) : null;
-                const valC = g.length > 0 ? safeParse(g[g.length - 1].value) : null;  // gás em porcentagem
+                const valC = g.length > 0 ? safeParse(g[g.length - 1].value) : null;  // gÃ¡s em porcentagem
 
                 // Dados globais sincronizados
                 window.dadosAtuais = { temp: t, umi: u, gas: g };
@@ -589,21 +589,21 @@
                 window.elionUmi = valU;
                 window.elionGas = valC;
 
-                // Atualização dos cards
+                // AtualizaÃ§Ã£o dos cards
                 document.getElementById('temp').innerText = valT !== null ? valT : '--';
                 document.getElementById('umi').innerText = valU !== null ? valU : '--';
                 document.getElementById('gas').innerText = valC !== null ? valC + '%' : '--';
 
-                // Alerta baseado em gás e base ativa
+                // Alerta baseado em gÃ¡s e base ativa
                 const baseNomeAlerta = baseSelecionada ? baseSelecionada.nome : 'Desconhecida';
                 const alertaGasAtivo = valC !== null && valC > 10;
 
                 if (alertaGasAtivo) {
                     document.getElementById('alerta-gas').classList.remove('hidden');
-                    document.getElementById('alerta-gas-text').innerHTML = `ALERTA: NÍVEL DE GÁS ELEVADO na base <strong>${baseNomeAlerta}</strong>!`;
+                    document.getElementById('alerta-gas-text').innerHTML = `ALERTA: NÃVEL DE GÃS ELEVADO na base <strong>${baseNomeAlerta}</strong>!`;
 
-                    // Enviar alerta por email/WhatsApp se configurado e se ainda não foi enviado para esta condição
-                    const mensagemAlerta = `🚨 ALERTA CRÍTICO: Nível de gás elevado detectado!\nValor atual: ${valC}%\nLimite: 10%`;
+                    // Enviar alerta por email/WhatsApp se configurado e se ainda nÃ£o foi enviado para esta condiÃ§Ã£o
+                    const mensagemAlerta = `ðŸš¨ ALERTA CRÃTICO: NÃ­vel de gÃ¡s elevado detectado!\nValor atual: ${valC}%\nLimite: 10%`;
                     enviarAlerta('gas', mensagemAlerta, baseNomeAlerta, valC);
                 } else {
                     document.getElementById('alerta-gas').classList.add('hidden');
@@ -612,18 +612,18 @@
                 let now = new Date();
                 let horaFormatada = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-                let textoAtualizado = dicionario[idiomaAtual].txt_atualizado_as || "Atualizado às";
+                let textoAtualizado = dicionario[idiomaAtual].txt_atualizado_as || "Atualizado Ã s";
                 const baseNome = baseSelecionada ? baseSelecionada.nome : 'Sem base';
-                document.getElementById('hora-sync').innerText = `${textoAtualizado} ${horaFormatada} • Base: ${baseNome}`;
+                document.getElementById('hora-sync').innerText = `${textoAtualizado} ${horaFormatada} â€¢ Base: ${baseNome}`;
 
                 atualizarGrafico(t, u, g);
 
             } catch (err) {
-                console.error("Erro na sincronização:", err);
+                console.error("Erro na sincronizaÃ§Ã£o:", err);
             }
         }
 
-        // Estado atual do filtro do gráfico
+        // Estado atual do filtro do grÃ¡fico
         // let filtroGraficoAtual = 'todos'; // 'todos', 'temp', 'umi', 'gas'
 
         function atualizarGrafico(arrT, arrU, arrG) {
@@ -637,17 +637,17 @@
                 return isNaN(num) ? null : num;
             };
 
-            // ── CORREÇÃO: cada sensor já vem ordenado por tempo (sortByTime).
-            // Pegamos os últimos N valores de CADA sensor diretamente por índice,
-            // sem agrupar por minuto. A base envia a cada 5 min, então os pontos
-            // têm timestamps distintos — agrupar por HH:MM colapsa tudo num único ponto.
+            // â”€â”€ CORREÃ‡ÃƒO: cada sensor jÃ¡ vem ordenado por tempo (sortByTime).
+            // Pegamos os Ãºltimos N valores de CADA sensor diretamente por Ã­ndice,
+            // sem agrupar por minuto. A base envia a cada 5 min, entÃ£o os pontos
+            // tÃªm timestamps distintos â€” agrupar por HH:MM colapsa tudo num Ãºnico ponto.
             const MAX_PONTOS = 20;
 
             const ultT = arrT.slice(-MAX_PONTOS);
             const ultU = arrU.slice(-MAX_PONTOS);
             const ultG = arrG.slice(-MAX_PONTOS);
 
-            // Usa o array com mais pontos como referência do eixo X
+            // Usa o array com mais pontos como referÃªncia do eixo X
             const refArr = [ultT, ultU, ultG].reduce((a, b) => a.length >= b.length ? a : b);
             const labels = refArr.map(d => {
                 if (!d.time) return '';
@@ -655,12 +655,12 @@
                 return `${dt.getHours().toString().padStart(2,'0')}:${dt.getMinutes().toString().padStart(2,'0')}`;
             });
 
-            // Valores diretos por índice — sem deduplicar por minuto
+            // Valores diretos por Ã­ndice â€” sem deduplicar por minuto
             const dataT = ultT.map(d => safeParseNum(d.value));
             const dataU = ultU.map(d => safeParseNum(d.value));
             const dataG = ultG.map(d => safeParseNum(d.value));
 
-            // Preenche com null no início para alinhar datasets de tamanhos diferentes
+            // Preenche com null no inÃ­cio para alinhar datasets de tamanhos diferentes
             const maxLen = labels.length;
             const padArr = arr => arr.length < maxLen
                 ? [...Array(maxLen - arr.length).fill(null), ...arr]
@@ -685,11 +685,11 @@
                 chartInstance = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        labels: horasUnicas,
+                        labels: labels,
                         datasets: [
                             { label: 'Temperatura', data: dataT, spanGaps: true, borderColor: '#f97316', backgroundColor: 'rgba(249, 115, 22, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#f97316', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y' },
                             { label: 'Umidade', data: dataU, spanGaps: true, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#3b82f6', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y' },
-                            { label: 'Gás (%)', data: dataG, spanGaps: true, borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#eab308', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y1' }
+                            { label: 'GÃ¡s (%)', data: dataG, spanGaps: true, borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.15)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#eab308', pointRadius: 3, pointHoverRadius: 6, yAxisID: 'y1' }
                         ]
                     },
                     options: {
@@ -713,7 +713,7 @@
             }
         }
 
-        // Função para atualizar campos de alertas baseado nos checkboxes
+        // FunÃ§Ã£o para atualizar campos de alertas baseado nos checkboxes
         function atualizarCamposAlertas() {
             const usarEmail = document.getElementById('usar-email').checked;
             const emailInput = document.getElementById('email-alerta');
@@ -724,7 +724,7 @@
             }
         }
 
-        // Função para atualizar alertas baseado nos checkboxes principais
+        // FunÃ§Ã£o para atualizar alertas baseado nos checkboxes principais
         function atualizarAlertas() {
             const alertTypes = ['temp', 'gas', 'umi', 'queimada'];
 
@@ -795,23 +795,23 @@
             return false;
         }
 
-        // Função para enviar alertas por email e WhatsApp
+        // FunÃ§Ã£o para enviar alertas por email e WhatsApp
         async function enviarAlerta(tipo, mensagem, baseNome, valor) {
             try {
-                // Pega as configurações salvas no painel (quais canais estão ativos e os contatos)
+                // Pega as configuraÃ§Ãµes salvas no painel (quais canais estÃ£o ativos e os contatos)
                 const config = JSON.parse(localStorage.getItem('ecobot-alertas-config') || '{}');
                 if (!config.alertas || !config.alertas[tipo]) return;
 
-                // Verifica se já não mandou esse alerta há pouco tempo (evita spam)
+                // Verifica se jÃ¡ nÃ£o mandou esse alerta hÃ¡ pouco tempo (evita spam)
                 if (!deveEnviarAlerta(tipo, baseNome, valor, true)) {
                     return;
                 }
 
                 const canais = config.alertas[tipo];
-                const assunto = `🚨 ALERTA - ${tipo.toUpperCase()} CRÍTICO`;
-                const corpoCompleto = `Atenção! A base "${baseNome}" registrou níveis perigosos.\n\nDetalhes: ${mensagem}\nValor registrado: ${valor}`;
+                const assunto = `ðŸš¨ ALERTA - ${tipo.toUpperCase()} CRÃTICO`;
+                const corpoCompleto = `AtenÃ§Ã£o! A base "${baseNome}" registrou nÃ­veis perigosos.\n\nDetalhes: ${mensagem}\nValor registrado: ${valor}`;
 
-                // 🟢 DISPARO DE E-MAIL
+                // ðŸŸ¢ DISPARO DE E-MAIL
                 if (canais.includes('email') && config.email) {
                     console.log("Preparando para enviar E-mail...");
                     await enviarEmail(config.email, assunto, corpoCompleto, baseNome);
@@ -823,9 +823,9 @@
         }
 
         // ------------------------------------------------
-        // EmailJS REMOVIDO — alertas por e-mail são gerenciados
+        // EmailJS REMOVIDO â€” alertas por e-mail sÃ£o gerenciados
         // exclusivamente pelo backend (Nodemailer + /subscribe).
-        // As funções abaixo são stubs para não quebrar chamadas existentes.
+        // As funÃ§Ãµes abaixo sÃ£o stubs para nÃ£o quebrar chamadas existentes.
         // ------------------------------------------------
         function iniciarEmailJS() { return false; }
         function carregarCredenciaisEmailJS() {}
@@ -834,9 +834,9 @@
         function carregarCredenciaisInterface() { carregarCredenciaisEmailJS(); }
 
         async function enviarEmail(destinatario, assunto, corpo, baseNome) {
-            // E-mails são enviados pelo backend automaticamente via Nodemailer.
-            // Esta função não faz nada no front-end para evitar duplicatas.
-            console.log('[enviarEmail] Ignorado — backend gerencia envio de alertas.');
+            // E-mails sÃ£o enviados pelo backend automaticamente via Nodemailer.
+            // Esta funÃ§Ã£o nÃ£o faz nada no front-end para evitar duplicatas.
+            console.log('[enviarEmail] Ignorado â€” backend gerencia envio de alertas.');
             return false;
         }
 
@@ -844,7 +844,7 @@
             const statusElement = document.getElementById('status-emailjs');
             if (!statusElement) return;
             statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xs"></i> <span class="text-xs text-green-500">Gerenciado pelo servidor</span>';
-            showToast('✅ Alertas por e-mail são gerenciados pelo servidor backend (Nodemailer).', 'success');
+            showToast('âœ… Alertas por e-mail sÃ£o gerenciados pelo servidor backend (Nodemailer).', 'success');
         }
 
         function validarCredenciaisInterface() {
@@ -855,7 +855,7 @@
         }
 
         // ------------------------------------------------
-        // HISTÓRICO DE ALERTAS — busca do backend e renderiza
+        // HISTÃ“RICO DE ALERTAS â€” busca do backend e renderiza
         // ------------------------------------------------
         async function carregarHistoricoAlertas() {
             const container = document.getElementById('historico-alertas');
@@ -864,7 +864,7 @@
             container.innerHTML = `
                 <div class="flex items-center justify-center py-6 gap-3 text-slate-400">
                     <i class="fa-solid fa-circle-notch fa-spin text-ecogreen"></i>
-                    <span class="text-sm">Carregando histórico...</span>
+                    <span class="text-sm">Carregando histÃ³rico...</span>
                 </div>`;
 
             try {
@@ -885,7 +885,7 @@
                 }
 
                 const nivelClasses = {
-                    critico:    { bg: 'bg-red-500/10 border-red-500/30',     badge: 'bg-red-500/20 text-red-400',     icon: 'fa-triangle-exclamation', label: 'CRÍTICO' },
+                    critico:    { bg: 'bg-red-500/10 border-red-500/30',     badge: 'bg-red-500/20 text-red-400',     icon: 'fa-triangle-exclamation', label: 'CRÃTICO' },
                     aviso:      { bg: 'bg-yellow-500/10 border-yellow-500/30', badge: 'bg-yellow-500/20 text-yellow-400', icon: 'fa-exclamation-circle',  label: 'AVISO' },
                     offline:    { bg: 'bg-slate-500/10 border-slate-500/30',  badge: 'bg-slate-500/20 text-slate-400',  icon: 'fa-plug-circle-xmark',    label: 'OFFLINE' },
                     recuperacao:{ bg: 'bg-green-500/10 border-green-500/30',  badge: 'bg-green-500/20 text-green-400',  icon: 'fa-circle-check',         label: 'RECUPERADO' },
@@ -895,7 +895,7 @@
                 container.innerHTML = alertas.slice(0, 20).map(alerta => {
                     const cfg = nivelClasses[alerta.nivel] || nivelClasses.aviso;
                     const data = new Date(alerta.timestamp).toLocaleString('pt-BR');
-                    const msgs = Array.isArray(alerta.mensagens) ? alerta.mensagens.join(' • ') : alerta.mensagens;
+                    const msgs = Array.isArray(alerta.mensagens) ? alerta.mensagens.join(' â€¢ ') : alerta.mensagens;
                     return `
                         <div class="flex gap-3 items-start p-4 rounded-xl border ${cfg.bg} transition-all">
                             <span class="flex-shrink-0 mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${cfg.badge}">
@@ -910,24 +910,24 @@
                 }).join('');
 
             } catch (err) {
-                console.error('Erro ao carregar histórico de alertas:', err);
+                console.error('Erro ao carregar histÃ³rico de alertas:', err);
                 container.innerHTML = `
                     <div class="text-center text-slate-500 py-8">
                         <i class="fa-solid fa-triangle-exclamation text-yellow-500 text-3xl mb-3 block"></i>
-                        <p class="text-sm">Não foi possível carregar o histórico.</p>
+                        <p class="text-sm">NÃ£o foi possÃ­vel carregar o histÃ³rico.</p>
                         <button type="button" onclick="carregarHistoricoAlertas()" class="mt-3 text-ecogreen text-xs underline">Tentar novamente</button>
                     </div>`;
             }
         }
 
-        // Funções de teste de conectividade
+        // FunÃ§Ãµes de teste de conectividade
         async function testarConectividadeTagO() {
             const statusElement = document.getElementById('status-tago');
             statusElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-blue-400 text-xs"></i> <span class="text-xs text-blue-400">Testando...</span>';
 
             if (!baseSelecionada || !baseSelecionada.token) {
-                statusElement.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 text-xs"></i> <span class="text-xs text-red-500">Token não configurado</span>';
-                showToast('❌ Selecione uma base com Token TagO válido antes de testar.', 'error');
+                statusElement.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 text-xs"></i> <span class="text-xs text-red-500">Token nÃ£o configurado</span>';
+                showToast('âŒ Selecione uma base com Token TagO vÃ¡lido antes de testar.', 'error');
                 return;
             }
 
@@ -963,7 +963,7 @@
 
                 if (response.ok) {
                     statusElement.innerHTML = '<i class="fa-solid fa-circle-check text-green-500 text-xs"></i> <span class="text-xs text-green-500">Conectado</span>';
-                    showToast('✅ API TagO funcionando corretamente', 'success');
+                    showToast('âœ… API TagO funcionando corretamente', 'success');
                 } else {
                     throw new Error(`HTTP ${response.status}`);
                 }
@@ -971,13 +971,13 @@
                 console.error('Erro na conectividade TagO:', err);
                 statusElement.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-500 text-xs"></i> <span class="text-xs text-red-500">Erro</span>';
                 const errorMsg = err.message.includes('Failed to fetch') ?
-                    '❌ CORS ou rede bloqueada. Execute em servidor local (ex: Live Server) ou use o servidor backend.' :
-                    '❌ Erro na conexão com API TagO';
+                    'âŒ CORS ou rede bloqueada. Execute em servidor local (ex: Live Server) ou use o servidor backend.' :
+                    'âŒ Erro na conexÃ£o com API TagO';
                 showToast(errorMsg, 'error');
             }
         }
 
-        // Função para atualizar o semáforo climático
+        // FunÃ§Ã£o para atualizar o semÃ¡foro climÃ¡tico
         function atualizarSemaforo() {
             try {
                 const getLast = (arr) => {
@@ -1009,32 +1009,32 @@
 
                 if (!semaforoVerde || !semaforoAmarelo || !semaforoVermelho || !status) return;
 
-                // Reset das animações
+                // Reset das animaÃ§Ãµes
                 semaforoVerde.classList.remove('eco-pulse');
                 semaforoAmarelo.classList.remove('eco-pulse');
                 semaforoVermelho.classList.remove('eco-pulse');
 
-                // === CONDIÇÕES ATUALIZADAS ===
+                // === CONDIÃ‡Ã•ES ATUALIZADAS ===
                 const baseNomeSemaforo = baseSelecionada ? baseSelecionada.nome : 'Desconhecida';
                 const riscoQueimadaAtivo = tempVal !== null && umiVal !== null && tempVal >= 32 && umiVal <= 40;
-                const mensagemQueimada = `⚠️ ALERTA DE RISCO DE QUEIMADA: Temperatura ${tempVal !== null ? `${tempVal}°C` : 'N/D'} e umidade ${umiVal !== null ? `${umiVal}%` : 'N/D'}. Condições secas para fogo.`;
+                const mensagemQueimada = `âš ï¸ ALERTA DE RISCO DE QUEIMADA: Temperatura ${tempVal !== null ? `${tempVal}Â°C` : 'N/D'} e umidade ${umiVal !== null ? `${umiVal}%` : 'N/D'}. CondiÃ§Ãµes secas para fogo.`;
 
                 if ((tempVal !== null && tempVal > 35) || (gasVal !== null && gasVal > 10) || (umiVal !== null && umiVal < 30)) {
                     semaforoVermelho.classList.add('eco-pulse');
-                    status.textContent = '🚨 Condições críticas detectadas!';
+                    status.textContent = 'ðŸš¨ CondiÃ§Ãµes crÃ­ticas detectadas!';
                     status.style.color = '#ef4444';
 
-                    // Enviar alertas para condições críticas
+                    // Enviar alertas para condiÃ§Ãµes crÃ­ticas
                     if (tempVal !== null && tempVal > 35) {
-                        const mensagemTemp = `🚨 ALERTA CRÍTICO: Temperatura muito elevada!\nValor atual: ${tempVal}°C\nLimite: 35°C`;
+                        const mensagemTemp = `ðŸš¨ ALERTA CRÃTICO: Temperatura muito elevada!\nValor atual: ${tempVal}Â°C\nLimite: 35Â°C`;
                         enviarAlerta('temp', mensagemTemp, baseNomeSemaforo, tempVal);
                     }
                     if (gasVal !== null && gasVal > 10) {
-                        const mensagemGas = `🚨 ALERTA CRÍTICO: Nível de gás muito elevado!\nValor atual: ${gasVal}%\nLimite: 10%`;
+                        const mensagemGas = `ðŸš¨ ALERTA CRÃTICO: NÃ­vel de gÃ¡s muito elevado!\nValor atual: ${gasVal}%\nLimite: 10%`;
                         enviarAlerta('gas', mensagemGas, baseNomeSemaforo, gasVal);
                     }
                     if (umiVal !== null && umiVal < 30) {
-                        const mensagemUmi = `🚨 ALERTA CRÍTICO: Umidade muito baixa!\nValor atual: ${umiVal}%\nLimite mínimo: 30%`;
+                        const mensagemUmi = `ðŸš¨ ALERTA CRÃTICO: Umidade muito baixa!\nValor atual: ${umiVal}%\nLimite mÃ­nimo: 30%`;
                         enviarAlerta('umi', mensagemUmi, baseNomeSemaforo, umiVal);
                     }
                     if (riscoQueimadaAtivo) {
@@ -1043,14 +1043,14 @@
                 }
                 else if ((tempVal !== null && tempVal > 30) || (gasVal !== null && gasVal > 5) || (umiVal !== null && umiVal < 40) || riscoQueimadaAtivo) {
                     semaforoAmarelo.classList.add('eco-pulse');
-                    status.textContent = '⚠️ Atenção - Monitore os níveis ambientais';
+                    status.textContent = 'âš ï¸ AtenÃ§Ã£o - Monitore os nÃ­veis ambientais';
                     status.style.color = '#f59e0b';
 
-                    // Enviar alertas para condições de atenção (apenas uma vez por sessão)
+                    // Enviar alertas para condiÃ§Ãµes de atenÃ§Ã£o (apenas uma vez por sessÃ£o)
                     const alertaKey = `alerta_${new Date().toDateString()}`;
                     if (!sessionStorage.getItem(alertaKey)) {
                         if (gasVal !== null && gasVal > 5) {
-                            const mensagemGas = `⚠️ ALERTA: Nível de gás elevado detectado\nValor atual: ${gasVal}%\nLimite de atenção: 5%`;
+                            const mensagemGas = `âš ï¸ ALERTA: NÃ­vel de gÃ¡s elevado detectado\nValor atual: ${gasVal}%\nLimite de atenÃ§Ã£o: 5%`;
                             enviarAlerta('gas', mensagemGas, baseNomeSemaforo, gasVal);
                         }
                         if (riscoQueimadaAtivo) {
@@ -1061,29 +1061,29 @@
                 }
                 else if (tempVal !== null || umiVal !== null || gasVal !== null) {
                     semaforoVerde.classList.add('eco-pulse');
-                    status.textContent = '✅ Condições ambientais ideais';
+                    status.textContent = 'âœ… CondiÃ§Ãµes ambientais ideais';
                     status.style.color = '#10b981';
                 } else {
-                    status.textContent = '📊 Aguardando dados dos sensores...';
+                    status.textContent = 'ðŸ“Š Aguardando dados dos sensores...';
                     status.style.color = '#64748b';
                 }
 
             } catch (err) {
-                console.error('Erro ao atualizar semáforo:', err);
+                console.error('Erro ao atualizar semÃ¡foro:', err);
             }
         }
 
-        // Função para salvar configurações de alertas
+        // FunÃ§Ã£o para salvar configuraÃ§Ãµes de alertas
         function salvarConfiguracoesAlertas() {
             const usarEmail = document.getElementById('usar-email').checked;
             const email = document.getElementById('email-alerta').value.trim();
 
             if (usarEmail && !email) {
-                showToast('⚠️ Informe um e-mail para receber os alertas.', 'warning');
+                showToast('âš ï¸ Informe um e-mail para receber os alertas.', 'warning');
                 return;
             }
 
-            // Recolher configuração de alertas
+            // Recolher configuraÃ§Ã£o de alertas
             const alertas = {};
             const tiposAlertas = ['temp', 'gas', 'umi', 'queimada'];
 
@@ -1130,10 +1130,10 @@
                 localStorage.setItem('ecobot-alertas-config', JSON.stringify(configAlertas));
 
                 const successMsg = idiomaAtual === 'pt'
-                    ? '✅ Todas as configurações de alertas foram salvas com sucesso!'
+                    ? 'âœ… Todas as configuraÃ§Ãµes de alertas foram salvas com sucesso!'
                     : idiomaAtual === 'es'
-                        ? '✅ ¡Todas las configuraciones de alertas se han guardado con éxito!'
-                        : '✅ All alert settings have been saved successfully!';
+                        ? 'âœ… Â¡Todas las configuraciones de alertas se han guardado con Ã©xito!'
+                        : 'âœ… All alert settings have been saved successfully!';
                 showToast(successMsg, 'success');
 
                 // Create particles effect on the save button
@@ -1142,11 +1142,11 @@
                     createParticles(saveButton);
                 }
 
-                // Carregar configuração salva para confirmar
+                // Carregar configuraÃ§Ã£o salva para confirmar
                 carregarConfiguracoesAlertas();
             } catch (err) {
                 const errorMsg = idiomaAtual === 'pt'
-                    ? 'Erro ao salvar configurações.'
+                    ? 'Erro ao salvar configuraÃ§Ãµes.'
                     : 'Error saving settings.';
                 console.error('Erro ao salvar alertas:', err);
                 showToast(errorMsg, 'error');
@@ -1187,11 +1187,11 @@
                 atualizarCamposAlertas();
                 atualizarAlertas();
             } catch (err) {
-                console.error('Erro ao carregar configurações de alertas:', err);
+                console.error('Erro ao carregar configuraÃ§Ãµes de alertas:', err);
             }
         }
 
-        // Função para carregar credenciais EmailJS do localStorage
+        // FunÃ§Ã£o para carregar credenciais EmailJS do localStorage
         function carregarCredenciaisInterface() {
             carregarCredenciaisEmailJS();
         }
@@ -1244,14 +1244,14 @@
             setTimeout(() => particlesContainer.remove(), 3000);
         }
 
-        // Checkbox customizado e inicialização dos filtros
+        // Checkbox customizado e inicializaÃ§Ã£o dos filtros
         document.addEventListener('DOMContentLoaded', function () {
             // Inicializar campos de alertas e EmailJS
             carregarCredenciaisInterface();
             atualizarCamposAlertas();
             atualizarAlertas();
 
-            // Botões de filtro do gráfico - REMOVIDOS
+            // BotÃµes de filtro do grÃ¡fico - REMOVIDOS
             // const btnTodos = document.getElementById('btn-grafico-todos');
             // const btnTemp = document.getElementById('btn-grafico-temp');
             // const btnUmi = document.getElementById('btn-grafico-umi');
@@ -1271,8 +1271,8 @@
             // }
         });
 
-        // Chamar atualizarSemaforo quando os dados são atualizados
-        // Interceptar a função sincronizarTago para chamar atualizarSemaforo após atualização
+        // Chamar atualizarSemaforo quando os dados sÃ£o atualizados
+        // Interceptar a funÃ§Ã£o sincronizarTago para chamar atualizarSemaforo apÃ³s atualizaÃ§Ã£o
         const _sincronizarTago = sincronizarTago;
         window.sincronizarTago = async function () {
             try {
@@ -1281,21 +1281,21 @@
                     atualizarSemaforo();
                 }, 200);
             } catch (err) {
-                console.error('Erro na sincronização:', err);
+                console.error('Erro na sincronizaÃ§Ã£o:', err);
             }
         };
 
-        // Também chamar o semáforo na inicialização
+        // TambÃ©m chamar o semÃ¡foro na inicializaÃ§Ã£o
         setTimeout(() => {
             atualizarSemaforo();
         }, 1000);
-        // Função para inscrever e-mail no servidor de alertas (backend /subscribe)
+        // FunÃ§Ã£o para inscrever e-mail no servidor de alertas (backend /subscribe)
         async function subscreverAlertas() {
             const emailInput = document.getElementById("email_input");
             const email = emailInput ? emailInput.value.trim() : '';
 
             if (!email || !email.includes("@")) {
-                showToast('Por favor, insira um e-mail válido!', 'warning');
+                showToast('Por favor, insira um e-mail vÃ¡lido!', 'warning');
                 return;
             }
 
@@ -1317,19 +1317,20 @@
                 const texto = await response.text();
 
                 if (response.ok) {
-                    showToast(`✅ ${texto}`, 'success');
+                    showToast(`âœ… ${texto}`, 'success');
                     if (emailInput) emailInput.value = '';
                 } else if (response.status === 409) {
-                    showToast('ℹ️ Este e-mail já está inscrito na lista de alertas.', 'warning');
+                    showToast('â„¹ï¸ Este e-mail jÃ¡ estÃ¡ inscrito na lista de alertas.', 'warning');
                 } else {
-                    showToast(`❌ Erro: ${texto}`, 'error');
+                    showToast(`âŒ Erro: ${texto}`, 'error');
                 }
             } catch (erro) {
                 console.error('Erro ao inscrever no backend:', erro);
                 if (erro.name === 'AbortError') {
-                    showToast('⏱️ Requisição expirou. Servidor pode estar lento. Tente novamente.', 'error');
+                    showToast('â±ï¸ RequisiÃ§Ã£o expirou. Servidor pode estar lento. Tente novamente.', 'error');
                 } else {
-                    showToast('❌ Não foi possível conectar ao servidor. Verifique a conexão.', 'error');
+                    showToast('âŒ NÃ£o foi possÃ­vel conectar ao servidor. Verifique a conexÃ£o.', 'error');
                 }
             }
         }
+
