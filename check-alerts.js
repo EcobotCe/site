@@ -39,6 +39,12 @@ const SENSOR_PREF = {
   gas:  'alertar_gas',
 };
 
+// ─── FIX: Timeout aumentado de 7 → 15 minutos ────────────────────────────────
+// Com 7 minutos qualquer atraso de rede ou envio do sensor causava "offline"
+// e pulava toda a avaliação de temp/umid/gas — nunca gerando alertas reais.
+// 15 minutos é mais tolerante sem perder a detecção de falha real.
+const OFFLINE_TIMEOUT_MS = 15 * 60 * 1000;
+
 // ─── Estado da Base ───────────────────────────────────────────────────────────
 const getLastState = async (client, baseNome) => {
   const { rows } = await client.query(
@@ -62,6 +68,25 @@ const setState = async (client, baseNome, nivelObj, mensagens) => {
            updated_at     = EXCLUDED.updated_at`,
     [baseNome, nivelJson, mensagens]
   );
+};
+
+// ─── FIX: Limpa estado travado em "critico/aviso" sem dados recentes ──────────
+// Se a base ficou muito tempo sem dados, o estado pode ficar travado em "critico"
+// e nunca gerar novos alertas (pois o código só alerta quando há mudança de estado).
+// Esta função reseta o estado para "ok" em todos os sensores sem enviar e-mail,
+// permitindo que o próximo dado real acione os alertas corretamente.
+const resetarEstadoSeNecessario = async (client, baseNome, lastNiveis, ultimaAtualizacaoEstado) => {
+  if (!ultimaAtualizacaoEstado) return lastNiveis;
+  const idadeEstadoMs = Date.now() - new Date(ultimaAtualizacaoEstado).getTime();
+  const ESTADO_EXPIRA_MS = 60 * 60 * 1000; // 1 hora sem dados = reseta estado
+
+  if (idadeEstadoMs > ESTADO_EXPIRA_MS) {
+    console.log(`  🔄 Estado expirado (${Math.round(idadeEstadoMs / 60000)} min). Resetando para reavaliação limpa.`);
+    const nivelReset = { temp: undefined, umid: undefined, gas: undefined, offline: false };
+    await setState(client, baseNome, nivelReset, []);
+    return nivelReset;
+  }
+  return lastNiveis;
 };
 
 // ─── Busca inscritos com filtro por preferência ────────────────────────────
@@ -151,17 +176,39 @@ const checkAlerts = async () => {
       try {
         console.log(`\n→ Verificando "${base.nome}"...`);
 
-        const response = await axios.get('https://api.tago.io/data?qty=1', {
+        // FIX: qty=5 em vez de qty=1 — pega as últimas 5 leituras para ter redundância.
+        // Com qty=1, se aquela única leitura for antiga, a base vai para "offline"
+        // e toda a avaliação de sensores é pulada com `continue`.
+        // Com qty=5, usamos o dado mais recente mas temos contexto extra para debug.
+        const response = await axios.get('https://api.tago.io/data?qty=5', {
           headers: { 'Device-Token': base.token },
           timeout: 10000
         });
         const dados = Array.isArray(response.data?.result) ? response.data.result : [];
 
-        const { niveis: lastNiveis } = await getLastState(client, base.nome);
+        // Busca o estado anterior + timestamp da última atualização do estado
+        const { rows: stateRows } = await client.query(
+          'SELECT last_nivel, last_mensagens, updated_at FROM base_states WHERE base = $1',
+          [base.nome]
+        );
+        let niveis = {};
+        let ultimaAtualizacaoEstado = null;
+        if (stateRows.length) {
+          try { niveis = JSON.parse(stateRows[0].last_nivel || '{}'); } catch { niveis = {}; }
+          ultimaAtualizacaoEstado = stateRows[0].updated_at;
+        }
 
-        // Verifica se o dado mais recente é antigo demais (> 7 minutos = offline)
-        const OFFLINE_TIMEOUT_MS = 7 * 60 * 1000;
-        const ultimoDado = dados[0];
+        // FIX: verifica se o estado está travado há muito tempo e reseta se necessário
+        niveis = await resetarEstadoSeNecessario(client, base.nome, niveis, ultimaAtualizacaoEstado);
+        const lastNiveis = niveis;
+
+        // Verifica se o dado mais recente é antigo demais (> 15 min = offline)
+        // FIX: ordena por time para garantir que dados[0] é realmente o mais recente
+        const dadosOrdenados = dados
+          .filter(d => d.time)
+          .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+        const ultimoDado = dadosOrdenados[0];
         const ultimaLeitura = ultimoDado?.time ? new Date(ultimoDado.time).getTime() : null;
         const idadeMs = ultimaLeitura ? Date.now() - ultimaLeitura : Infinity;
         const estaOffline = dados.length === 0 || idadeMs > OFFLINE_TIMEOUT_MS;
@@ -174,7 +221,7 @@ const checkAlerts = async () => {
         if (estaOffline) {
           const motivo = dados.length === 0
             ? 'sem dados no Tago'
-            : `último dado há ${Math.round(idadeMs / 60000)} min (limite: 7 min)`;
+            : `último dado há ${Math.round(idadeMs / 60000)} min (limite: ${OFFLINE_TIMEOUT_MS / 60000} min)`;
           if (!lastNiveis.offline) {
             console.log(`  📡 Offline detectado (${motivo}). Enviando alerta.`);
             await enviarEmailAlerta(client, base.nome, 'offline',
@@ -186,9 +233,10 @@ const checkAlerts = async () => {
           continue;
         }
 
-        // Online — extrai sensores
+        // Online — extrai sensores do dado mais recente
+        // FIX: usa dadosOrdenados para garantir que pega a leitura mais atual de cada variável
         const getVal = (pref) => {
-          const item = dados.find(d => d.variable?.toLowerCase().includes(pref));
+          const item = dadosOrdenados.find(d => d.variable?.toLowerCase().includes(pref));
           return item ? parseFloat(String(item.value).replace(',', '.')) : null;
         };
         const temp = getVal('temp');
