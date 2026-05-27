@@ -65,8 +65,11 @@ const setupDatabase = async (retries = 3) => {
             token TEXT NOT NULL,
             lat NUMERIC NULL,
             lon NUMERIC NULL,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+            deleted_at TIMESTAMP WITH TIME ZONE NULL
           );
+          -- Adiciona coluna deleted_at caso a tabela já exista sem ela
+          ALTER TABLE bases ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP WITH TIME ZONE NULL;
         `);
         console.log('✅ Tabela "bases" criada ou já existente.');
 

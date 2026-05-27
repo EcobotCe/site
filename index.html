@@ -1519,6 +1519,8 @@
         let editingBaseId = null;
         let chartInstance = null;
         let intervalSync = null;
+        // Mapa de status online/offline por nome de base { [nome]: true/false }
+        let baseStatusMap = {};
 
         window.onload = function () {
             carregarBases().finally(() => {
@@ -1528,6 +1530,9 @@
                     document.getElementById('splash-screen').classList.add('opacity-0');
                     setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 1000);
                 }, 1500);
+                // Atualiza status online/offline das bases periodicamente
+                atualizarStatusBases();
+                setInterval(atualizarStatusBases, 60000);
             });
         };
 
@@ -1552,6 +1557,34 @@
                 if (!redeBases.length) {
                     redeBases = [];
                 }
+            }
+        }
+
+        // Busca dados recentes para determinar status online/offline de cada base
+        // Uma base é considerada OFFLINE se o timestamp do último dado tiver mais de 5 minutos
+        async function atualizarStatusBases() {
+            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
+            try {
+                const response = await fetch(`${backendUrl}/api/dados-recentes`);
+                if (!response.ok) return;
+                const dados = await response.json();
+                const CINCO_MINUTOS_MS = 5 * 60 * 1000;
+                const agora = Date.now();
+                baseStatusMap = {};
+                if (Array.isArray(dados)) {
+                    dados.forEach(base => {
+                        if (!base.nome) return;
+                        if (!base.timestamp) {
+                            baseStatusMap[base.nome] = false; // sem dados = offline
+                        } else {
+                            const ultimoEnvio = new Date(base.timestamp).getTime();
+                            baseStatusMap[base.nome] = (agora - ultimoEnvio) <= CINCO_MINUTOS_MS;
+                        }
+                    });
+                }
+                atualizarInterfaceBases();
+            } catch (err) {
+                console.warn('Não foi possível verificar status das bases:', err.message);
             }
         }
 
@@ -1625,10 +1658,21 @@
                     const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slice(-6)}` : 'Sem token';
                     const coords = base.lat || base.lon ? `${base.lat ? `Lat: ${base.lat}` : ''}${base.lat && base.lon ? ' • ' : ''}${base.lon ? `Lon: ${base.lon}` : ''}` : 'Coordenadas não informadas';
 
+                    // Badge de status online/offline
+                    const statusOnline = baseStatusMap[base.nome];
+                    const statusBadge = statusOnline === undefined
+                        ? `<span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-500"><i class="fa-solid fa-circle-notch fa-spin text-[8px]"></i>Verificando</span>`
+                        : statusOnline
+                            ? `<span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400"><i class="fa-solid fa-circle text-[8px]"></i>Online</span>`
+                            : `<span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest text-slate-500"><i class="fa-solid fa-circle text-[8px]"></i>Offline</span>`;
+
                     card.innerHTML = `
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500 mb-2">Base</p>
+                                <div class="flex items-center gap-3 mb-2">
+                                    <p class="text-[10px] uppercase tracking-[0.3em] text-slate-500">Base</p>
+                                    ${statusBadge}
+                                </div>
                                 <h3 class="text-xl font-bold text-white mb-2">${base.nome}</h3>
                                 <p class="text-sm text-slate-400 break-all">${tokenPreview}</p>
                                 <p class="text-xs text-slate-500 mt-3">${coords}</p>
@@ -1811,17 +1855,34 @@
 
         async function removerBase(id) {
             const confirmMsg = idiomaAtual === 'pt'
-                ? 'Tem certeza que deseja excluir esta base?'
+                ? 'Tem certeza que deseja excluir esta base?\n\nAtenção: apenas administradores podem excluir bases.'
                 : idiomaAtual === 'es'
-                    ? '¿Seguro que desea eliminar esta base?'
-                    : 'Are you sure you want to delete this base?';
+                    ? '¿Seguro que desea eliminar esta base? Solo administradores pueden hacerlo.'
+                    : 'Are you sure you want to delete this base? Only admins can do this.';
             if (!confirm(confirmMsg)) return;
+
+            const adminPassword = prompt(
+                idiomaAtual === 'pt'
+                    ? 'Digite a senha de administrador:'
+                    : idiomaAtual === 'es'
+                        ? 'Ingrese la contraseña de administrador:'
+                        : 'Enter admin password:'
+            );
+            if (adminPassword === null) return; // cancelou
 
             try {
                 const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
-                const response = await fetch(`${backendUrl}/api/bases/${id}`, { method: 'DELETE' });
+                const response = await fetch(`${backendUrl}/api/bases/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminPassword })
+                });
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => ({}));
+                    if (response.status === 403) {
+                        alert(idiomaAtual === 'pt' ? 'Senha de administrador incorreta.' : 'Incorrect admin password.');
+                        return;
+                    }
                     throw new Error(errorBody.error || 'Não foi possível excluir a base.');
                 }
                 await carregarBases();

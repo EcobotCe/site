@@ -113,7 +113,7 @@ const getBasesFromDb = async () => {
     try {
       const client = await pool.connect();
       try {
-        const { rows } = await client.query('SELECT id, nome, token, lat, lon FROM bases ORDER BY id');
+        const { rows } = await client.query('SELECT id, nome, token, lat, lon FROM bases WHERE deleted_at IS NULL ORDER BY id');
         return rows;
       } finally {
         client.release();
@@ -335,11 +335,26 @@ app.delete('/api/bases/:id', async (req, res) => {
   if (Number.isNaN(id)) {
     return res.status(400).json({ error: 'ID inválido.' });
   }
+
+  // Verificação de senha do administrador
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  if (!ADMIN_PASSWORD) {
+    return res.status(500).json({ error: 'Senha de administrador não configurada no servidor.' });
+  }
+  const { adminPassword } = req.body;
+  if (!adminPassword || adminPassword !== ADMIN_PASSWORD) {
+    return res.status(403).json({ error: 'Senha de administrador incorreta.' });
+  }
+
   try {
     if (pool) {
       const client = await pool.connect();
       try {
-        const result = await client.query('DELETE FROM bases WHERE id = $1', [id]);
+        // Soft delete: marca deleted_at em vez de apagar do banco
+        const result = await client.query(
+          'UPDATE bases SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL',
+          [id]
+        );
         if (result.rowCount === 0) return res.status(404).json({ error: 'Base não encontrada.' });
         return res.status(200).json({ message: 'Base removida com sucesso.' });
       } finally {
@@ -350,6 +365,27 @@ app.delete('/api/bases/:id', async (req, res) => {
   } catch (error) {
     console.error('Erro ao remover base:', error.message);
     res.status(500).json({ error: 'Falha ao remover a base' });
+  }
+});
+
+// ── Bases deletadas (somente admin) ───────────────────────────────────────────
+app.get('/api/bases/lixeira', async (req, res) => {
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  const { adminPassword } = req.query;
+  if (!ADMIN_PASSWORD || adminPassword !== ADMIN_PASSWORD) {
+    return res.status(403).json({ error: 'Acesso negado.' });
+  }
+  if (!pool) return res.status(503).json({ error: 'Banco de dados indisponível.' });
+  try {
+    const client = await pool.connect();
+    try {
+      const { rows } = await client.query(
+        'SELECT id, nome, token, lat, lon, deleted_at FROM bases WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC'
+      );
+      res.json(rows);
+    } finally { client.release(); }
+  } catch (err) {
+    res.status(500).json({ error: 'Falha ao carregar lixeira.' });
   }
 });
 
