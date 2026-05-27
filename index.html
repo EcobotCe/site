@@ -2120,12 +2120,13 @@
 
         // Função para atualizar campos de alertas baseado nos checkboxes
         function atualizarCamposAlertas() {
-            const usarEmail = document.getElementById('usar-email').checked;
+            const usarEmail = document.getElementById('usar-email');
+            if (!usarEmail) return; // elemento ainda não existe na página
             const emailInput = document.getElementById('email-alerta');
 
             if (emailInput) {
-                emailInput.disabled = !usarEmail;
-                emailInput.style.opacity = usarEmail ? '1' : '0.5';
+                emailInput.disabled = !usarEmail.checked;
+                emailInput.style.opacity = usarEmail.checked ? '1' : '0.5';
             }
         }
 
