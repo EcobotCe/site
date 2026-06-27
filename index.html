@@ -1040,6 +1040,26 @@
 
         <div id="base-management" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8"></div>
 
+        <div class="glass-premium p-5 md:p-6 rounded-[1.5rem] mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-ecogreen/10">
+            <div class="flex flex-col gap-2 w-full sm:w-auto">
+                <label for="seletor-data-historico" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                    <i class="fa-regular fa-calendar text-ecogreen/70 mr-1"></i> Ver dados de um dia específico:
+                </label>
+                <div class="flex gap-3 w-full sm:w-auto">
+                    <input type="date" id="seletor-data-historico"
+                        class="bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600">
+                    <button type="button" onclick="aplicarFiltroData()"
+                        class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3 px-5 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple">
+                        <i class="fa-solid fa-magnifying-glass"></i> Ver
+                    </button>
+                </div>
+            </div>
+            <button type="button" id="btn-voltar-tempo-real" onclick="voltarTempoReal()"
+                class="hidden bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-3 px-5 rounded-xl transition-all border border-slate-600/50 hover:border-slate-500 text-sm flex items-center gap-2 whitespace-nowrap">
+                <i class="fa-solid fa-bolt text-ecogreen"></i> Voltar ao tempo real
+            </button>
+        </div>
+
         <div id="status-badge" class="mb-8 flex items-center gap-4 flex-wrap">
             <span id="badge-conexao" data-i18n="txt_aguardando"
                 class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">Aguardando
