@@ -445,11 +445,19 @@ app.get('/api/dados-recentes', async (req, res) => {
 
 // ── Proxy TagO.io ──────────────────────────────────────────────────────────────
 app.get('/api/test-tago', async (req, res) => {
-  const { token, qty = 60 } = req.query;
+  const { token, qty = 60, start_date, end_date } = req.query;
   if (!token) return res.status(400).json({ error: 'Token é obrigatório.' });
 
   try {
-    const response = await axios.get(`https://api.tago.io/data?qty=${qty}`, {
+    // Monta a URL do TagoIO. Se start_date/end_date forem enviados (formato
+    // "YYYY-MM-DD HH:mm:ss", aceito pela API do TagoIO), filtra por esse
+    // intervalo em vez de usar apenas a quantidade fixa de registros.
+    const params = new URLSearchParams();
+    params.set('qty', qty);
+    if (start_date) params.set('start_date', start_date);
+    if (end_date) params.set('end_date', end_date);
+
+    const response = await axios.get(`https://api.tago.io/data?${params.toString()}`, {
       headers: { 'Device-Token': token },
       timeout: 10000
     });

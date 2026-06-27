@@ -6,6 +6,11 @@
         const TAGO_API_BASE = 'https://api.tago.io/data';
         const TAGO_FETCH_QTY = 60;
 
+        // Quando null, o dashboard busca os dados mais recentes em tempo real
+        // (comportamento original). Quando preenchido com uma string "YYYY-MM-DD",
+        // o dashboard busca apenas os dados daquele dia específico.
+        let dataFiltroSelecionada = null;
+
 // ── Ecobot Main ─────────────────────────────────────────────
 
 // ------------------------------------------------
@@ -181,6 +186,15 @@
                 mudarIdioma('pt');
                 carregarConfiguracoesAlertas(); // Carregar alertas salvos
                 carregarCredenciaisInterface(); // Carregar credenciais nos campos
+
+                // Impede a seleção de datas futuras no seletor de histórico
+                // (não existem dados de sensor ainda para o futuro).
+                const inputData = document.getElementById('seletor-data-historico');
+                if (inputData) {
+                    const hoje = new Date().toISOString().split('T')[0];
+                    inputData.setAttribute('max', hoje);
+                }
+
                 setTimeout(() => {
                     document.getElementById('splash-screen').classList.add('opacity-0');
                     setTimeout(() => document.getElementById('splash-screen').classList.add('hidden'), 1000);
@@ -506,14 +520,68 @@
             atualizarInterfaceBases();
         }
 
+        // Chamada pelo botão "Ver" do seletor de data no HTML.
+        // Recebe uma string no formato "YYYY-MM-DD" (valor nativo de <input type="date">).
+        function aplicarFiltroData() {
+            const input = document.getElementById('seletor-data-historico');
+            if (!input || !input.value) return;
+
+            dataFiltroSelecionada = input.value;
+
+            // Enquanto estiver vendo um dia específico, pausa o auto-refresh de
+            // 30s para não gastar requisições à toa — o histórico de um dia
+            // passado não muda. O refresh volta a funcionar normalmente ao
+            // clicar em "Voltar ao tempo real".
+            if (intervalSync) {
+                clearInterval(intervalSync);
+                intervalSync = null;
+            }
+
+            const btnVoltar = document.getElementById('btn-voltar-tempo-real');
+            if (btnVoltar) btnVoltar.classList.remove('hidden');
+
+            sincronizarTago();
+        }
+
+        // Chamada pelo botão "Voltar ao tempo real", que aparece somente
+        // depois que um filtro de data foi aplicado.
+        function voltarTempoReal() {
+            dataFiltroSelecionada = null;
+
+            const input = document.getElementById('seletor-data-historico');
+            if (input) input.value = '';
+
+            const btnVoltar = document.getElementById('btn-voltar-tempo-real');
+            if (btnVoltar) btnVoltar.classList.add('hidden');
+
+            sincronizarTago();
+            if (!intervalSync) intervalSync = setInterval(sincronizarTago, 30000);
+        }
+
         async function sincronizarTago() {
             if (!baseSelecionada) return;
 
             try {
                 // Busca os dados mais recentes para preencher o gráfico corretamente
                 const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
-                const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(baseSelecionada.token)}&qty=${TAGO_FETCH_QTY}`;
-                const directUrl = `${TAGO_API_BASE}?qty=${TAGO_FETCH_QTY}`;
+
+                // Quando há uma data selecionada pelo usuário, busca somente os
+                // dados daquele dia (00:00:00 até 23:59:59). Caso contrário,
+                // mantém o comportamento original: últimos TAGO_FETCH_QTY registros.
+                let filtroDataParams = '';
+                if (dataFiltroSelecionada) {
+                    const inicio = `${dataFiltroSelecionada} 00:00:00`;
+                    const fim = `${dataFiltroSelecionada} 23:59:59`;
+                    filtroDataParams = `&start_date=${encodeURIComponent(inicio)}&end_date=${encodeURIComponent(fim)}`;
+                }
+
+                // Quando filtrando por um dia inteiro, pede mais registros (até 500)
+                // já que um dia inteiro pode ter mais pontos do que os 60 padrão de
+                // "tempo real". Sem filtro de data, mantém o qty padrão.
+                const qtyEfetivo = dataFiltroSelecionada ? 500 : TAGO_FETCH_QTY;
+
+                const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(baseSelecionada.token)}&qty=${qtyEfetivo}${filtroDataParams}`;
+                const directUrl = `${TAGO_API_BASE}?qty=${qtyEfetivo}${filtroDataParams}`;
 
                 const fetchData = async (url, useDirect = false) => {
                     const headers = useDirect
@@ -614,17 +682,26 @@
 
                 let textoAtualizado = dicionario[idiomaAtual].txt_atualizado_as || "Atualizado às";
                 const baseNome = baseSelecionada ? baseSelecionada.nome : 'Sem base';
-                // Tempo relativo desde a última leitura do sensor
-                let tempoRelativo = '';
-                if (t.length > 0 && t[t.length-1].time) {
-                    const diffMs = Date.now() - new Date(t[t.length-1].time).getTime();
-                    const diffMin = Math.floor(diffMs / 60000);
-                    if (diffMin < 1) tempoRelativo = ' • Agora mesmo';
-                    else if (diffMin === 1) tempoRelativo = ' • Há 1 min';
-                    else if (diffMin < 60) tempoRelativo = ` • Há ${diffMin} min`;
-                    else tempoRelativo = ` • Há ${Math.floor(diffMin/60)}h`;
+
+                if (dataFiltroSelecionada) {
+                    // Modo histórico: mostra qual dia está sendo exibido, em vez
+                    // do tempo relativo de "tempo real".
+                    const [ano, mes, dia] = dataFiltroSelecionada.split('-');
+                    document.getElementById('hora-sync').innerText =
+                        `📅 Exibindo dados de ${dia}/${mes}/${ano} • Base: ${baseNome}`;
+                } else {
+                    // Tempo relativo desde a última leitura do sensor
+                    let tempoRelativo = '';
+                    if (t.length > 0 && t[t.length-1].time) {
+                        const diffMs = Date.now() - new Date(t[t.length-1].time).getTime();
+                        const diffMin = Math.floor(diffMs / 60000);
+                        if (diffMin < 1) tempoRelativo = ' • Agora mesmo';
+                        else if (diffMin === 1) tempoRelativo = ' • Há 1 min';
+                        else if (diffMin < 60) tempoRelativo = ` • Há ${diffMin} min`;
+                        else tempoRelativo = ` • Há ${Math.floor(diffMin/60)}h`;
+                    }
+                    document.getElementById('hora-sync').innerText = `${textoAtualizado} ${horaFormatada} • Base: ${baseNome}${tempoRelativo}`;
                 }
-                document.getElementById('hora-sync').innerText = `${textoAtualizado} ${horaFormatada} • Base: ${baseNome}${tempoRelativo}`;
 
                 atualizarGrafico(t, u, g);
 
@@ -657,7 +734,13 @@
             // Pegamos os últimos N valores de CADA sensor diretamente por índice,
             // sem agrupar por minuto. A base envia a cada 5 min, então os pontos
             // têm timestamps distintos — agrupar por HH:MM colapsa tudo num único ponto.
-            const MAX_PONTOS = 20;
+            //
+            // No modo "tempo real" mantemos só os últimos 20 pontos (gráfico
+            // limpo, focado no que está acontecendo agora). No modo "histórico"
+            // (um dia específico selecionado), usamos um limite bem maior para
+            // mostrar o dia completo — um dia inteiro com leituras a cada 5 min
+            // pode ter até ~288 pontos por sensor.
+            const MAX_PONTOS = dataFiltroSelecionada ? 300 : 20;
 
             const ultT = arrT.slice(-MAX_PONTOS);
             const ultU = arrU.slice(-MAX_PONTOS);
