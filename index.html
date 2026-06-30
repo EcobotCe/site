@@ -1050,9 +1050,6 @@
                     <button type="button" onclick="abrirModalAdicionarBase()" class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3.5 px-6 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
                         <i class="fa-solid fa-plus"></i> <span data-i18n="btn_adicionar_base">Adicionar Base</span>
                     </button>
-                    <button type="button" id="btn-toggle-theme" onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 text-white border border-white/10 font-bold py-3.5 px-5 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
-                        <i class="fa-solid fa-sun"></i> Tema Claro
-                    </button>
                 </div>
             </div>
         </header>
@@ -1873,23 +1870,8 @@
         }
 
         function loadTheme() {
-            const savedTheme = localStorage.getItem('ecobot-theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeButton();
-        }
-
-        function toggleTheme() {
-            const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-            document.documentElement.setAttribute('data-theme', current);
-            localStorage.setItem('ecobot-theme', current);
-            updateThemeButton();
-        }
-
-        function updateThemeButton() {
-            const btn = document.getElementById('btn-toggle-theme');
-            if (!btn) return;
-            const theme = document.documentElement.getAttribute('data-theme');
-            btn.innerHTML = `<i class="fa-solid ${theme === 'light' ? 'fa-moon' : 'fa-sun'}"></i> ${theme === 'light' ? 'Tema Escuro' : 'Tema Claro'}`;
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('ecobot-theme', 'dark');
         }
 
         let mapInstance = null;
