@@ -1024,7 +1024,7 @@
                         <i class="fa-solid fa-arrows-rotate"></i> Atualizar Mapa
                     </button>
                     <button type="button" onclick="exportDashboardDataCSV()" class="bg-white/10 hover:bg-white/20 text-white border border-white/10 font-bold py-2.5 px-4 rounded-xl transition-all shadow-md text-xs uppercase tracking-[0.2em] btn-hover-glow ripple">
-                        <i class="fa-solid fa-file-csv"></i> <span data-i18n="btn_export_csv">Exportar CSV</span>
+                        <i class="fa-solid fa-file-csv"></i> <span data-i18n="btn_export_csv">Exportar Todos os Dados</span>
                     </button>
                 </div>
             </div>
@@ -2281,7 +2281,13 @@
                 const valC = g.length > 0 ? safeParse(g[g.length - 1].value) : null;  // gás em porcentagem
 
                 // Dados globais sincronizados
-                window.dadosAtuais = { temp: t, umi: u, gas: g };
+                window.dadosAtuais = {
+                    temp: t,
+                    umi: u,
+                    gas: g,
+                    raw: data,
+                    base: baseSelecionada ? baseSelecionada.nome : ''
+                };
                 window.elionTemp = valT;
                 window.elionUmi = valU;
                 window.elionGas = valC;
@@ -2868,9 +2874,42 @@
             }
         }
 
+        function formatTimestampForExport(value) {
+            if (!value) return '';
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return '';
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
         async function exportDashboardDataCSV() {
             try {
-                const dados = window.dadosAtuais || { temp: [], umi: [], gas: [] };
+                const dados = window.dadosAtuais || { temp: [], umi: [], gas: [], raw: [] };
+                const rawData = Array.isArray(dados.raw) ? dados.raw : [];
+
+                if (rawData.length > 0) {
+                    const rows = rawData
+                        .filter(item => item && item.time)
+                        .map(item => ({
+                            time: formatTimestampForExport(item.time),
+                            base: dados.base || '',
+                            variable: item.variable || '',
+                            value: item.value ?? '',
+                            unit: item.unit || '',
+                            raw_data: JSON.stringify(item)
+                        }));
+
+                    if (rows.length > 0) {
+                        downloadCSV('dados_dashboard_ecobot.csv', ['time', 'base', 'variable', 'value', 'unit', 'raw_data'], rows);
+                        return;
+                    }
+                }
+
                 const arrT = Array.isArray(dados.temp) ? dados.temp : [];
                 const arrU = Array.isArray(dados.umi) ? dados.umi : [];
                 const arrG = Array.isArray(dados.gas) ? dados.gas : [];
