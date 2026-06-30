@@ -10,74 +10,121 @@
 
     <script src="https://cdn.tailwindcss.com/3.4.0"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        ecogreen: '#14b8a6',
-                        ecodark: '#0f766e',
-                        darkbg: '#031923',
-                        cardbg: 'rgba(10, 25, 40, 0.45)',
-                    },
-                    fontFamily: {
-                        montserrat: ['Montserrat', 'sans-serif'],
-                        poppins: ['Poppins', 'sans-serif']
-                    },
-                    animation: {
-                        'blob': 'blob 15s infinite alternate',
-                        'gradient-x': 'gradient-x 6s ease infinite',
-                        'float-slow': 'float 8s ease-in-out infinite',
-                        'loading': 'pulse 1.5s ease-in-out infinite',
-                        'fade-in': 'fadeIn 0.8s ease-out forwards',
-                        'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
-                        'slide-in-right': 'slideInRight 0.6s ease-out forwards',
-                        'bounce-in': 'bounceIn 0.8s ease-out forwards',
-                        'glow': 'glow 2s ease-in-out infinite alternate'
-                    },
-                    keyframes: {
-                        blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -30px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                theme: {
+                    extend: {
+                        colors: {
+                            ecogreen: '#14b8a6',
+                            ecodark: '#0f766e',
+                            darkbg: '#031923',
+                            cardbg: 'rgba(10, 25, 40, 0.45)',
                         },
-                        'gradient-x': {
-                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
-                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
+                        fontFamily: {
+                            montserrat: ['Montserrat', 'sans-serif'],
+                            poppins: ['Poppins', 'sans-serif']
                         },
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(20px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        animation: {
+                            'blob': 'blob 15s infinite alternate',
+                            'gradient-x': 'gradient-x 6s ease infinite',
+                            'float-slow': 'float 8s ease-in-out infinite',
+                            'loading': 'pulse 1.5s ease-in-out infinite',
+                            'fade-in': 'fadeIn 0.8s ease-out forwards',
+                            'slide-in-left': 'slideInLeft 0.6s ease-out forwards',
+                            'slide-in-right': 'slideInRight 0.6s ease-out forwards',
+                            'bounce-in': 'bounceIn 0.8s ease-out forwards',
+                            'glow': 'glow 2s ease-in-out infinite alternate'
                         },
-                        slideInLeft: {
-                            '0%': { opacity: '0', transform: 'translateX(-50px)' },
-                            '100%': { opacity: '1', transform: 'translateX(0)' }
-                        },
-                        slideInRight: {
-                            '0%': { opacity: '0', transform: 'translateX(50px)' },
-                            '100%': { opacity: '1', transform: 'translateX(0)' }
-                        },
-                        bounceIn: {
-                            '0%': { opacity: '0', transform: 'scale(0.3)' },
-                            '50%': { opacity: '1', transform: 'scale(1.05)' },
-                            '70%': { transform: 'scale(0.9)' },
-                            '100%': { opacity: '1', transform: 'scale(1)' }
-                        },
-                        glow: {
-                            '0%': { 'box-shadow': '0 0 20px rgba(20, 184, 166, 0.4)' },
-                            '100%': { 'box-shadow': '0 0 30px rgba(20, 184, 166, 0.8)' }
+                        keyframes: {
+                            blob: {
+                                '0%': {
+                                    transform: 'translate(0px, 0px) scale(1)'
+                                },
+                                '33%': {
+                                    transform: 'translate(30px, -30px) scale(1.1)'
+                                },
+                                '66%': {
+                                    transform: 'translate(-20px, 20px) scale(0.9)'
+                                },
+                                '100%': {
+                                    transform: 'translate(0px, 0px) scale(1)'
+                                },
+                            },
+                            'gradient-x': {
+                                '0%, 100%': {
+                                    'background-size': '200% 200%',
+                                    'background-position': 'left center'
+                                },
+                                '50%': {
+                                    'background-size': '200% 200%',
+                                    'background-position': 'right center'
+                                }
+                            },
+                            fadeIn: {
+                                '0%': {
+                                    opacity: '0',
+                                    transform: 'translateY(20px)'
+                                },
+                                '100%': {
+                                    opacity: '1',
+                                    transform: 'translateY(0)'
+                                }
+                            },
+                            slideInLeft: {
+                                '0%': {
+                                    opacity: '0',
+                                    transform: 'translateX(-50px)'
+                                },
+                                '100%': {
+                                    opacity: '1',
+                                    transform: 'translateX(0)'
+                                }
+                            },
+                            slideInRight: {
+                                '0%': {
+                                    opacity: '0',
+                                    transform: 'translateX(50px)'
+                                },
+                                '100%': {
+                                    opacity: '1',
+                                    transform: 'translateX(0)'
+                                }
+                            },
+                            bounceIn: {
+                                '0%': {
+                                    opacity: '0',
+                                    transform: 'scale(0.3)'
+                                },
+                                '50%': {
+                                    opacity: '1',
+                                    transform: 'scale(1.05)'
+                                },
+                                '70%': {
+                                    transform: 'scale(0.9)'
+                                },
+                                '100%': {
+                                    opacity: '1',
+                                    transform: 'scale(1)'
+                                }
+                            },
+                            glow: {
+                                '0%': {
+                                    'box-shadow': '0 0 20px rgba(20, 184, 166, 0.4)'
+                                },
+                                '100%': {
+                                    'box-shadow': '0 0 30px rgba(20, 184, 166, 0.8)'
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
-        // NO INÍCIO DO SEU SCRIPT - DECLARE UMA ÚNICA VEZ
-        // ========== CONFIGURAÇÃO DE AMBIENTE ==========
+            // NO INÍCIO DO SEU SCRIPT - DECLARE UMA ÚNICA VEZ
+            // ========== CONFIGURAÇÃO DE AMBIENTE ==========
         const API_URL = 'https://web-production-7eff7.up.railway.app';
         const ECOBOT_BACKEND_URL = 'https://web-production-7eff7.up.railway.app';
         const TAGO_API_BASE = 'https://api.tago.io/data';
@@ -94,64 +141,61 @@
         body {
             width: 100vw;
             overflow-x: hidden;
-            background: radial-gradient(circle at top left, rgba(20, 184, 166, 0.16), transparent 24%),
-                radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.12), transparent 24%),
-                linear-gradient(180deg, #04232f 0%, #02181f 40%, #011117 100%);
+            background: radial-gradient(circle at top left, rgba(20, 184, 166, 0.16), transparent 24%), radial-gradient(circle at bottom right, rgba(20, 184, 166, 0.12), transparent 24%), linear-gradient(180deg, #04232f 0%, #02181f 40%, #011117 100%);
             background-attachment: fixed;
             -webkit-font-smoothing: antialiased;
             color: #f0f9f8;
         }
-
         /* Scrollbar Premium */
-        ::-webkit-scrollbar {
+        
+         ::-webkit-scrollbar {
             width: 8px;
         }
-
-        ::-webkit-scrollbar-track {
+        
+         ::-webkit-scrollbar-track {
             background: #020617;
         }
-
-        ::-webkit-scrollbar-thumb {
+        
+         ::-webkit-scrollbar-thumb {
             background: #1e293b;
             border-radius: 10px;
             border: 2px solid #020617;
         }
-
-        ::-webkit-scrollbar-thumb:hover {
+        
+         ::-webkit-scrollbar-thumb:hover {
             background: #14b8a6;
         }
-
         /* Animações de Transição de Ecrã */
+        
         .page-view {
             transition: opacity 0.5s ease-in-out, transform 0.5s ease;
         }
-
+        
         .hidden-view {
             display: none !important;
             opacity: 0;
             transform: translateY(10px);
         }
-
+        
         .active-view {
             display: block;
             opacity: 1;
             transform: translateY(0);
             animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-
+        
         @keyframes slideUpFade {
             from {
                 opacity: 0;
                 transform: translateY(20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-
         /* Efeito de Vidro (Glassmorphism) Elite */
+        
         .glass-premium {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
             -webkit-backdrop-filter: blur(24px);
@@ -162,89 +206,87 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.01);
             box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
         }
-
+        
         .glass-premium:hover {
             border-top: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 15px 50px -10px rgba(0, 0, 0, 0.8), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
         }
-
+        
         .glass-modal {
             -webkit-backdrop-filter: blur(30px);
             backdrop-filter: blur(30px);
             background: rgba(2, 6, 23, 0.9);
         }
-
         /* Fundo em Grelha Tecnológica */
+        
         .bg-grid {
-            background-image:
-                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px), linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: 50px 50px;
         }
-
+        
         .anim-duration-20s {
             animation-duration: 20s;
         }
-
+        
         .delay-01s {
             animation-delay: 0.1s;
         }
-
+        
         .delay-02s {
             animation-delay: 0.2s;
         }
-
+        
         .delay-03s {
             animation-delay: 0.3s;
         }
-
+        
         .delay-04s {
             animation-delay: 0.4s;
         }
-
+        
         .delay-05s {
             animation-delay: 0.5s;
         }
-
+        
         .delay-06s {
             animation-delay: 0.6s;
         }
-
+        
         .delay-07s {
             animation-delay: 0.7s;
         }
-
+        
         .delay-08s {
             animation-delay: 0.8s;
         }
-
+        
         .delay-1s {
             animation-delay: 1s;
         }
-
+        
         .delay-2s {
             animation-delay: 2s;
         }
-
+        
         .delay-4s {
             animation-delay: 4s;
         }
-
+        
         .alerta-checkbox {
             -webkit-user-select: none;
             user-select: none;
         }
-
+        
         .glass-highlight {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.16), rgba(8, 74, 46, 0.55));
             border-color: rgba(20, 184, 166, 0.18);
         }
-
+        
         .section-title {
             position: relative;
             z-index: 1;
         }
-
+        
         .section-title::after {
             content: '';
             position: absolute;
@@ -257,13 +299,13 @@
             background: linear-gradient(90deg, rgba(20, 184, 166, 0.95), rgba(56, 189, 248, 0.9));
             box-shadow: 0 0 18px rgba(20, 184, 166, 0.25);
         }
-
+        
         .hero-title {
             position: relative;
             z-index: 1;
             line-height: 0.95;
         }
-
+        
         .hero-title span {
             background: linear-gradient(90deg, #6ee7b7, #10b981, #14b8a6);
             -webkit-background-clip: text;
@@ -272,28 +314,28 @@
             color: transparent;
             text-shadow: 0 0 18px rgba(16, 185, 129, 0.28);
         }
-
+        
         .btn-primary {
             background: linear-gradient(135deg, #14b8a6, #0f766e 80%);
             color: #020617;
             box-shadow: 0 16px 45px rgba(20, 184, 166, 0.18);
         }
-
+        
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 20px 55px rgba(16, 185, 129, 0.25);
         }
-
+        
         .btn-secondary {
             border: 1px solid rgba(20, 184, 166, 0.28);
             color: #c9fff2;
         }
-
+        
         .glass-border {
             border: 1px solid rgba(20, 184, 166, 0.12);
             box-shadow: 0 20px 70px rgba(0, 0, 0, 0.28);
         }
-
+        
         .hero-accent {
             display: inline-flex;
             align-items: center;
@@ -307,12 +349,12 @@
             font-size: 0.8rem;
             letter-spacing: 0.18em;
         }
-
+        
         .hero-accent i {
             color: #2dd4bf;
         }
-
         /* Geral de foco acessível */
+        
         button:focus-visible,
         input:focus-visible,
         select:focus-visible,
@@ -321,79 +363,73 @@
             outline-offset: 3px;
             box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.14);
         }
-
         /* Semáforo climático */
+        
         .semaforo {
             display: flex;
             gap: 0.5rem;
             align-items: center;
         }
-
+        
         .semaforo .bolinha {
             width: 12px;
             height: 12px;
             border-radius: 50%;
             transition: all 0.3s ease;
         }
-
+        
         .semaforo .bolinha.verde {
             background-color: #10b981;
             box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
         }
-
+        
         .semaforo .bolinha.amarelo {
             background-color: #f59e0b;
             box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
         }
-
+        
         .semaforo .bolinha.vermelho {
             background-color: #ef4444;
             box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
         }
-
         /* Animações sustentáveis */
+        
         .eco-pulse {
             animation: ecoPulse 3s ease-in-out infinite;
         }
-
+        
         @keyframes ecoPulse {
-
             0%,
             100% {
                 transform: scale(1);
                 opacity: 0.8;
             }
-
             50% {
                 transform: scale(1.05);
                 opacity: 1;
             }
         }
-
+        
         .leaf-float {
             animation: leafFloat 6s ease-in-out infinite;
         }
-
+        
         @keyframes leafFloat {
-
             0%,
             100% {
                 transform: translateY(0px) rotate(0deg);
             }
-
             25% {
                 transform: translateY(-10px) rotate(5deg);
             }
-
             50% {
                 transform: translateY(-5px) rotate(-5deg);
             }
-
             75% {
                 transform: translateY(-15px) rotate(3deg);
             }
         }
-
+        
         .stat-card {
             background: rgba(15, 23, 42, 0.65);
             border: 1px solid rgba(16, 185, 129, 0.14);
@@ -401,40 +437,40 @@
             -webkit-backdrop-filter: blur(18px);
             backdrop-filter: blur(18px);
         }
-
+        
         .stat-card h3 {
             font-size: 1.75rem;
             color: #ffffff;
         }
-
+        
         .stat-card p {
             color: #94a3b8;
         }
-
+        
         .stat-label {
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.22em;
             color: #7dd3fc;
         }
-
+        
         .footer-pill {
             background: rgba(16, 185, 129, 0.12);
             border: 1px solid rgba(16, 185, 129, 0.18);
             color: #d1fae5;
         }
-
         /* Brilho Suave de Textos */
+        
         .text-glow {
             text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
         }
-
         /* Ripple Effect para Botões */
+        
         .ripple {
             position: relative;
             overflow: hidden;
         }
-
+        
         .ripple::before {
             content: '';
             position: absolute;
@@ -447,19 +483,19 @@
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
-
+        
         .ripple:active::before {
             width: 300px;
             height: 300px;
         }
-
         /* Hover Avançado para Botões */
+        
         .btn-hover-glow:hover {
             box-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
             transform: translateY(-2px);
         }
-
         /* Loading Spinner */
+        
         .spinner {
             border: 3px solid rgba(16, 185, 129, 0.1);
             border-top: 3px solid #10b981;
@@ -468,213 +504,266 @@
             height: 20px;
             animation: spin 1s linear infinite;
         }
-
+        
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
         }
-
         /* Animação de Pulsar para Elementos Ativos */
+        
         .pulse-active {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
-
         /* Gradiente Animado para Cards */
+        
         .card-gradient {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.7) 100%);
             background-size: 200% 200%;
             animation: gradient-x 6s ease infinite;
         }
-
         /* Checkboxes customizados */
+        
         .alerta-checkbox {
             -webkit-user-select: none;
             user-select: none;
         }
-
+        
         .checkbox-visual {
             transition: all 0.2s ease;
         }
-
+        
         .alerta-checkbox:hover .checkbox-visual {
             border-color: #10b981;
             background-color: rgba(16, 185, 129, 0.1);
         }
-
+        
         .check-icon {
             transition: opacity 0.2s ease;
+        }
+        
+        #mapa-bases {
+            min-height: 22rem;
+            border-radius: 1.5rem;
+        }
+        
+        html[data-theme="light"] body {
+            background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.12), transparent 24%), radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.1), transparent 24%), linear-gradient(180deg, #f8fafc 0%, #e2e8f0 40%, #f8fafc 100%);
+            color: #0f172a;
+        }
+        
+        html[data-theme="light"] .glass-premium,
+        html[data-theme="light"] .glass-highlight,
+        html[data-theme="light"] .glass-modal,
+        html[data-theme="light"] .stat-card,
+        html[data-theme="light"] .toast {
+            background: rgba(255, 255, 255, 0.92) !important;
+            border-color: rgba(148, 163, 184, 0.24) !important;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+            color: #0f172a !important;
+        }
+        
+        html[data-theme="light"] .text-white {
+            color: #0f172a !important;
+        }
+        
+        html[data-theme="light"] .text-slate-400,
+        html[data-theme="light"] .text-slate-500,
+        html[data-theme="light"] .text-slate-600,
+        html[data-theme="light"] .text-slate-700 {
+            color: #475569 !important;
+        }
+        
+        html[data-theme="light"] [class*="bg-slate-"] {
+            background-color: rgba(248, 250, 252, 0.96) !important;
+        }
+        
+        html[data-theme="light"] [class*="border-slate-"] {
+            border-color: rgba(148, 163, 184, 0.24) !important;
+        }
+        
+        html[data-theme="light"] .bg-slate-900,
+        html[data-theme="light"] .bg-slate-900\/90,
+        html[data-theme="light"] .bg-slate-900\/60,
+        html[data-theme="light"] .bg-slate-800\/60,
+        html[data-theme="light"] .bg-slate-700\/50,
+        html[data-theme="light"] .bg-slate-900\/80,
+        html[data-theme="light"] .bg-slate-800\/50,
+        html[data-theme="light"] .bg-slate-700\/40,
+        html[data-theme="light"] .bg-slate-700\/30,
+        html[data-theme="light"] .bg-slate-500\/20 {
+            background-color: rgba(255, 255, 255, 0.92) !important;
         }
     </style>
 </head>
 
-<body
-    class="font-poppins min-h-screen selection:bg-ecogreen selection:text-white flex flex-col relative overflow-x-hidden">
+<body class="font-poppins min-h-screen selection:bg-ecogreen selection:text-white flex flex-col relative overflow-x-hidden">
 
     <div class="fixed inset-0 bg-grid pointer-events-none z-0 animate-pulse anim-duration-20s">
-        <div
-            class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-darkbg/80 to-darkbg pointer-events-none">
+        <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-darkbg/80 to-darkbg pointer-events-none">
         </div>
     </div>
     <div class="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div
-            class="absolute top-[-10%] left-[-10%] w-[30rem] h-[30rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob">
+        <div class="absolute top-[-10%] left-[-10%] w-[30rem] h-[30rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob">
         </div>
-        <div
-            class="absolute top-[40%] right-[-10%] w-[25rem] h-[25rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-2s">
+        <div class="absolute top-[40%] right-[-10%] w-[25rem] h-[25rem] bg-ecogreen/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-2s">
         </div>
-        <div
-            class="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-cyan-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-4s">
+        <div class="absolute bottom-[-10%] left-[20%] w-[35rem] h-[35rem] bg-cyan-600/10 rounded-full mix-blend-screen filter blur-[100px] animate-blob delay-4s">
         </div>
     </div>
 
 
 
-    <div
-        class="fixed bottom-5 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-8 z-50 glass-premium rounded-full px-6 py-3 flex gap-4 text-xs md:text-sm transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] w-max border border-white/5">
-        <button type="button" id="btn_lang_pt" onclick="mudarIdioma('pt')"
-            class="text-ecogreen font-bold hover:scale-110 transition-transform">PT</button>
+    <div class="fixed bottom-5 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-8 z-50 glass-premium rounded-full px-6 py-3 flex gap-4 text-xs md:text-sm transition-all shadow-[0_10px_30px_rgba(0,0,0,0.5)] w-max border border-white/5">
+        <button type="button" id="btn_lang_pt" onclick="mudarIdioma('pt')" class="text-ecogreen font-bold hover:scale-110 transition-transform">PT</button>
         <span class="text-slate-600/50">|</span>
-        <button type="button" id="btn_lang_en" onclick="mudarIdioma('en')"
-            class="text-slate-400 font-medium hover:text-ecogreen hover:scale-110 transition-all">EN</button>
+        <button type="button" id="btn_lang_en" onclick="mudarIdioma('en')" class="text-slate-400 font-medium hover:text-ecogreen hover:scale-110 transition-all">EN</button>
         <span class="text-slate-600/50">|</span>
-        <button type="button" id="btn_lang_es" onclick="mudarIdioma('es')"
-            class="text-slate-400 font-medium hover:text-ecogreen hover:scale-110 transition-all">ES</button>
+        <button type="button" id="btn_lang_es" onclick="mudarIdioma('es')" class="text-slate-400 font-medium hover:text-ecogreen hover:scale-110 transition-all">ES</button>
     </div>
 
-    <div id="splash-screen"
-        class="fixed inset-0 z-[999] bg-darkbg flex flex-col items-center justify-center transition-opacity duration-1000 px-4">
+    <div id="splash-screen" class="fixed inset-0 z-[999] bg-darkbg flex flex-col items-center justify-center transition-opacity duration-1000 px-4">
         <div class="relative w-32 h-32 md:w-44 md:h-44 mb-10">
             <div class="absolute inset-0 bg-ecogreen rounded-full blur-[50px] opacity-40 animate-pulse"></div>
-            <div
-                class="relative w-full h-full rounded-full glass-premium overflow-hidden z-10 p-1 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.2)] animate-bounce-in">
-                <img src="https://i.ibb.co/27MMFFC0/logo.png" alt="Logo Ecobot"
-                    class="w-[95%] h-[95%] object-cover rounded-full animate-float-slow">
+            <div class="relative w-full h-full rounded-full glass-premium overflow-hidden z-10 p-1 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.2)] animate-bounce-in">
+                <img src="https://i.ibb.co/27MMFFC0/logo.png" alt="Logo Ecobot" class="w-[95%] h-[95%] object-cover rounded-full animate-float-slow">
             </div>
         </div>
-        <h1
-            class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow animate-fade-in delay-03s">
+        <h1 class="font-montserrat text-4xl md:text-6xl text-white font-black tracking-[0.3em] uppercase mb-8 text-glow animate-fade-in delay-03s">
             Ecobot OS</h1>
-        <div
-            class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner animate-slide-in-left delay-05s">
+        <div class="w-56 md:w-80 h-1.5 bg-slate-800/80 rounded-full overflow-hidden mb-6 shadow-inner animate-slide-in-left delay-05s">
             <div class="h-full bg-gradient-to-r from-ecogreen via-cyan-400 to-sky-300 animate-loading"></div>
         </div>
-        <p data-i18n="txt_carregando"
-            class="text-ecogreen/80 font-mono text-[10px] md:text-xs tracking-[0.4em] uppercase text-center font-semibold animate-fade-in delay-07s">
+        <p data-i18n="txt_carregando" class="text-ecogreen/80 font-mono text-[10px] md:text-xs tracking-[0.4em] uppercase text-center font-semibold animate-fade-in delay-07s">
             Calibrando Sensores...</p>
     </div>
 
 
 
-    <div id="modal-loc"
-        class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
-        <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-md w-full text-center transform scale-95 transition-all duration-400 relative"
-            id="modal-loc-box">
-            <button type="button" onclick="fecharModalLoc()"
-                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors"
-                title="Fechar modal" aria-label="Fechar modal">
+    <div id="modal-loc" class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
+        <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-md w-full text-center transform scale-95 transition-all duration-400 relative" id="modal-loc-box">
+            <button type="button" onclick="fecharModalLoc()" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors" title="Fechar modal" aria-label="Fechar modal">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
-            <div
-                class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-ecogreen/30 shadow-[0_0_30px_rgba(20,184,166,0.3)]">
+            <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-ecogreen/30 shadow-[0_0_30px_rgba(20,184,166,0.3)]">
                 <i class="fa-solid fa-map-location-dot text-4xl md:text-5xl text-ecogreen"></i>
             </div>
-            <h2 data-i18n="txt_modal_titulo" class="font-montserrat text-2xl md:text-3xl text-white font-bold mb-4">Onde
-                você está?</h2>
+            <h2 data-i18n="txt_modal_titulo" class="font-montserrat text-2xl md:text-3xl text-white font-bold mb-4">Onde você está?</h2>
             <p data-i18n="txt_modal_sub" class="text-slate-400 mb-8 text-sm leading-relaxed font-light">
-                Para mostrar a qualidade do ar com precisão, precisamos encontrar a Base Ecobot mais próxima. <span
-                    class="text-slate-300 font-medium">Não guardamos a sua localização!</span>
+                Para mostrar a qualidade do ar com precisão, precisamos encontrar a Base Ecobot mais próxima. <span class="text-slate-300 font-medium">Não guardamos a sua localização!</span>
             </p>
             <div class="flex flex-col gap-4">
-                <button type="button" onclick="acessarSensoresGPS()"
-                    class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] flex items-center justify-center gap-3 hover:-translate-y-1 text-base btn-hover-glow ripple animate-fade-in">
+                <button type="button" onclick="acessarSensoresGPS()" class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-4 px-6 rounded-2xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] flex items-center justify-center gap-3 hover:-translate-y-1 text-base btn-hover-glow ripple animate-fade-in">
                     <i class="fa-solid fa-location-crosshairs text-xl"></i> <span data-i18n="btn_modal_gps"
                         class="tracking-wide">Usar Meu GPS</span>
                 </button>
-                <button type="button" onclick="acessarSensoresManual()"
-                    class="bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-4 px-6 rounded-2xl transition-all border border-slate-600/50 hover:border-slate-500 text-base btn-hover-glow ripple animate-fade-in delay-02s">
+                <button type="button" onclick="acessarSensoresManual()" class="bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-4 px-6 rounded-2xl transition-all border border-slate-600/50 hover:border-slate-500 text-base btn-hover-glow ripple animate-fade-in delay-02s">
                     <span data-i18n="btn_modal_manual" class="tracking-wide">Escolher Base Manualmente</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="modal-adicionar-base"
-        class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
-        <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-md w-full text-center transform scale-95 transition-all duration-400 relative"
-            id="modal-adicionar-base-box">
-            <button type="button" onclick="fecharModalAdicionarBase()"
-                class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors"
-                title="Fechar modal" aria-label="Fechar modal">
+    <div id="modal-adicionar-base" class="fixed inset-0 z-[100] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
+        <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-md w-full text-center transform scale-95 transition-all duration-400 relative" id="modal-adicionar-base-box">
+            <button type="button" onclick="fecharModalAdicionarBase()" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors" title="Fechar modal" aria-label="Fechar modal">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
-            <div
-                class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-ecogreen/30 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+            <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-ecogreen/30 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
                 <i class="fa-solid fa-plus text-4xl md:text-5xl text-ecogreen"></i>
             </div>
-            <h2 id="modal-title-base" data-i18n="txt_adicionar_base_titulo"
-                class="font-montserrat text-2xl md:text-3xl text-white font-bold mb-4">Adicionar Nova Base</h2>
+            <h2 id="modal-title-base" data-i18n="txt_adicionar_base_titulo" class="font-montserrat text-2xl md:text-3xl text-white font-bold mb-4">Adicionar Nova Base</h2>
             <p data-i18n="txt_adicionar_base_sub" class="text-slate-400 mb-8 text-sm leading-relaxed font-light">
                 Adicione sua própria base de monitoramento ambiental para acompanhar os dados em tempo real.
             </p>
             <div class="space-y-5">
                 <div>
-                    <label data-i18n="lbl_identificacao"
-                        class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Identificação</label>
-                    <input type="text" id="nova-nome" placeholder="Ex: Minha Base"
-                        class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
+                    <label data-i18n="lbl_identificacao" class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Identificação</label>
+                    <input type="text" id="nova-nome" placeholder="Ex: Minha Base" class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
                 </div>
                 <div>
                     <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Device-Token
                         (Tago.io)</label>
-                    <input type="text" id="nova-token" placeholder="xxxx-xxxx-xxxx-xxxx"
-                        class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-xs shadow-inner font-mono placeholder-slate-600">
+                    <input type="text" id="nova-token" placeholder="xxxx-xxxx-xxxx-xxxx" class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-xs shadow-inner font-mono placeholder-slate-600">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Lat
                             (Opcional)</label>
-                        <input type="number" id="nova-lat" placeholder="-6.40" step="any"
-                            class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
+                        <input type="number" id="nova-lat" placeholder="-6.40" step="any" class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
                     </div>
                     <div>
                         <label class="text-xs text-slate-500 font-bold uppercase tracking-widest block mb-2">Lon
                             (Opcional)</label>
-                        <input type="number" id="nova-lon" placeholder="-38.86" step="any"
-                            class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
+                        <input type="number" id="nova-lon" placeholder="-38.86" step="any" class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-4 outline-none focus:border-ecogreen transition-all text-xs font-mono shadow-inner">
                     </div>
                 </div>
-                <button type="button" onclick="salvarNovaBase()"
-                    class="w-full bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-black py-4 rounded-2xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] hover:-translate-y-1 uppercase tracking-wider text-sm"><i
+                <button type="button" onclick="salvarNovaBase()" class="w-full bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-black py-4 rounded-2xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] hover:-translate-y-1 uppercase tracking-wider text-sm"><i
                         class="fa-solid fa-plus mr-2"></i> <span id="btn-salvar-base-text"
                         data-i18n="btn_salvar_nova_base">Adicionar Base</span></button>
             </div>
         </div>
     </div>
 
-    <nav
-        class="fixed w-full z-40 bg-slate-900/80 backdrop-blur-xl border-b border-white/5 transition-all px-4 md:px-8 py-3 md:py-4 flex justify-between items-center shadow-lg">
-        <div class="flex items-center gap-3 md:gap-4 cursor-pointer group" onclick="navegarPara('home')">
-            <div
-                class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-ecogreen/20 to-transparent rounded-xl flex items-center justify-center border border-ecogreen/30 group-hover:bg-ecogreen/30 transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-                <i
-                    class="fa-solid fa-earth-americas text-ecogreen text-xl md:text-2xl group-hover:rotate-12 transition-transform"></i>
+    <div id="site-status-modal" class="fixed inset-0 z-[110] glass-modal hidden flex items-center justify-center px-4 opacity-0 transition-opacity duration-400">
+        <div class="glass-premium p-8 md:p-12 rounded-[2.5rem] max-w-lg w-full text-center transform scale-95 transition-all duration-400 relative" id="site-status-modal-box">
+            <button type="button" onclick="fecharModalSiteStatus()" class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-slate-800/50 rounded-full text-slate-400 hover:text-white transition-colors" title="Fechar modal" aria-label="Fechar modal">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 rounded-full flex items-center justify-center mx-auto mb-8 border border-ecogreen/30 shadow-[0_0_30px_rgba(20,184,166,0.3)]">
+                <i class="fa-solid fa-server text-4xl md:text-5xl text-ecogreen"></i>
             </div>
-            <span
-                class="font-montserrat font-black text-lg md:text-2xl text-white tracking-[0.2em] drop-shadow-md text-glow">ECOBOT</span>
+            <div id="site-status-view">
+                <h2 class="font-montserrat text-2xl md:text-3xl text-white font-bold mb-4">Controle de Manutenção</h2>
+                <p class="text-slate-400 mb-6 text-sm leading-relaxed font-light">Gerencie o acesso ao site. Digite a senha de administrador para continuar.</p>
+                <input type="password" id="site-status-password" placeholder="Senha de Administrador" class="w-full bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3 mb-4 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600"
+                />
+                <div class="flex gap-3">
+                    <button type="button" onclick="verificarSenhaStatus()" class="flex-1 bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-black py-3 rounded-xl transition-all shadow-[0_10px_25px_rgba(20,184,166,0.3)] hover:-translate-y-1 uppercase tracking-wider text-xs">
+                        Acessar Controle
+                    </button>
+                    <button type="button" onclick="fecharModalSiteStatus()" class="flex-1 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 border border-slate-600/50 font-bold py-3 rounded-xl transition-all text-xs uppercase tracking-wider">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+            <div id="site-status-control" class="hidden">
+                <div id="site-status-badge" class="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-ecogreen/20 border border-ecogreen/50">
+                    <div class="w-3 h-3 bg-ecogreen rounded-full animate-pulse"></div>
+                    <span class="text-ecogreen font-bold text-sm" id="site-status-text">Site Online</span>
+                </div>
+                <h2 class="font-montserrat text-2xl md:text-3xl text-white font-bold mb-6">Gerenciar Site</h2>
+                <div class="space-y-3">
+                    <button type="button" onclick="mudarStatusSite('closed')" class="w-full bg-red-600/80 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider">
+                        <i class="fa-solid fa-lock mr-2"></i> Fechar Site (Manutenção)
+                    </button>
+                    <button type="button" onclick="mudarStatusSite('online')" class="w-full bg-ecogreen/80 hover:bg-ecogreen text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider">
+                        <i class="fa-solid fa-unlock mr-2"></i> Reabrir Site
+                    </button>
+                    <button type="button" onclick="sairControle()" class="w-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 border border-slate-600/50 font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-wider">
+                        Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="fixed w-full z-40 bg-slate-900/80 backdrop-blur-xl border-b border-white/5 transition-all px-4 md:px-8 py-3 md:py-4 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3 md:gap-4 cursor-pointer group" onclick="navegarPara('home')">
+            <div class="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-ecogreen/20 to-transparent rounded-xl flex items-center justify-center border border-ecogreen/30 group-hover:bg-ecogreen/30 transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                <i class="fa-solid fa-earth-americas text-ecogreen text-xl md:text-2xl group-hover:rotate-12 transition-transform"></i>
+            </div>
+            <span class="font-montserrat font-black text-lg md:text-2xl text-white tracking-[0.2em] drop-shadow-md text-glow">ECOBOT</span>
         </div>
         <div class="flex gap-2 md:gap-4">
-            <button type="button" onclick="navegarPara('alertas')"
-                class="glass-premium hover:bg-white/10 text-white font-bold py-2.5 md:py-3 px-4 md:px-6 rounded-full transition-all flex items-center gap-2 md:gap-3 group text-xs md:text-sm tracking-wider shadow-md">
+            <button type="button" onclick="navegarPara('alertas')" class="glass-premium hover:bg-white/10 text-white font-bold py-2.5 md:py-3 px-4 md:px-6 rounded-full transition-all flex items-center gap-2 md:gap-3 group text-xs md:text-sm tracking-wider shadow-md">
                 <i class="fa-solid fa-bell text-ecogreen group-hover:animate-pulse"></i>
                 <span class="hidden sm:inline">Alertas</span>
             </button>
-            <button type="button" onclick="acaoNavbar()"
-                class="glass-premium hover:bg-white/10 text-white font-bold py-2.5 md:py-3 px-5 md:px-8 rounded-full transition-all flex items-center gap-2 md:gap-3 group text-xs md:text-sm tracking-wider shadow-md">
+            <button type="button" onclick="acaoNavbar()" class="glass-premium hover:bg-white/10 text-white font-bold py-2.5 md:py-3 px-5 md:px-8 rounded-full transition-all flex items-center gap-2 md:gap-3 group text-xs md:text-sm tracking-wider shadow-md">
                 <i id="icon_nav_sensores"
                     class="fa-solid fa-satellite-dish text-ecogreen group-hover:animate-pulse"></i>
                 <span data-i18n="btn_nav_sensores" id="btn_nav_sensores" class="hidden sm:inline">Acessar
@@ -684,28 +773,22 @@
         </div>
     </nav>
 
-    <main id="view-home"
-        class="page-view active-view pt-32 md:pt-44 pb-20 px-4 md:px-6 max-w-6xl mx-auto flex-grow relative z-10">
+    <main id="view-home" class="page-view active-view pt-32 md:pt-44 pb-20 px-4 md:px-6 max-w-6xl mx-auto flex-grow relative z-10">
         <header class="text-center mb-24 md:mb-36 relative">
-            <div class="inline-block px-5 py-2 md:px-6 md:py-2.5 rounded-full glass-premium text-ecogreen font-semibold text-[10px] md:text-xs mb-4 uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-float-slow border border-ecogreen/20"
-                data-i18n="txt_pesquisa_inovacao">
+            <div class="inline-block px-5 py-2 md:px-6 md:py-2.5 rounded-full glass-premium text-ecogreen font-semibold text-[10px] md:text-xs mb-4 uppercase tracking-[0.3em] shadow-[0_0_20px_rgba(16,185,129,0.15)] animate-float-slow border border-ecogreen/20" data-i18n="txt_pesquisa_inovacao">
                 Pesquisa & Inovação
             </div>
             <div class="hero-accent mx-auto mb-8 max-w-2xl" data-i18n="txt_hero_accent">
                 Plataforma inteligente para conectar estações ambientais em tempo real.
             </div>
-            <h1
-                class="font-montserrat text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white mb-6 leading-[1.1] tracking-tighter drop-shadow-2xl hero-title">
+            <h1 class="font-montserrat text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black text-white mb-6 leading-[1.1] tracking-tighter drop-shadow-2xl hero-title">
                 <span data-i18n="txt_projeto_titulo">Projeto</span> <br>
                 <span class="text-white">Ecobot</span>
             </h1>
-            <p data-i18n="txt_subtitulo"
-                class="text-sm md:text-xl max-w-3xl mx-auto text-slate-400 font-light leading-relaxed mb-12 px-2">
-                Unindo robótica de baixo custo e preservação ambiental para combater a invisibilidade dos dados
-                climáticos no interior e construir um futuro inteligente.
+            <p data-i18n="txt_subtitulo" class="text-sm md:text-xl max-w-3xl mx-auto text-slate-400 font-light leading-relaxed mb-12 px-2">
+                Unindo robótica de baixo custo e preservação ambiental para combater a invisibilidade dos dados climáticos no interior e construir um futuro inteligente.
             </p>
-            <button type="button" onclick="tentarAcessarSensores()"
-                class="relative inline-flex items-center justify-center gap-4 btn-primary overflow-hidden text-slate-950 font-black py-4 px-10 md:py-5 md:px-14 rounded-full text-sm md:text-lg transition-all duration-500 hover:-translate-y-2 group mx-auto w-full sm:w-auto">
+            <button type="button" onclick="tentarAcessarSensores()" class="relative inline-flex items-center justify-center gap-4 btn-primary overflow-hidden text-slate-950 font-black py-4 px-10 md:py-5 md:px-14 rounded-full text-sm md:text-lg transition-all duration-500 hover:-translate-y-2 group mx-auto w-full sm:w-auto">
                 <span
                     class="absolute inset-0 bg-gradient-to-r from-white/10 via-transparent to-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></span>
                 <span data-i18n="btn_ver_dados" class="relative z-10 tracking-widest uppercase">Explorar Dados</span>
@@ -726,18 +809,16 @@
                 <div class="glass-premium p-6 rounded-[2rem] border border-white/5 flex flex-col gap-4">
                     <div class="flex items-center gap-3 border-b border-white/10 pb-3">
                         <i class="fa-solid fa-hand-holding-dollar text-ecogreen text-xl"></i>
-                        <span data-i18n="linha1_rec"
-                            class="text-slate-400 uppercase text-xs tracking-widest font-bold">Custo</span>
+                        <span data-i18n="linha1_rec" class="text-slate-400 uppercase text-xs tracking-widest font-bold">Custo</span>
                     </div>
                     <div class="space-y-4">
                         <div class="opacity-50">
-                            <p class="text-[10px] uppercase text-slate-500 mb-1" data-i18n="tab_tradicional">Estações
-                                disponíveis no Mercado</p>
+                            <p class="text-[10px] uppercase text-slate-500 mb-1" data-i18n="tab_tradicional">Estações disponíveis no Mercado</p>
                             <p data-i18n="linha1_trad" class="text-sm">Alto Custo de Aquisição</p>
                         </div>
                         <div class="bg-ecogreen/10 p-4 rounded-xl border border-ecogreen/20">
-                            <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold" data-i18n="tab_ecobot">Estação
-                                Elion</p>
+                            <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold" data-i18n="tab_ecobot">Estação Elion
+                            </p>
                             <p data-i18n="linha1_eco" class="text-white font-bold">Baixíssimo Custo</p>
                         </div>
                     </div>
@@ -746,18 +827,16 @@
                 <div class="glass-premium p-6 rounded-[2rem] border border-white/5 flex flex-col gap-4">
                     <div class="flex items-center gap-3 border-b border-white/10 pb-3">
                         <i class="fa-solid fa-screwdriver-wrench text-ecogreen text-xl"></i>
-                        <span data-i18n="linha2_rec"
-                            class="text-slate-400 uppercase text-xs tracking-widest font-bold">Instalação</span>
+                        <span data-i18n="linha2_rec" class="text-slate-400 uppercase text-xs tracking-widest font-bold">Instalação</span>
                     </div>
                     <div class="space-y-4">
                         <div class="opacity-50">
-                            <p class="text-[10px] uppercase text-slate-500 mb-1" data-i18n="tab_tradicional">Estações
-                                disponíveis no Mercado</p>
+                            <p class="text-[10px] uppercase text-slate-500 mb-1" data-i18n="tab_tradicional">Estações disponíveis no Mercado</p>
                             <p data-i18n="linha2_trad" class="text-sm">Técnico Especializado</p>
                         </div>
                         <div class="bg-ecogreen/10 p-4 rounded-xl border border-ecogreen/20">
-                            <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold" data-i18n="tab_ecobot">Estação
-                                Elion</p>
+                            <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold" data-i18n="tab_ecobot">Estação Elion
+                            </p>
                             <p data-i18n="linha2_eco" class="text-white font-bold">Rápido e Fácil (Plug-and-Play)</p>
                         </div>
                     </div>
@@ -766,18 +845,16 @@
                 <div class="glass-premium p-6 rounded-[2rem] border border-white/5 flex flex-col gap-4">
                     <div class="flex items-center gap-3 border-b border-white/10 pb-3">
                         <i class="fa-solid fa-microchip text-ecogreen text-xl"></i>
-                        <span data-i18n="linha3_rec"
-                            class="text-slate-400 uppercase text-xs tracking-widest font-bold">Tecnologia</span>
+                        <span data-i18n="linha3_rec" class="text-slate-400 uppercase text-xs tracking-widest font-bold">Tecnologia</span>
                     </div>
                     <div class="space-y-4">
                         <div class="opacity-50">
-                            <p class="text-[10px] uppercase text-slate-500 mb-1" data-i18n="tab_tradicional">Estações
-                                disponíveis no Mercado</p>
+                            <p class="text-[10px] uppercase text-slate-500 mb-1" data-i18n="tab_tradicional">Estações disponíveis no Mercado</p>
                             <p data-i18n="linha3_trad" class="text-sm">Sistema Fechado / Rígido</p>
                         </div>
                         <div class="bg-ecogreen/10 p-4 rounded-xl border border-ecogreen/20">
-                            <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold" data-i18n="tab_ecobot">Estação
-                                Elion</p>
+                            <p class="text-[10px] uppercase text-ecogreen mb-1 font-bold" data-i18n="tab_ecobot">Estação Elion
+                            </p>
                             <p data-i18n="linha3_eco" class="text-white font-bold">Open-Source e Escalável</p>
                         </div>
                     </div>
@@ -788,112 +865,82 @@
 
         <section class="mb-24 md:mb-36">
             <div class="text-center mb-12 md:mb-16">
-                <h2 data-i18n="txt_jornada"
-                    class="font-montserrat text-2xl md:text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight">
+                <h2 data-i18n="txt_jornada" class="font-montserrat text-2xl md:text-4xl lg:text-5xl font-black text-white mb-6 tracking-tight">
                     Nossa Jornada</h2>
-                <div
-                    class="w-20 md:w-24 h-1.5 md:h-2 bg-gradient-to-r from-ecogreen to-cyan-500 mx-auto rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+                <div class="w-20 md:w-24 h-1.5 md:h-2 bg-gradient-to-r from-ecogreen to-cyan-500 mx-auto rounded-full shadow-[0_0_20px_rgba(16,185,129,0.5)]">
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 w-full max-w-4xl mx-auto overflow-hidden">
 
-                <div
-                    class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(20,184,166,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
-                    <div
-                        class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
+                <div class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(20,184,166,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
+                    <div class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
                         <div class="flex gap-1.5 md:gap-2 shrink-0">
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
                         </div>
-                        <span
-                            class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">CEARÁ
+                        <span class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">CEARÁ
                             CIENTÍFICO</span>
                     </div>
                     <div class="aspect-video relative bg-slate-950">
-                        <div
-                            class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
+                        <div class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
                         </div>
-                        <iframe class="absolute top-0 left-0 w-full h-full z-10"
-                            src="https://www.youtube.com/embed/FMro_7mW2mE?si=pSIciwhkF3r8ok3-"
-                            title="YouTube video player" frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        <iframe class="absolute top-0 left-0 w-full h-full z-10" src="https://www.youtube.com/embed/FMro_7mW2mE?si=pSIciwhkF3r8ok3-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen></iframe>
                     </div>
                 </div>
 
-                <div
-                    class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(16,185,129,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
-                    <div
-                        class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
+                <div class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(16,185,129,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
+                    <div class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
                         <div class="flex gap-1.5 md:gap-2 shrink-0">
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
                         </div>
-                        <span
-                            class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">SIARÁ
+                        <span class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">SIARÁ
                             TECH SUMMIT</span>
                     </div>
                     <div class="aspect-video relative bg-slate-950">
-                        <div
-                            class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
+                        <div class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
                         </div>
-                        <iframe class="absolute top-0 left-0 w-full h-full z-10"
-                            src="https://www.youtube.com/embed/hrKtoUhizrc?si=1cAf8zsdIuL483rf"
-                            title="YouTube video player" frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        <iframe class="absolute top-0 left-0 w-full h-full z-10" src="https://www.youtube.com/embed/hrKtoUhizrc?si=1cAf8zsdIuL483rf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen></iframe>
                     </div>
                 </div>
 
-                <div
-                    class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(59,130,246,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
-                    <div
-                        class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
+                <div class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(59,130,246,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
+                    <div class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
                         <div class="flex gap-1.5 md:gap-2 shrink-0">
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
                         </div>
-                        <span
-                            class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">CEARÁ
+                        <span class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">CEARÁ
                             FAZ CIÊNCIA</span>
                     </div>
                     <div class="aspect-video relative bg-slate-950">
-                        <div
-                            class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
+                        <div class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
                         </div>
-                        <iframe class="absolute top-0 left-0 w-full h-full z-10"
-                            src="https://www.youtube.com/embed/mWEZmoo-nWw?si=0oAtZq-3EHLCP-JB"
-                            title="YouTube video player" frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        <iframe class="absolute top-0 left-0 w-full h-full z-10" src="https://www.youtube.com/embed/mWEZmoo-nWw?si=0oAtZq-3EHLCP-JB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen></iframe>
                     </div>
                 </div>
 
-                <div
-                    class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(168,85,247,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
-                    <div
-                        class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
+                <div class="glass-premium rounded-[2rem] overflow-hidden group hover:-translate-y-2 hover:shadow-[0_25px_50px_rgba(168,85,247,0.15)] hover:border-ecogreen/30 transition-all duration-500 w-full">
+                    <div class="px-4 md:px-5 py-3 md:py-4 border-b border-white/5 flex items-center gap-2 md:gap-3 bg-slate-900/80 backdrop-blur-md w-full">
                         <div class="flex gap-1.5 md:gap-2 shrink-0">
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500/80"></div>
                             <div class="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500/80"></div>
                         </div>
-                        <span
-                            class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">DESAFIO
+                        <span class="ml-1 md:ml-2 text-[10px] md:text-xs font-bold text-slate-400 tracking-[0.1em] md:tracking-[0.2em] truncate">DESAFIO
                             LIGA JOVEM</span>
                     </div>
                     <div class="aspect-video relative bg-slate-950">
-                        <div
-                            class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
+                        <div class="absolute inset-0 bg-ecogreen/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-20">
                         </div>
-                        <iframe class="absolute top-0 left-0 w-full h-full z-10"
-                            src="https://www.youtube.com/embed/QNxZsPmxRLA?si=u5GggdZ_QEwMPrHd"
-                            title="YouTube video player" frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        <iframe class="absolute top-0 left-0 w-full h-full z-10" src="https://www.youtube.com/embed/QNxZsPmxRLA?si=u5GggdZ_QEwMPrHd" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                             allowfullscreen></iframe>
                     </div>
                 </div>
@@ -902,86 +949,61 @@
         </section>
 
         <div class="text-center mb-24 border-t border-slate-800/50 pt-20">
-            <h2 data-i18n="txt_onu"
-                class="font-montserrat text-3xl md:text-5xl font-black text-white mb-6 tracking-tight">Alinhado com a
-                ONU 🌍</h2>
-            <p data-i18n="txt_onu_sub"
-                class="text-slate-400 mb-16 max-w-3xl mx-auto text-base md:text-lg font-light leading-relaxed px-4">
-                O Ecobot responde diretamente aos Objetivos de Desenvolvimento Sustentável (ODS), atuando como
-                ferramenta tecnológica para cidades inteligentes e ação climática global.
+            <h2 data-i18n="txt_onu" class="font-montserrat text-3xl md:text-5xl font-black text-white mb-6 tracking-tight">Alinhado com a ONU 🌍</h2>
+            <p data-i18n="txt_onu_sub" class="text-slate-400 mb-16 max-w-3xl mx-auto text-base md:text-lg font-light leading-relaxed px-4">
+                O Ecobot responde diretamente aos Objetivos de Desenvolvimento Sustentável (ODS), atuando como ferramenta tecnológica para cidades inteligentes e ação climática global.
             </p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                <div
-                    class="glass-premium p-10 rounded-[2.5rem] hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(249,115,22,0.15)] hover:border-orange-500/40 transition-all duration-500 group relative overflow-hidden flex flex-col items-center">
-                    <div
-                        class="absolute -inset-10 bg-orange-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div class="glass-premium p-10 rounded-[2.5rem] hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(249,115,22,0.15)] hover:border-orange-500/40 transition-all duration-500 group relative overflow-hidden flex flex-col items-center">
+                    <div class="absolute -inset-10 bg-orange-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     </div>
-                    <i
-                        class="fa-solid fa-industry text-6xl text-orange-500/80 mb-8 group-hover:text-orange-400 group-hover:scale-110 transition-all drop-shadow-lg relative z-10"></i>
+                    <i class="fa-solid fa-industry text-6xl text-orange-500/80 mb-8 group-hover:text-orange-400 group-hover:scale-110 transition-all drop-shadow-lg relative z-10"></i>
                     <h4 class="font-black text-white text-2xl mb-3 relative z-10 tracking-widest">ODS 9</h4>
-                    <p data-i18n="txt_ods9" class="text-sm text-slate-400 font-medium relative z-10">Indústria, Inovação
-                        e Infraestrutura</p>
+                    <p data-i18n="txt_ods9" class="text-sm text-slate-400 font-medium relative z-10">Indústria, Inovação e Infraestrutura</p>
                 </div>
 
-                <div
-                    class="glass-premium p-10 rounded-[2.5rem] hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(245,158,11,0.15)] hover:border-amber-500/40 transition-all duration-500 group relative overflow-hidden flex flex-col items-center">
-                    <div
-                        class="absolute -inset-10 bg-amber-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div class="glass-premium p-10 rounded-[2.5rem] hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(245,158,11,0.15)] hover:border-amber-500/40 transition-all duration-500 group relative overflow-hidden flex flex-col items-center">
+                    <div class="absolute -inset-10 bg-amber-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     </div>
-                    <i
-                        class="fa-solid fa-city text-6xl text-amber-500/80 mb-8 group-hover:text-amber-400 group-hover:scale-110 transition-all drop-shadow-lg relative z-10"></i>
+                    <i class="fa-solid fa-city text-6xl text-amber-500/80 mb-8 group-hover:text-amber-400 group-hover:scale-110 transition-all drop-shadow-lg relative z-10"></i>
                     <h4 class="font-black text-white text-2xl mb-3 relative z-10 tracking-widest">ODS 11</h4>
-                    <p data-i18n="txt_ods11" class="text-sm text-slate-400 font-medium relative z-10">Cidades e
-                        Comunidades Sustentáveis</p>
+                    <p data-i18n="txt_ods11" class="text-sm text-slate-400 font-medium relative z-10">Cidades e Comunidades Sustentáveis</p>
                 </div>
 
-                <div
-                    class="glass-premium p-10 rounded-[2.5rem] hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(16,185,129,0.15)] hover:border-ecogreen/40 transition-all duration-500 group relative overflow-hidden flex flex-col items-center">
-                    <div
-                        class="absolute -inset-10 bg-ecogreen/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+                <div class="glass-premium p-10 rounded-[2.5rem] hover:-translate-y-3 hover:shadow-[0_20px_50px_rgba(16,185,129,0.15)] hover:border-ecogreen/40 transition-all duration-500 group relative overflow-hidden flex flex-col items-center">
+                    <div class="absolute -inset-10 bg-ecogreen/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
                     </div>
-                    <i
-                        class="fa-solid fa-earth-americas text-6xl text-ecogreen/80 mb-8 group-hover:text-ecogreen group-hover:scale-110 transition-all drop-shadow-lg relative z-10"></i>
+                    <i class="fa-solid fa-earth-americas text-6xl text-ecogreen/80 mb-8 group-hover:text-ecogreen group-hover:scale-110 transition-all drop-shadow-lg relative z-10"></i>
                     <h4 class="font-black text-white text-2xl mb-3 relative z-10 tracking-widest">ODS 13</h4>
-                    <p data-i18n="txt_ods13" class="text-sm text-slate-400 font-medium relative z-10">Ação Contra a
-                        Mudança Global do Clima</p>
+                    <p data-i18n="txt_ods13" class="text-sm text-slate-400 font-medium relative z-10">Ação Contra a Mudança Global do Clima</p>
                 </div>
             </div>
         </div>
 
         <section class="pb-10 md:pb-16 px-2 w-full max-w-5xl mx-auto">
-            <div
-                class="glass-premium rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden border border-white/5 flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl w-full">
-                <div
-                    class="absolute top-[-50%] right-[-10%] w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] animate-pulse-fast pointer-events-none">
+            <div class="glass-premium rounded-[2rem] md:rounded-[3rem] p-6 md:p-12 relative overflow-hidden border border-white/5 flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl w-full">
+                <div class="absolute top-[-50%] right-[-10%] w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] animate-pulse-fast pointer-events-none">
                 </div>
 
-                <div
-                    class="flex-1 relative z-10 w-full flex flex-col items-center md:items-start text-center md:text-left">
-                    <h3 data-i18n="txt_acompanhe"
-                        class="font-montserrat text-2xl md:text-4xl font-black text-white mb-6 tracking-tight">
+                <div class="flex-1 relative z-10 w-full flex flex-col items-center md:items-start text-center md:text-left">
+                    <h3 data-i18n="txt_acompanhe" class="font-montserrat text-2xl md:text-4xl font-black text-white mb-6 tracking-tight">
                         Conecte-se conosco</h3>
 
                     <div class="flex flex-col gap-3 w-full max-w-xs">
-                        <a href="https://www.instagram.com/pjt.ecobot26" target="_blank" rel="noopener noreferrer"
-                            class="group relative flex items-center gap-3 bg-gradient-to-tr from-ecogreen/60 via-cyan-500 to-sky-400 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
+                        <a href="https://www.instagram.com/pjt.ecobot26" target="_blank" rel="noopener noreferrer" class="group relative flex items-center gap-3 bg-gradient-to-tr from-ecogreen/60 via-cyan-500 to-sky-400 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
-                                <i
-                                    class="fa-brands fa-instagram text-2xl bg-clip-text text-transparent bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500"></i>
+                                <i class="fa-brands fa-instagram text-2xl bg-clip-text text-transparent bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500"></i>
                                 <span class="tracking-widest text-xs font-bold text-white">@pjt.ecobot26</span>
                             </div>
                         </a>
-                        <a href="https://www.youtube.com/channel/UCx-2zIP8ppit9EHc_xkslng" target="_blank"
-                            rel="noopener noreferrer"
-                            class="group relative flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
+                        <a href="https://www.youtube.com/channel/UCx-2zIP8ppit9EHc_xkslng" target="_blank" rel="noopener noreferrer" class="group relative flex items-center gap-3 bg-gradient-to-r from-red-600 to-red-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
                                 <i class="fa-brands fa-youtube text-2xl text-red-500"></i>
                                 <span class="tracking-widest text-xs font-bold text-white">@pjt.ecobot</span>
                             </div>
                         </a>
-                        <a href="https://www.tiktok.com/@ecobot.ce?_r=1&_t=ZS-96QKSDgfLT0"
-                            class="group relative flex items-center gap-3 bg-gradient-to-tr from-ecogreen/60 to-cyan-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
+                        <a href="https://www.tiktok.com/@ecobot.ce?_r=1&_t=ZS-96QKSDgfLT0" class="group relative flex items-center gap-3 bg-gradient-to-tr from-ecogreen/60 to-cyan-500 p-[2px] rounded-2xl transition-all hover:scale-105 w-full shadow-md">
                             <div class="bg-slate-950 rounded-[15px] px-4 py-3 flex items-center gap-4 w-full">
                                 <i class="fa-brands fa-tiktok text-2xl text-white"></i>
                                 <span class="tracking-widest text-xs font-bold text-white">@ecobot.ce</span>
@@ -990,32 +1012,24 @@
                     </div>
                 </div>
 
-                <div
-                    class="relative z-10 flex flex-col items-center bg-slate-900/80 p-6 rounded-[2rem] border border-slate-700/50 shadow-inner w-full md:w-auto mt-4 md:mt-0">
+                <div class="relative z-10 flex flex-col items-center bg-slate-900/80 p-6 rounded-[2rem] border border-slate-700/50 shadow-inner w-full md:w-auto mt-4 md:mt-0">
                     <p class="text-xs font-bold text-slate-300 mb-4 uppercase tracking-widest flex items-center gap-2">
                         <i class="fa-solid fa-mobile-screen" data-i18n="txt_acesse_celular">Acesse no Celular</i>
                     </p>
-                    <div
-                        class="bg-white p-3 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:scale-105 transition-transform duration-300">
-                        <img src="https://i.ibb.co/Q72jR7PN/BASE-DE-MONITORAMNETO-TERMOCLIMATICA-ELION-9.png"
-                            alt="QR Code Ecobot" class="w-28 h-28 md:w-40 md:h-40 object-contain rounded-xl">
+                    <div class="bg-white p-3 rounded-2xl shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:scale-105 transition-transform duration-300">
+                        <img src="https://i.ibb.co/Q72jR7PN/BASE-DE-MONITORAMNETO-TERMOCLIMATICA-ELION-9.png" alt="QR Code Ecobot" class="w-28 h-28 md:w-40 md:h-40 object-contain rounded-xl">
                     </div>
-                    <p class="text-[10px] text-slate-500 mt-5 max-w-[200px] text-center leading-relaxed"
-                        data-i18n="txt_aponte_camera">Aponte a câmara do seu smartphone para visualizar a dashboard em
-                        tempo real.</p>
+                    <p class="text-[10px] text-slate-500 mt-5 max-w-[200px] text-center leading-relaxed" data-i18n="txt_aponte_camera">Aponte a câmara do seu smartphone para visualizar a dashboard em tempo real.</p>
                     </p>
                 </div>
             </div>
         </section>
     </main>
 
-    <main id="view-dashboard"
-        class="page-view hidden-view pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex-grow relative z-10 w-full">
-        <header
-            class="glass-premium p-6 md:p-8 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6 shadow-xl hover:shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 border border-ecogreen/10 hover:border-ecogreen/20">
+    <main id="view-dashboard" class="page-view hidden-view pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex-grow relative z-10 w-full">
+        <header class="glass-premium p-6 md:p-8 rounded-[2rem] flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-6 shadow-xl hover:shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 border border-ecogreen/10 hover:border-ecogreen/20">
             <div>
-                <h1
-                    class="font-montserrat text-2xl md:text-3xl text-white font-black tracking-widest uppercase mb-2 flex items-center gap-3 text-glow">
+                <h1 class="font-montserrat text-2xl md:text-3xl text-white font-black tracking-widest uppercase mb-2 flex items-center gap-3 text-glow">
                     <i class="fa-solid fa-satellite-dish text-ecogreen"></i> <span data-i18n="btn_tago">DADOS EM TEMPO
                         REAL</span>
                 </h1>
@@ -1030,14 +1044,14 @@
                     de Monitoramento:</label>
                 <div class="flex gap-3 w-full sm:w-auto">
                     <div class="relative w-full sm:w-72">
-                        <select id="seletor-base" onchange="mudarBase(this.value)"
-                            class="w-full appearance-none bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3.5 pr-10 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600"></select>
-                        <i
-                            class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
+                        <select id="seletor-base" onchange="mudarBase(this.value)" class="w-full appearance-none bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3.5 pr-10 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600"></select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                     </div>
-                    <button type="button" onclick="abrirModalAdicionarBase()"
-                        class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3.5 px-6 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
+                    <button type="button" onclick="abrirModalAdicionarBase()" class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3.5 px-6 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
                         <i class="fa-solid fa-plus"></i> <span data-i18n="btn_adicionar_base">Adicionar Base</span>
+                    </button>
+                    <button type="button" id="btn-toggle-theme" onclick="toggleTheme()" class="bg-white/10 hover:bg-white/20 text-white border border-white/10 font-bold py-3.5 px-5 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
+                        <i class="fa-solid fa-sun"></i> Tema Claro
                     </button>
                 </div>
             </div>
@@ -1045,111 +1059,133 @@
 
         <div id="base-management" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8"></div>
 
+        <div class="glass-premium p-5 md:p-6 rounded-[1.5rem] mb-8 border border-ecogreen/10">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-white">Mapa das Estações</h3>
+                    <p class="text-slate-400 text-sm mt-1">Veja todas as bases cadastradas e monitore o status de conexão diretamente no mapa.</p>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                    <button type="button" onclick="atualizarMapaBases()" class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-2.5 px-4 rounded-xl transition-all shadow-md text-xs uppercase tracking-[0.2em] btn-hover-glow ripple">
+                        <i class="fa-solid fa-arrows-rotate"></i> Atualizar Mapa
+                    </button>
+                    <button type="button" onclick="exportDashboardDataCSV()" class="bg-white/10 hover:bg-white/20 text-white border border-white/10 font-bold py-2.5 px-4 rounded-xl transition-all shadow-md text-xs uppercase tracking-[0.2em] btn-hover-glow ripple">
+                        <i class="fa-solid fa-file-csv"></i> <span data-i18n="btn_export_csv">Exportar CSV</span>
+                    </button>
+                    <button type="button" onclick="abrirModalSiteStatus()" class="bg-slate-900/80 hover:bg-slate-800/90 text-white border border-slate-700/50 font-bold py-2.5 px-4 rounded-xl transition-all shadow-md text-xs uppercase tracking-[0.2em] btn-hover-glow ripple">
+                        <i class="fa-solid fa-circle-info"></i> <span data-i18n="btn_site_status">Status do Site</span>
+                    </button>
+                </div>
+            </div>
+            <div id="mapa-bases" class="mt-5 rounded-[1.5rem] overflow-hidden border border-slate-700/50" style="min-height: 22rem;"></div>
+        </div>
+
+        <div class="glass-premium p-5 md:p-6 rounded-[1.5rem] mb-8 border border-ecogreen/10">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-xl md:text-2xl font-bold text-white">Comparar Bases</h3>
+                    <p class="text-slate-400 text-sm mt-1">Selecione duas bases para comparar temperatura, umidade e gás lado a lado.</p>
+                </div>
+                <button type="button" onclick="compararBases()" class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-2.5 px-4 rounded-xl transition-all shadow-md text-xs uppercase tracking-[0.2em] btn-hover-glow ripple">
+                    <i class="fa-solid fa-scale-balanced"></i> Atualizar Comparação
+                </button>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 mt-5">
+                <div class="space-y-4">
+                    <label class="block text-slate-400 text-xs uppercase tracking-[0.2em]">Base 1</label>
+                    <select id="comparar-base-1" class="w-full bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600"></select>
+                    <label class="block text-slate-400 text-xs uppercase tracking-[0.2em]">Base 2</label>
+                    <select id="comparar-base-2" class="w-full bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600"></select>
+                    <button type="button" onclick="compararBases()" class="w-full bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3 px-5 rounded-xl transition-all shadow-md text-sm uppercase tracking-[0.2em] btn-hover-glow ripple">
+                        <i class="fa-solid fa-arrows-left-right"></i> Comparar agora
+                    </button>
+                </div>
+                <div id="comparacao-resultados" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+        </div>
+
         <div class="glass-premium p-5 md:p-6 rounded-[1.5rem] mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-ecogreen/10">
             <div class="flex flex-col gap-2 w-full sm:w-auto">
                 <label for="seletor-data-historico" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
                     <i class="fa-regular fa-calendar text-ecogreen/70 mr-1"></i> Ver dados de um dia específico:
                 </label>
                 <div class="flex gap-3 w-full sm:w-auto">
-                    <input type="date" id="seletor-data-historico"
-                        class="bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600">
-                    <button type="button" onclick="aplicarFiltroData()"
-                        class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3 px-5 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple">
+                    <input type="date" id="seletor-data-historico" class="bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600">
+                    <button type="button" onclick="aplicarFiltroData()" class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3 px-5 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple">
                         <i class="fa-solid fa-magnifying-glass"></i> Ver
                     </button>
                 </div>
             </div>
-            <button type="button" id="btn-voltar-tempo-real" onclick="voltarTempoReal()"
-                class="hidden bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-3 px-5 rounded-xl transition-all border border-slate-600/50 hover:border-slate-500 text-sm flex items-center gap-2 whitespace-nowrap">
+            <button type="button" id="btn-voltar-tempo-real" onclick="voltarTempoReal()" class="hidden bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 font-bold py-3 px-5 rounded-xl transition-all border border-slate-600/50 hover:border-slate-500 text-sm flex items-center gap-2 whitespace-nowrap">
                 <i class="fa-solid fa-bolt text-ecogreen"></i> Voltar ao tempo real
             </button>
         </div>
 
         <div id="status-badge" class="mb-8 flex items-center gap-4 flex-wrap">
-            <span id="badge-conexao" data-i18n="txt_aguardando"
-                class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">Aguardando
+            <span id="badge-conexao" data-i18n="txt_aguardando" class="bg-ecogreen/20 text-ecogreen border border-ecogreen/50 px-5 py-2.5 rounded-full text-xs font-black tracking-widest block shadow-md">Aguardando
                 Conexão...</span>
         </div>
 
-        <div id="alerta-gas"
-            class="hidden relative bg-gradient-to-r from-red-600/90 to-orange-600/90 backdrop-blur-md text-white p-6 rounded-[2rem] mb-8 animate-pulse text-center font-bold border border-red-400 shadow-[0_0_30px_rgba(239,68,68,0.4)] flex flex-col md:flex-row items-center justify-center gap-5">
-            <button id="close-alerta-gas" type="button"
-                class="absolute top-4 right-4 text-white/80 hover:text-white transition-opacity opacity-80 hover:opacity-100">
+        <div id="alerta-gas" class="hidden relative bg-gradient-to-r from-red-600/90 to-orange-600/90 backdrop-blur-md text-white p-6 rounded-[2rem] mb-8 animate-pulse text-center font-bold border border-red-400 shadow-[0_0_30px_rgba(239,68,68,0.4)] flex flex-col md:flex-row items-center justify-center gap-5">
+            <button id="close-alerta-gas" type="button" class="absolute top-4 right-4 text-white/80 hover:text-white transition-opacity opacity-80 hover:opacity-100">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <div class="bg-white/20 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl"><i
-                    class="fa-solid fa-radiation"></i></div>
-            <p id="alerta-gas-text" data-i18n="txt_alerta"
-                class="tracking-widest text-lg md:text-xl font-black drop-shadow-md">ALERTA: NÍVEL
-                DE GÁS ELEVADO!</p>
+            <div class="bg-white/20 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl"><i class="fa-solid fa-radiation"></i></div>
+            <p id="alerta-gas-text" data-i18n="txt_alerta" class="tracking-widest text-lg md:text-xl font-black drop-shadow-md">ALERTA: NÍVEL DE GÁS ELEVADO!</p>
         </div>
 
         <!-- === CARDS DE SENSORES (substitua a seção dos cards) === -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-8 md:mb-12">
-            <div id="card-temp"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(249,115,22,0.3)] transition-all duration-300 animate-slide-in-left">
-                <div
-                    class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all">
+            <div id="card-temp" class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(249,115,22,0.3)] transition-all duration-300 animate-slide-in-left">
+                <div class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all">
                 </div>
                 <div class="flex justify-between items-start mb-6 relative z-10">
                     <p data-i18n="lbl_temp" class="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">
                         Temperatura</p>
-                    <div
-                        class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-500/5 flex items-center justify-center text-orange-500 text-xl border border-orange-500/30 group-hover:scale-110 transition-transform shadow-inner">
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-orange-500/20 to-orange-500/5 flex items-center justify-center text-orange-500 text-xl border border-orange-500/30 group-hover:scale-110 transition-transform shadow-inner">
                         <i class="fa-solid fa-temperature-three-quarters"></i>
                     </div>
                 </div>
-                <p id="temp"
-                    class="relative z-10 text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-lg tracking-tighter">
+                <p id="temp" class="relative z-10 text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-lg tracking-tighter">
                     --</p>
                 <span class="text-xs text-orange-400">°C</span>
             </div>
 
-            <div id="card-umi"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-300 animate-fade-in delay-02s">
-                <div
-                    class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-ecogreen/10 rounded-full blur-3xl group-hover:bg-ecogreen/20 transition-all">
+            <div id="card-umi" class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(59,130,246,0.3)] transition-all duration-300 animate-fade-in delay-02s">
+                <div class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-ecogreen/10 rounded-full blur-3xl group-hover:bg-ecogreen/20 transition-all">
                 </div>
                 <div class="flex justify-between items-start mb-6 relative z-10">
                     <p data-i18n="lbl_umi" class="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">Umidade
                     </p>
-                    <div
-                        class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 flex items-center justify-center text-ecogreen text-xl border border-ecogreen/30 group-hover:scale-110 transition-transform shadow-inner">
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-ecogreen/20 to-ecogreen/5 flex items-center justify-center text-ecogreen text-xl border border-ecogreen/30 group-hover:scale-110 transition-transform shadow-inner">
                         <i class="fa-solid fa-droplet"></i>
                     </div>
                 </div>
-                <p id="umi"
-                    class="relative z-10 text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-lg tracking-tighter">
+                <p id="umi" class="relative z-10 text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-lg tracking-tighter">
                     --</p>
                 <span class="text-xs text-ecogreen">%</span>
             </div>
 
             <!-- NOVO CARD CO₂ -->
-            <div id="card-gas"
-                class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-2 md:col-span-1 hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(168,85,247,0.3)] transition-all duration-300 animate-slide-in-right delay-04s">
-                <div
-                    class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all">
+            <div id="card-gas" class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-2 md:col-span-1 hover:-translate-y-1 hover:shadow-[0_0_50px_rgba(168,85,247,0.3)] transition-all duration-300 animate-slide-in-right delay-04s">
+                <div class="absolute -right-10 -top-10 w-32 h-32 md:w-48 md:h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all">
                 </div>
                 <div class="flex justify-between items-start mb-6 relative z-10">
                     <p class="text-slate-400 text-xs font-black uppercase tracking-[0.2em]">Nível de gás (%)</p>
-                    <div
-                        class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center text-purple-500 text-xl border border-purple-500/30 group-hover:scale-110 transition-transform shadow-inner">
+                    <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center text-purple-500 text-xl border border-purple-500/30 group-hover:scale-110 transition-transform shadow-inner">
                         <i class="fa-solid fa-cloud"></i>
                     </div>
                 </div>
-                <p id="gas"
-                    class="relative z-10 text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-lg tracking-tighter">
+                <p id="gas" class="relative z-10 text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 drop-shadow-lg tracking-tighter">
                     --</p>
                 <span class="text-xs text-purple-400">%</span>
             </div>
         </div>
 
         <!-- Semáforo Climático -->
-        <div
-            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-06s">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-06s">
             <div class="flex justify-between items-center mb-6">
-                <h3
-                    class="font-montserrat text-xl md:text-2xl text-white font-black flex items-center gap-3 tracking-wide">
+                <h3 class="font-montserrat text-xl md:text-2xl text-white font-black flex items-center gap-3 tracking-wide">
                     <i class="fa-solid fa-traffic-light text-ecogreen"></i> Semáforo Climático
                 </h3>
                 <div class="semaforo">
@@ -1161,23 +1197,22 @@
             <p id="semaforo-status" class="text-slate-400 text-sm font-medium">Analisando condições ambientais...</p>
             <div class="mt-4 text-xs text-slate-500">
                 <p><strong>Verde:</strong> Condições ideais (Temp ≤30°C, Umi ≥40%, Gás ≤5%)</p>
-                <p><strong>Amarelo:</strong> Atenção (Temp >30°C, Umi <40%, Gás >5%)</p>
-                <p><strong>Vermelho:</strong> Crítico (Temp >35°C, Umi <30%, Gás >10%)</p>
+                <p><strong>Amarelo:</strong> Atenção (Temp >30°C, Umi
+                    <40%, Gás>5%)</p>
+                <p><strong>Vermelho:</strong> Crítico (Temp >35°C, Umi
+                    <30%, Gás>10%)</p>
             </div>
         </div>
 
         <!-- Status de Conectividade -->
-        <div
-            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-08s">
-            <h3
-                class="font-montserrat text-xl md:text-2xl text-white font-black mb-6 flex items-center gap-3 tracking-wide">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 hover:border-ecogreen/20 animate-fade-in delay-08s">
+            <h3 class="font-montserrat text-xl md:text-2xl text-white font-black mb-6 flex items-center gap-3 tracking-wide">
                 <i class="fa-solid fa-wifi text-ecogreen"></i> Status de Conectividade
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <!-- TagO API -->
-                <div
-                    class="glass-highlight p-4 rounded-xl border border-slate-700/50 hover:border-blue-400/30 transition-all duration-300">
+                <div class="glass-highlight p-4 rounded-xl border border-slate-700/50 hover:border-blue-400/30 transition-all duration-300">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
@@ -1193,15 +1228,13 @@
                             <span class="text-xs text-slate-400">Verificando...</span>
                         </div>
                     </div>
-                    <button type="button" onclick="testarConectividadeTagO()"
-                        class="w-full bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200">
+                    <button type="button" onclick="testarConectividadeTagO()" class="w-full bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200">
                         <i class="fa-solid fa-plug mr-1"></i> Testar Conexão
                     </button>
                 </div>
 
                 <!-- EmailJS -->
-                <div
-                    class="glass-highlight p-4 rounded-xl border border-slate-700/50 hover:border-green-400/30 transition-all duration-300">
+                <div class="glass-highlight p-4 rounded-xl border border-slate-700/50 hover:border-green-400/30 transition-all duration-300">
                     <div class="flex items-center justify-between mb-3">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
@@ -1217,8 +1250,7 @@
                             <span class="text-xs text-slate-400">Verificando...</span>
                         </div>
                     </div>
-                    <button type="button" onclick="testarConectividadeEmailJS()"
-                        class="w-full bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200">
+                    <button type="button" onclick="testarConectividadeEmailJS()" class="w-full bg-green-500/20 hover:bg-green-500/30 text-green-400 border border-green-500/30 rounded-lg px-3 py-2 text-xs font-medium transition-all duration-200">
                         <i class="fa-solid fa-plug mr-1"></i> Testar Conexão
                     </button>
                 </div>
@@ -1226,16 +1258,13 @@
             </div>
 
             <div class="mt-4 text-xs text-slate-500">
-                <p><i class="fa-solid fa-info-circle mr-1"></i> Teste a conectividade das APIs para garantir o
-                    funcionamento dos alertas.</p>
+                <p><i class="fa-solid fa-info-circle mr-1"></i> Teste a conectividade das APIs para garantir o funcionamento dos alertas.</p>
             </div>
         </div>
 
-        <div
-            class="glass-premium p-6 md:p-10 rounded-[3rem] relative overflow-hidden shadow-2xl border border-slate-700/50">
+        <div class="glass-premium p-6 md:p-10 rounded-[3rem] relative overflow-hidden shadow-2xl border border-slate-700/50">
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-5">
-                <h3
-                    class="font-montserrat text-xl md:text-2xl text-white font-black flex items-center gap-3 tracking-wide">
+                <h3 class="font-montserrat text-xl md:text-2xl text-white font-black flex items-center gap-3 tracking-wide">
                     <i class="fa-solid fa-chart-line text-ecogreen"></i> <span data-i18n="txt_hist">Tendências
                         Climáticas</span>
                 </h3>
@@ -1244,19 +1273,16 @@
                     <p class="text-xs text-slate-500 hidden sm:block">Gráfico completo das tendências climáticas</p>
                 </div>
 
-                <a href="https://699217a1cecd9d000ab29255.us-e1.tago.run/dashboards/info/69c44a3086ff0a00092df519?anonymousToken=00000000-6992-17a1-cecd-9d000ab29255"
-                    target="_blank" rel="noopener noreferrer"
-                    class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_0_15px_rgba(20,184,166,0.3)] hover:-translate-y-1 text-xs md:text-sm flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
+                <a href="https://699217a1cecd9d000ab29255.us-e1.tago.run/dashboards/info/69c44a3086ff0a00092df519?anonymousToken=00000000-6992-17a1-cecd-9d000ab29255" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-2.5 px-6 rounded-full transition-all shadow-[0_0_15px_rgba(20,184,166,0.3)] hover:-translate-y-1 text-xs md:text-sm flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
                     <i class="fa-solid fa-up-right-from-square"></i>
                     <span data-i18n="btn_ver_tago">Ver dados no Tago.io</span>
                 </a>
 
-                <div
-                    class="bg-slate-900/80 border border-slate-700 rounded-full px-5 py-2.5 flex items-center justify-center gap-3 shadow-inner text-slate-400 text-xs font-mono w-full sm:w-auto">
+                <div class="bg-slate-900/80 border border-slate-700 rounded-full px-5 py-2.5 flex items-center justify-center gap-3 shadow-inner text-slate-400 text-xs font-mono w-full sm:w-auto">
 
                     <span class="relative flex h-3 w-3">
                         <span class="animate-ping absolute h-full w-full rounded-full bg-ecogreen opacity-75"></span>
-                        <span class="relative rounded-full h-3 w-3 bg-ecogreen"></span>
+                    <span class="relative rounded-full h-3 w-3 bg-ecogreen"></span>
                     </span>
 
                     <span data-i18n="txt_ultimas_leituras">Últimas leituras</span>
@@ -1274,34 +1300,27 @@
         </div>
     </main>
 
-    <main id="view-alertas"
-        class="page-view hidden-view pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex-grow relative z-10 w-full">
-        <header
-            class="glass-premium p-6 md:p-8 rounded-[2rem] mb-8 relative overflow-hidden shadow-xl hover:shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 border border-ecogreen/10 hover:border-ecogreen/20">
+    <main id="view-alertas" class="page-view hidden-view pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto flex-grow relative z-10 w-full">
+        <header class="glass-premium p-6 md:p-8 rounded-[2rem] mb-8 relative overflow-hidden shadow-xl hover:shadow-[0_0_50px_rgba(16,185,129,0.2)] transition-all duration-500 border border-ecogreen/10 hover:border-ecogreen/20">
             <div>
-                <h1
-                    class="font-montserrat text-2xl md:text-3xl text-white font-black tracking-widest uppercase mb-2 flex items-center gap-3 text-glow">
+                <h1 class="font-montserrat text-2xl md:text-3xl text-white font-black tracking-widest uppercase mb-2 flex items-center gap-3 text-glow">
                     <i class="fa-solid fa-bell text-ecogreen"></i> Sistema de Alertas Ambientais
                 </h1>
                 <p class="text-xs md:text-sm text-slate-400 flex items-center gap-2 font-mono">
-                    <i class="fa-regular fa-clock text-ecogreen/70"></i>
-                    Escolha quais alertas deseja receber e por qual canal de notificação.
+                    <i class="fa-regular fa-clock text-ecogreen/70"></i> Escolha quais alertas deseja receber e por qual canal de notificação.
                 </p>
             </div>
         </header>
 
         <!-- Seção de Inscrição de E-mail -->
-        <div
-            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-2 flex items-center gap-3">
                 <i class="fa-solid fa-envelope text-ecogreen"></i> Receber Alertas por E-mail
             </h3>
             <p class="text-xs text-slate-500 mb-6">Insira seu e-mail para ser notificado pelo servidor quando os sensores detectarem condições críticas.</p>
             <div class="flex gap-3">
-                <input type="email" id="email_input" placeholder="seuemail@exemplo.com"
-                    class="flex-1 bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3.5 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
-                <button type="button" onclick="subscreverAlertas()"
-                    class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-3.5 px-6 rounded-xl transition-all text-sm whitespace-nowrap shadow-md hover:-translate-y-0.5 flex items-center gap-2">
+                <input type="email" id="email_input" placeholder="seuemail@exemplo.com" class="flex-1 bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3.5 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
+                <button type="button" onclick="subscreverAlertas()" class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-3.5 px-6 rounded-xl transition-all text-sm whitespace-nowrap shadow-md hover:-translate-y-0.5 flex items-center gap-2">
                     <i class="fa-solid fa-bell"></i> Inscrever
                 </button>
             </div>
@@ -1310,8 +1329,7 @@
 
 
         <!-- O que o servidor monitora -->
-        <div
-            class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-02s">
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-02s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-shield-halved text-ecogreen"></i> O que o servidor monitora
             </h3>
@@ -1371,11 +1389,15 @@
         </div>
 
         <!-- Histórico de Alertas -->
-        <div
-            class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden shadow-xl border border-ecogreen/10">
-            <h3 class="font-montserrat text-xl text-white font-black mb-6 flex items-center gap-3">
-                <i class="fa-solid fa-history text-ecogreen"></i> Histórico de Alertas
-            </h3>
+        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] relative overflow-hidden shadow-xl border border-ecogreen/10">
+            <div class="flex items-center justify-between mb-6 gap-4">
+                <h3 class="font-montserrat text-xl text-white font-black flex items-center gap-3">
+                    <i class="fa-solid fa-history text-ecogreen"></i> Histórico de Alertas
+                </h3>
+                <button type="button" onclick="exportAlertsCSV()" class="bg-white/10 hover:bg-white/20 text-white border border-white/10 font-bold py-2.5 px-4 rounded-full transition-all shadow-[0_0_15px_rgba(255,255,255,0.12)] text-xs md:text-sm flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-file-csv"></i> <span data-i18n="btn_export_csv">Exportar CSV</span>
+                </button>
+            </div>
             <div id="historico-alertas" class="space-y-3 max-h-64 overflow-y-auto">
                 <div class="text-center text-slate-500 py-8">
                     <i class="fa-solid fa-inbox text-4xl mb-4"></i>
@@ -1388,17 +1410,13 @@
 
 
     <footer class="border-t border-slate-800/50 py-10 mt-auto relative z-10 bg-darkbg/80 backdrop-blur-md">
-        <div
-            class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
             <div>
-                <p class="text-slate-500 text-sm font-medium tracking-wide" data-i18n="txt_direitos">© 2026 Projeto
-                    Ecobot. Todos os direitos reservados.</p>
+                <p class="text-slate-500 text-sm font-medium tracking-wide" data-i18n="txt_direitos">© 2026 Projeto Ecobot. Todos os direitos reservados.</p>
             </div>
-            <div
-                class="flex items-center gap-3 glass-premium footer-pill px-4 py-2 rounded-full border border-ecogreen/20">
+            <div class="flex items-center gap-3 glass-premium footer-pill px-4 py-2 rounded-full border border-ecogreen/20">
                 <div class="w-2.5 h-2.5 rounded-full bg-ecogreen animate-pulse"></div>
-                <span class="text-xs text-ecogreen font-bold tracking-widest uppercase"
-                    data-i18n="txt_sistema_operante">Sistema Operante</span>
+                <span class="text-xs text-ecogreen font-bold tracking-widest uppercase" data-i18n="txt_sistema_operante">Sistema Operante</span>
             </div>
         </div>
     </footer>
@@ -1409,24 +1427,48 @@
         const dicionario = {
             pt: {
                 txt_carregando: "Calibrando Sensores...",
-                txt_senha_erro: "Credencial Incorreta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acessar Estações",
-                txt_projeto_titulo: "Projeto", txt_subtitulo: "Unindo robótica de baixo custo e preservação ambiental para combater a invisibilidade dos dados climáticos no interior e construir um futuro inteligente.",
-                btn_ver_dados: "Explorar Dados", titulo_tabela: "Por que escolher a Estação Elion?", tab_recurso: "Recurso",
-                tab_tradicional: "Estações disponíveis no mercado", tab_ecobot: "Estação Elion",
-                linha1_rec: "Custo de Implementação", linha1_trad: "Alto Custo", linha1_eco: "Baixíssimo Custo",
-                linha2_rec: "Instalação", linha2_trad: "Técnico Especializado", linha2_eco: "Rápido e fácil",
-                linha3_rec: "Tecnologia", linha3_trad: "Sistema Fechado", linha3_eco: "Open-Source e Escalável",
-                txt_jornada: "Nossa Jornada", txt_onu: "Alinhado com a ONU 🌍",
+                txt_senha_erro: "Credencial Incorreta!",
+                btn_autenticar: "Autenticar",
+                btn_nav_sensores: "Acessar Estações",
+                txt_projeto_titulo: "Projeto",
+                txt_subtitulo: "Unindo robótica de baixo custo e preservação ambiental para combater a invisibilidade dos dados climáticos no interior e construir um futuro inteligente.",
+                btn_ver_dados: "Explorar Dados",
+                titulo_tabela: "Por que escolher a Estação Elion?",
+                tab_recurso: "Recurso",
+                tab_tradicional: "Estações disponíveis no mercado",
+                tab_ecobot: "Estação Elion",
+                linha1_rec: "Custo de Implementação",
+                linha1_trad: "Alto Custo",
+                linha1_eco: "Baixíssimo Custo",
+                linha2_rec: "Instalação",
+                linha2_trad: "Técnico Especializado",
+                linha2_eco: "Rápido e fácil",
+                linha3_rec: "Tecnologia",
+                linha3_trad: "Sistema Fechado",
+                linha3_eco: "Open-Source e Escalável",
+                txt_jornada: "Nossa Jornada",
+                txt_onu: "Alinhado com a ONU 🌍",
                 txt_onu_sub: "O Ecobot responde diretamente aos Objetivos de Desenvolvimento Sustentável (ODS), atuando como ferramenta tecnológica para cidades inteligentes e ação climática global.",
-                txt_ods9: "Indústria, Inovação e Infraestrutura", txt_ods11: "Cidades e Comunidades Sustentáveis", txt_ods13: "Ação Contra a Mudança Global do Clima",
-                txt_acompanhe: "Acompanhe nossa evolução", txt_modal_titulo: "Onde você está?",
+                txt_ods9: "Indústria, Inovação e Infraestrutura",
+                txt_ods11: "Cidades e Comunidades Sustentáveis",
+                txt_ods13: "Ação Contra a Mudança Global do Clima",
+                txt_acompanhe: "Acompanhe nossa evolução",
+                txt_modal_titulo: "Onde você está?",
                 txt_modal_sub: "Para mostrar a qualidade do ar com precisão, precisamos encontrar a Base Ecobot mais próxima. Não guardamos a sua localização!",
-                btn_modal_gps: "Usar Meu GPS", btn_modal_manual: "Escolher Base Manualmente",
-                lbl_rede: "Base de Monitoramento:", btn_tago: "DADOS EM TEMPO REAL",
-                txt_offline_titulo: "CONEXÃO PERDIDA", txt_offline_sub: "Os dados pararam de chegar ou a estação está desligada. Aguardando nuvem...",
-                txt_alerta: "ALERTA: NÍVEL DE GÁS ELEVADO!", lbl_temp: "Temperatura", lbl_umi: "Umidade", lbl_gas: "Nível de gás (%)",
-                txt_hist: "Sincronizado", txt_adm_titulo: "Controle do Sistema",
-                btn_adicionar_base: "Adicionar Base", txt_adicionar_base_titulo: "Adicionar Nova Base",
+                btn_modal_gps: "Usar Meu GPS",
+                btn_modal_manual: "Escolher Base Manualmente",
+                lbl_rede: "Base de Monitoramento:",
+                btn_tago: "DADOS EM TEMPO REAL",
+                txt_offline_titulo: "CONEXÃO PERDIDA",
+                txt_offline_sub: "Os dados pararam de chegar ou a estação está desligada. Aguardando nuvem...",
+                txt_alerta: "ALERTA: NÍVEL DE GÁS ELEVADO!",
+                lbl_temp: "Temperatura",
+                lbl_umi: "Umidade",
+                lbl_gas: "Nível de gás (%)",
+                txt_hist: "Sincronizado",
+                txt_adm_titulo: "Controle do Sistema",
+                btn_adicionar_base: "Adicionar Base",
+                txt_adicionar_base_titulo: "Adicionar Nova Base",
                 txt_adicionar_base_sub: "Adicione sua própria base de monitoramento ambiental para acompanhar os dados em tempo real.",
                 btn_salvar_nova_base: "Adicionar Base",
                 btn_atualizar_base: "Atualizar Base",
@@ -1446,28 +1488,57 @@
                 btn_ver_tago: "Ver dados no tago.io",
                 txt_sincronizando: "Sincronizando com a nuvem...",
                 txt_aguardando: "Aguardando Conexão...",
-                txt_status_note: "Estações mandam dados a cada 5 minutos, mas podem chegar com atraso."
+                txt_status_note: "Estações mandam dados a cada 5 minutos, mas podem chegar com atraso.",
+                btn_export_csv: "Exportar CSV",
+                btn_site_status: "Status do Site",
+                txt_site_closed_title: "Site em Manutenção",
+                txt_site_closed_sub: "O site está temporariamente fechado para atualizações. Volte em breve!",
+                btn_site_closed_confirm: "Entendi"
             },
             en: {
                 txt_carregando: "Calibrating Sensors...",
-                txt_senha_erro: "Incorrect Credential!", btn_autenticar: "Authenticate", btn_nav_sensores: "Access Stations",
-                txt_projeto_titulo: "Project", txt_subtitulo: "Uniting low-cost robotics and environmental preservation to bring climate intelligence to remote areas.",
-                btn_ver_dados: "Explore Data", titulo_tabela: "Why choose Elion Station?", tab_recurso: "Feature",
-                tab_tradicional: "Market available stations", tab_ecobot: "Elion Station",
-                linha1_rec: "Implementation Cost", linha1_trad: "High Cost", linha1_eco: "Very Low Cost",
-                linha2_rec: "Installation", linha2_trad: "Specialized Technician", linha2_eco: "Fast and easy",
-                linha3_rec: "Technology", linha3_trad: "Closed System", linha3_eco: "Open-Source & Scalable",
-                txt_jornada: "Our Journey", txt_onu: "Aligned with the UN 🌍",
+                txt_senha_erro: "Incorrect Credential!",
+                btn_autenticar: "Authenticate",
+                btn_nav_sensores: "Access Stations",
+                txt_projeto_titulo: "Project",
+                txt_subtitulo: "Uniting low-cost robotics and environmental preservation to bring climate intelligence to remote areas.",
+                btn_ver_dados: "Explore Data",
+                titulo_tabela: "Why choose Elion Station?",
+                tab_recurso: "Feature",
+                tab_tradicional: "Market available stations",
+                tab_ecobot: "Elion Station",
+                linha1_rec: "Implementation Cost",
+                linha1_trad: "High Cost",
+                linha1_eco: "Very Low Cost",
+                linha2_rec: "Installation",
+                linha2_trad: "Specialized Technician",
+                linha2_eco: "Fast and easy",
+                linha3_rec: "Technology",
+                linha3_trad: "Closed System",
+                linha3_eco: "Open-Source & Scalable",
+                txt_jornada: "Our Journey",
+                txt_onu: "Aligned with the UN 🌍",
                 txt_onu_sub: "Ecobot responds directly to the Sustainable Development Goals (SDG).",
-                txt_ods9: "Industry, Innovation and Infrastructure", txt_ods11: "Sustainable Cities and Communities", txt_ods13: "Climate Action",
-                txt_acompanhe: "Follow our evolution", txt_modal_titulo: "Where are you?",
+                txt_ods9: "Industry, Innovation and Infrastructure",
+                txt_ods11: "Sustainable Cities and Communities",
+                txt_ods13: "Climate Action",
+                txt_acompanhe: "Follow our evolution",
+                txt_modal_titulo: "Where are you?",
                 txt_modal_sub: "We need to locate the nearest base. We do not save your location!",
-                btn_modal_gps: "Use My GPS", btn_modal_manual: "Choose Base Manually",
-                lbl_rede: "Monitoring Base:", btn_tago: "REAL-TIME DATA",
-                txt_offline_titulo: "CONNECTION LOST", txt_offline_sub: "Data stopped arriving or station is offline. Waiting for cloud...",
-                txt_alerta: "ALERT: HIGH GAS LEVEL!", lbl_temp: "Temperature", lbl_umi: "Humidity", lbl_gas: "Gas (%)",
-                txt_hist: "Synchronized", txt_adm_titulo: "System Control",
-                btn_adicionar_base: "Add Base", txt_adicionar_base_titulo: "Add New Base",
+                btn_modal_gps: "Use My GPS",
+                btn_modal_manual: "Choose Base Manually",
+                lbl_rede: "Monitoring Base:",
+                btn_tago: "REAL-TIME DATA",
+                txt_offline_titulo: "CONNECTION LOST",
+                txt_offline_sub: "Data stopped arriving or station is offline. Waiting for cloud...",
+                txt_alerta: "ALERT: HIGH GAS LEVEL!",
+                lbl_temp: "Temperature",
+                lbl_umi: "Humidity",
+                lbl_gas: "Gas (%)",
+                txt_hist: "Synchronized",
+                txt_adm_titulo: "System Control",
+                btn_adicionar_base: "Add Base",
+                txt_adicionar_base_titulo: "Add New Base",
                 txt_adicionar_base_sub: "Add your own environmental monitoring base to track data in real time.",
                 btn_salvar_nova_base: "Add Base",
                 btn_atualizar_base: "Update Base",
@@ -1487,28 +1558,57 @@
                 btn_ver_tago: "View data on tago.io",
                 txt_sincronizando: "Synchronizing with the cloud...",
                 txt_aguardando: "Waiting for Connection...",
-                txt_status_note: "Stations send data every 5 minutes, but there may be a delay."
+                txt_status_note: "Stations send data every 5 minutes, but there may be a delay.",
+                btn_export_csv: "Export CSV",
+                btn_site_status: "Site Status",
+                txt_site_closed_title: "Site Under Maintenance",
+                txt_site_closed_sub: "The site is temporarily closed for updates. Please check back soon.",
+                btn_site_closed_confirm: "Got it"
             },
             es: {
                 txt_carregando: "Calibrando Sensores...",
-                txt_senha_erro: "¡Credencial Incorrecta!", btn_autenticar: "Autenticar", btn_nav_sensores: "Acceder a Estaciones",
-                txt_projeto_titulo: "Proyecto", txt_subtitulo: "Uniendo robótica de bajo costo y preservación ambiental para combatir la invisibilidad de los datos climáticos.",
-                btn_ver_dados: "Explorar Datos", titulo_tabela: "¿Por qué elegir la Estación Elion?", tab_recurso: "Recurso",
-                tab_tradicional: "Estaciones disponibles en el mercado", tab_ecobot: "Estación Elion",
-                linha1_rec: "Costo de Implementación", linha1_trad: "Alto Costo", linha1_eco: "Costo Muy Bajo",
-                linha2_rec: "Instalación", linha2_trad: "Técnico Especializado", linha2_eco: "Rápido y fácil",
-                linha3_rec: "Tecnología", linha3_trad: "Sistema Cerrado", linha3_eco: "Open-Source y Escalable",
-                txt_jornada: "Nuestra Jornada", txt_onu: "Alineado con la ONU 🌍",
+                txt_senha_erro: "¡Credencial Incorrecta!",
+                btn_autenticar: "Autenticar",
+                btn_nav_sensores: "Acceder a Estaciones",
+                txt_projeto_titulo: "Proyecto",
+                txt_subtitulo: "Uniendo robótica de bajo costo y preservación ambiental para combatir la invisibilidad de los datos climáticos.",
+                btn_ver_dados: "Explorar Datos",
+                titulo_tabela: "¿Por qué elegir la Estación Elion?",
+                tab_recurso: "Recurso",
+                tab_tradicional: "Estaciones disponibles en el mercado",
+                tab_ecobot: "Estación Elion",
+                linha1_rec: "Costo de Implementación",
+                linha1_trad: "Alto Costo",
+                linha1_eco: "Costo Muy Bajo",
+                linha2_rec: "Instalación",
+                linha2_trad: "Técnico Especializado",
+                linha2_eco: "Rápido y fácil",
+                linha3_rec: "Tecnología",
+                linha3_trad: "Sistema Cerrado",
+                linha3_eco: "Open-Source y Escalable",
+                txt_jornada: "Nuestra Jornada",
+                txt_onu: "Alineado con la ONU 🌍",
                 txt_onu_sub: "Ecobot responde directamente a los Objetivos de Desarrollo Sostenible (ODS).",
-                txt_ods9: "Industria, Innovación e Infraestructura", txt_ods11: "Ciudades y Comunidades Sostenibles", txt_ods13: "Acción por el Clima",
-                txt_acompanhe: "Sigue nuestra evolución", txt_modal_titulo: "¿Dónde estás?",
+                txt_ods9: "Industria, Innovación e Infraestructura",
+                txt_ods11: "Ciudades y Comunidades Sostenibles",
+                txt_ods13: "Acción por el Clima",
+                txt_acompanhe: "Sigue nuestra evolución",
+                txt_modal_titulo: "¿Dónde estás?",
                 txt_modal_sub: "Necesitamos encontrar la base más cercana. ¡No guardamos tu ubicación!",
-                btn_modal_gps: "Usar Mi GPS", btn_modal_manual: "Elegir Base Manualmente",
-                lbl_rede: "Base de Monitoreo:", btn_tago: "DATOS EN TIEMPO REAL",
-                txt_offline_titulo: "CONEXIÓN PERDIDA", txt_offline_sub: "Esperando a la nube...",
-                txt_alerta: "¡ALERTA: NIVEL DE GAS ALTO!", lbl_temp: "Temperatura", lbl_umi: "Humedad", lbl_gas: "Concentración de gas (%)",
-                txt_hist: "Sincronizado", txt_adm_titulo: "Control del Sistema",
-                btn_adicionar_base: "Agregar Base", txt_adicionar_base_titulo: "Agregar Nueva Base",
+                btn_modal_gps: "Usar Mi GPS",
+                btn_modal_manual: "Elegir Base Manualmente",
+                lbl_rede: "Base de Monitoreo:",
+                btn_tago: "DATOS EN TIEMPO REAL",
+                txt_offline_titulo: "CONEXIÓN PERDIDA",
+                txt_offline_sub: "Esperando a la nube...",
+                txt_alerta: "¡ALERTA: NIVEL DE GAS ALTO!",
+                lbl_temp: "Temperatura",
+                lbl_umi: "Humedad",
+                lbl_gas: "Concentración de gas (%)",
+                txt_hist: "Sincronizado",
+                txt_adm_titulo: "Control del Sistema",
+                btn_adicionar_base: "Agregar Base",
+                txt_adicionar_base_titulo: "Agregar Nueva Base",
                 txt_adicionar_base_sub: "Agregue su propia base de monitoreo ambiental para rastrear datos en tiempo real.",
                 btn_salvar_nova_base: "Agregar Base",
                 btn_atualizar_base: "Actualizar Base",
@@ -1528,7 +1628,12 @@
                 btn_ver_tago: "Ver datos en tago.io",
                 txt_sincronizando: "Sincronizando con la nube...",
                 txt_aguardando: "Esperando Conexión...",
-                txt_status_note: "Las estaciones envían datos cada 5 minutos, pero puede haber demora."
+                txt_status_note: "Las estaciones envían datos cada 5 minutos, pero puede haber demora.",
+                btn_export_csv: "Exportar CSV",
+                btn_site_status: "Estado del Sitio",
+                txt_site_closed_title: "Sitio en Mantenimiento",
+                txt_site_closed_sub: "El sitio está temporalmente cerrado para actualizaciones. ¡Vuelve pronto!",
+                btn_site_closed_confirm: "Entendido"
             }
         };
 
@@ -1572,10 +1677,15 @@
         // Mapa de status online/offline por nome de base { [nome]: true/false }
         let baseStatusMap = {};
 
-        window.onload = function () {
+        window.onload = function() {
+            // Verificar se o site foi fechado para manutenção
+            if (verificarSiteFechado()) {
+                return; // Para a execução do resto da página
+            }
             carregarBases().finally(() => {
                 atualizarInterfaceBases();
                 mudarIdioma('pt');
+                initDashboardWidgets();
 
                 // Impede a seleção de datas futuras no seletor de histórico
                 // (não existem dados de sensor ainda para o futuro).
@@ -1663,11 +1773,20 @@
                 // Atualiza imediatamente e depois a cada 30 segundos
                 sincronizarTago();
                 if (!intervalSync) intervalSync = setInterval(sincronizarTago, 30000);
+                setTimeout(() => {
+                    if (mapInstance) mapInstance.invalidateSize();
+                }, 500);
             } else if (viewId === 'alertas') {
                 carregarHistoricoAlertas();
-                if (intervalSync) { clearInterval(intervalSync); intervalSync = null; }
+                if (intervalSync) {
+                    clearInterval(intervalSync);
+                    intervalSync = null;
+                }
             } else {
-                if (intervalSync) { clearInterval(intervalSync); intervalSync = null; }
+                if (intervalSync) {
+                    clearInterval(intervalSync);
+                    intervalSync = null;
+                }
             }
             window.scrollTo(0, 0);
         }
@@ -1698,24 +1817,24 @@
             if (baseManagement) baseManagement.innerHTML = '';
 
             redeBases.forEach(base => {
-                const option = document.createElement('option');
-                option.value = base.id;
-                option.textContent = base.nome;
-                if (baseSelecionada && base.id === baseSelecionada.id) {
-                    option.selected = true;
-                }
-                seletor.appendChild(option);
+                        const option = document.createElement('option');
+                        option.value = base.id;
+                        option.textContent = base.nome;
+                        if (baseSelecionada && base.id === baseSelecionada.id) {
+                            option.selected = true;
+                        }
+                        seletor.appendChild(option);
 
-                if (baseManagement) {
-                    const card = document.createElement('div');
-                    card.className = 'glass-premium p-6 rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)]';
-                    if (baseSelecionada && base.id === baseSelecionada.id) {
-                        card.className += ' border-ecogreen/40 shadow-[0_0_40px_rgba(16,185,129,0.18)]';
-                    } else {
-                        card.className += ' border-slate-700/50';
-                    }
-                    const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slice(-6)}` : 'Sem token';
-                    const coords = base.lat || base.lon ? `${base.lat ? `Lat: ${base.lat}` : ''}${base.lat && base.lon ? ' • ' : ''}${base.lon ? `Lon: ${base.lon}` : ''}` : 'Coordenadas não informadas';
+                        if (baseManagement) {
+                            const card = document.createElement('div');
+                            card.className = 'glass-premium p-6 rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)]';
+                            if (baseSelecionada && base.id === baseSelecionada.id) {
+                                card.className += ' border-ecogreen/40 shadow-[0_0_40px_rgba(16,185,129,0.18)]';
+                            } else {
+                                card.className += ' border-slate-700/50';
+                            }
+                            const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slice(-6)}` : 'Sem token';
+                            const coords = base.lat || base.lon ? `${base.lat ? `Lat: ${base.lat}` : ''}${base.lat && base.lon ? ' • ' : ''}${base.lon ? `Lon: ${base.lon}` : ''}` : 'Coordenadas não informadas';
 
                     // Badge de status online/offline
                     const statusOnline = baseStatusMap[base.nome];
@@ -1750,6 +1869,196 @@
             if (baseManagement && redeBases.length === 0) {
                 baseManagement.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/40 text-slate-400">Nenhuma base cadastrada ainda. Clique em "Adicionar Base" para começar.</div>`;
             }
+            initCompareOptions();
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('ecobot-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeButton();
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', current);
+            localStorage.setItem('ecobot-theme', current);
+            updateThemeButton();
+        }
+
+        function updateThemeButton() {
+            const btn = document.getElementById('btn-toggle-theme');
+            if (!btn) return;
+            const theme = document.documentElement.getAttribute('data-theme');
+            btn.innerHTML = `<i class="fa-solid ${theme === 'light' ? 'fa-moon' : 'fa-sun'}"></i> ${theme === 'light' ? 'Tema Escuro' : 'Tema Claro'}`;
+        }
+
+        let mapInstance = null;
+        let mapMarkers = [];
+
+        function initBaseMap() {
+            if (!document.getElementById('mapa-bases') || typeof L === 'undefined') return;
+            if (mapInstance) return;
+
+            mapInstance = L.map('mapa-bases', { zoomControl: true }).setView([-15.783, -47.866,], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mapInstance);
+            atualizarMapaBases();
+            setTimeout(() => { if (mapInstance) mapInstance.invalidateSize(); }, 500);
+        }
+
+        function atualizarMapaBases() {
+            if (!mapInstance) return;
+            mapMarkers.forEach(marker => marker.remove());
+            mapMarkers = [];
+
+            const bounds = [];
+            redeBases.forEach(base => {
+                if (base.lat && base.lon) {
+                    const marker = L.marker([base.lat, base.lon]).addTo(mapInstance);
+                    const status = baseStatusMap[base.nome] ? 'Online' : 'Offline';
+                    const popupContent = `
+                        <div class="text-sm">
+                            <strong>${base.nome}</strong><br>
+                            ${status}<br>
+                            Lat: ${base.lat.toFixed(4)}<br>
+                            Lon: ${base.lon.toFixed(4)}
+                        </div>`;
+                    marker.bindPopup(popupContent);
+                    mapMarkers.push(marker);
+                    bounds.push([base.lat, base.lon]);
+                }
+            });
+
+            if (bounds.length > 0) {
+                mapInstance.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+            } else {
+                mapInstance.setView([-15.783, -47.866], 4);
+            }
+        }
+
+        function initCompareOptions() {
+            const selectA = document.getElementById('comparar-base-1');
+            const selectB = document.getElementById('comparar-base-2');
+            if (!selectA || !selectB) return;
+
+            selectA.innerHTML = '';
+            selectB.innerHTML = '';
+
+            redeBases.forEach(base => {
+                const optionA = document.createElement('option');
+                optionA.value = base.id;
+                optionA.textContent = base.nome;
+                selectA.appendChild(optionA);
+
+                const optionB = document.createElement('option');
+                optionB.value = base.id;
+                optionB.textContent = base.nome;
+                selectB.appendChild(optionB);
+            });
+
+            if (selectA.options.length > 0) {
+                const defaultIndex = redeBases.findIndex(b => baseSelecionada && b.id === baseSelecionada.id);
+                selectA.selectedIndex = defaultIndex >= 0 ? defaultIndex : 0;
+                selectB.selectedIndex = selectA.selectedIndex === 0 && selectB.options.length > 1 ? 1 : 0;
+            }
+
+            compararBases();
+        }
+
+        function safeParseNum(value) {
+            if (value === null || value === undefined) return null;
+            const num = parseFloat(String(value).replace(',', '.').trim());
+            return Number.isNaN(num) ? null : num;
+        }
+
+        function filterTagoVariable(name, patterns) {
+            if (!name) return false;
+            const normalized = String(name).toLowerCase();
+            return patterns.some(pattern => normalized.includes(pattern));
+        }
+
+        async function fetchBaseData(base) {
+            try {
+                const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
+                const response = await fetch(`${backendUrl}/api/test-tago?token=${encodeURIComponent(base.token)}&qty=120`);
+                if (!response.ok) {
+                    throw new Error(`Falha ao buscar dados da base ${base.nome}`);
+                }
+                const json = await response.json();
+                const data = Array.isArray(json.result) ? json.result : Array.isArray(json.dados?.result) ? json.dados.result : [];
+                return data;
+            } catch (err) {
+                console.error(err);
+                return [];
+            }
+        }
+
+        async function compararBases() {
+            const selectA = document.getElementById('comparar-base-1');
+            const selectB = document.getElementById('comparar-base-2');
+            const resultContainer = document.getElementById('comparacao-resultados');
+            if (!selectA || !selectB || !resultContainer) return;
+
+            const baseA = redeBases.find(base => base.id == selectA.value);
+            const baseB = redeBases.find(base => base.id == selectB.value);
+            if (!baseA || !baseB) {
+                resultContainer.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/50 text-slate-400">Selecione duas bases válidas para comparar.</div>`;
+                return;
+            }
+            if (baseA.id === baseB.id) {
+                resultContainer.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/50 text-slate-400">Escolha duas bases diferentes para comparação.</div>`;
+                return;
+            }
+
+            resultContainer.innerHTML = `<div class="flex items-center justify-center col-span-2 p-6 rounded-[2rem] border border-slate-700/50 text-slate-400">Carregando comparação...</div>`;
+
+            const [dataA, dataB] = await Promise.all([fetchBaseData(baseA), fetchBaseData(baseB)]);
+
+            const latestA = {
+                temp: safeParseNum(dataA.find(d => filterTagoVariable(d.variable, ['temp', 'temperatura']) )?.value),
+                umi: safeParseNum(dataA.find(d => filterTagoVariable(d.variable, ['umid', 'humidity']) )?.value),
+                gas: safeParseNum(dataA.find(d => filterTagoVariable(d.variable, ['gas', 'co2', 'mq']) )?.value),
+                time: dataA.length > 0 ? dataA[0].time : null
+            };
+            const latestB = {
+                temp: safeParseNum(dataB.find(d => filterTagoVariable(d.variable, ['temp', 'temperatura']) )?.value),
+                umi: safeParseNum(dataB.find(d => filterTagoVariable(d.variable, ['umid', 'humidity']) )?.value),
+                gas: safeParseNum(dataB.find(d => filterTagoVariable(d.variable, ['gas', 'co2', 'mq']) )?.value),
+                time: dataB.length > 0 ? dataB[0].time : null
+            };
+
+            const formatTime = (iso) => iso ? new Date(iso).toLocaleString('pt-BR') : 'Sem dados';
+            const cardHtml = (base, latest) => `
+                <div class="glass-premium p-6 rounded-[2rem] border border-slate-700/50">
+                    <h4 class="text-lg font-bold text-white mb-3">${base.nome}</h4>
+                    <p class="text-xs uppercase tracking-[0.3em] text-slate-400 mb-6">Última leitura: ${formatTime(latest.time)}</p>
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/60">
+                            <p class="text-xs text-slate-400 uppercase tracking-[0.25em] mb-2">Temperatura</p>
+                            <p class="text-3xl font-black text-orange-300">${latest.temp !== null ? `${latest.temp} °C` : '--'}</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/60">
+                            <p class="text-xs text-slate-400 uppercase tracking-[0.25em] mb-2">Umidade</p>
+                            <p class="text-3xl font-black text-ecogreen">${latest.umi !== null ? `${latest.umi}%` : '--'}</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-700/60">
+                            <p class="text-xs text-slate-400 uppercase tracking-[0.25em] mb-2">Gás</p>
+                            <p class="text-3xl font-black text-purple-300">${latest.gas !== null ? `${latest.gas}%` : '--'}</p>
+                        </div>
+                    </div>
+                </div>`;
+
+            resultContainer.innerHTML = `
+                ${cardHtml(baseA, latestA)}
+                ${cardHtml(baseB, latestB)}`;
+        }
+
+        function initDashboardWidgets() {
+            loadTheme();
+            initBaseMap();
+            initCompareOptions();
         }
 
         function tentarAcessarSensores() {
@@ -2726,6 +3035,164 @@
             }
         }
 
+        function abrirModalSiteStatus() {
+            const modal = document.getElementById('site-status-modal');
+            if (!modal) return;
+            document.getElementById('site-status-view').classList.remove('hidden');
+            document.getElementById('site-status-control').classList.add('hidden');
+            document.getElementById('site-status-password').value = '';
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function fecharModalSiteStatus() {
+            const modal = document.getElementById('site-status-modal');
+            if (!modal) return;
+            modal.classList.add('opacity-0');
+            modal.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 400);
+        }
+
+        function verificarSenhaStatus() {
+            const senha = document.getElementById('site-status-password').value;
+            if (!senha) {
+                showToast('Digite a senha de administrador.', 'warning');
+                return;
+            }
+            // Verificação simples (usar token como senha também é válido)
+            const adminPassword = 'ecobot2026'; // Mude para a sua senha real
+            if (senha !== adminPassword) {
+                showToast('Senha incorreta!', 'error');
+                document.getElementById('site-status-password').value = '';
+                return;
+            }
+            document.getElementById('site-status-view').classList.add('hidden');
+            document.getElementById('site-status-control').classList.remove('hidden');
+            atualizarStatusUI();
+        }
+
+        function atualizarStatusUI() {
+            const siteStatus = localStorage.getItem('ecobot-site-status') || 'online';
+            const badge = document.getElementById('site-status-badge');
+            const text = document.getElementById('site-status-text');
+            if (siteStatus === 'closed') {
+                badge.className = 'inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-red-600/20 border border-red-600/50';
+                text.className = 'text-red-500 font-bold text-sm';
+                text.textContent = 'Site Fechado';
+            } else {
+                badge.className = 'inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-ecogreen/20 border border-ecogreen/50';
+                text.className = 'text-ecogreen font-bold text-sm';
+                text.textContent = 'Site Online';
+            }
+        }
+
+        function mudarStatusSite(status) {
+            localStorage.setItem('ecobot-site-status', status);
+            showToast(status === 'closed' ? '🔒 Site fechado para manutenção!' : '✅ Site reabierto!', 'success');
+            atualizarStatusUI();
+            setTimeout(() => fecharModalSiteStatus(), 1500);
+        }
+
+        function sairControle() {
+            document.getElementById('site-status-view').classList.remove('hidden');
+            document.getElementById('site-status-control').classList.add('hidden');
+            document.getElementById('site-status-password').value = '';
+        }
+
+        function verificarSiteFechado() {
+            const siteStatus = localStorage.getItem('ecobot-site-status') || 'online';
+            if (siteStatus === 'closed') {
+                document.body.innerHTML = `
+                    <div class="fixed inset-0 z-[9999] bg-gradient-to-br from-darkbg to-slate-900 flex flex-col items-center justify-center px-4">
+                        <div class="max-w-md w-full text-center">
+                            <div class="w-24 h-24 bg-red-600/20 rounded-full flex items-center justify-center mx-auto mb-8 border border-red-600/50 shadow-[0_0_30px_rgba(220,38,38,0.3)]">
+                                <i class="fa-solid fa-lock text-5xl text-red-500"></i>
+                            </div>
+                            <h1 class="font-montserrat text-4xl md:text-5xl text-white font-black mb-4 tracking-[0.2em]">MANUTENÇÃO</h1>
+                            <p class="text-slate-400 mb-8 text-lg leading-relaxed">O site está temporariamente fechado para atualizações. Volte em breve!</p>
+                            <div class="flex items-center justify-center gap-2 mb-8">
+                                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                <span class="text-red-500 font-bold text-sm uppercase tracking-widest">Sistema Offline</span>
+                            </div>
+                            <p class="text-slate-500 text-xs uppercase tracking-[0.3em]" id="manutencao-timestamp"></p>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('manutencao-timestamp').textContent = 'Última atualização: ' + new Date().toLocaleString('pt-BR');
+                return true;
+            }
+            return false;
+        }
+
+        async function exportAlertsCSV() {
+            try {
+                const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
+                const response = await fetch(`${backendUrl}/api/alerts`);
+                if (!response.ok) throw new Error('Falha ao acessar histórico de alertas');
+                const alertas = await response.json();
+                if (!Array.isArray(alertas) || alertas.length === 0) {
+                    showToast('Nenhum alerta para exportar.', 'warning');
+                    return;
+                }
+                const rows = alertas.map(alerta => ({
+                    timestamp: alerta.timestamp,
+                    base: alerta.base,
+                    nivel: alerta.nivel,
+                    mensagens: Array.isArray(alerta.mensagens) ? alerta.mensagens.join(' | ') : alerta.mensagens
+                }));
+                downloadCSV('alertas_ecobot.csv', ['timestamp', 'base', 'nivel', 'mensagens'], rows);
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao exportar alertas.', 'error');
+            }
+        }
+
+        async function exportDashboardDataCSV() {
+            try {
+                const dados = window.dadosAtuais || { temp: [], umi: [], gas: [] };
+                const arrT = Array.isArray(dados.temp) ? dados.temp : [];
+                const arrU = Array.isArray(dados.umi) ? dados.umi : [];
+                const arrG = Array.isArray(dados.gas) ? dados.gas : [];
+                const uniqueTimes = [...new Set([...arrT, ...arrU, ...arrG].map(d => d.time || ''))].filter(Boolean);
+                if (uniqueTimes.length === 0) {
+                    showToast('Nenhum dado do dashboard disponível para exportar.', 'warning');
+                    return;
+                }
+                uniqueTimes.sort((a, b) => new Date(a) - new Date(b));
+                const rows = uniqueTimes.map(time => {
+                    const temp = safeParseNum(arrT.find(d => d.time === time)?.value);
+                    const umi = safeParseNum(arrU.find(d => d.time === time)?.value);
+                    const gas = safeParseNum(arrG.find(d => d.time === time)?.value);
+                    return { time, temp, umi, gas };
+                });
+                downloadCSV('dados_dashboard_ecobot.csv', ['time', 'temp', 'umi', 'gas'], rows);
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao exportar dados do dashboard.', 'error');
+            }
+        }
+
+        function downloadCSV(filename, headers, rows) {
+            const csvContent = [headers.join(','), ...rows.map(row => headers.map(field => {
+                const value = row[field] ?? '';
+                const escaped = String(value).replace(/"/g, '""');
+                return `"${escaped}"`;
+            }).join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
         // Função para carregar credenciais EmailJS do localStorage
         function carregarCredenciaisInterface() {
             carregarCredenciaisEmailJS();
@@ -2888,32 +3355,32 @@
             transform: translateX(100%);
             opacity: 0;
         }
-
+        
         .toast.show {
             transform: translateX(0);
             opacity: 1;
         }
-
+        
         .toast.success {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.9), rgba(6, 182, 212, 0.9));
             color: white;
         }
-
+        
         .toast.error {
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(220, 38, 38, 0.9));
             color: white;
         }
-
+        
         .toast.warning {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.9), rgba(217, 119, 6, 0.9));
             color: white;
         }
-
+        
         .toast .icon {
             font-size: 1.25rem;
             margin-right: 0.75rem;
         }
-
+        
         .toast .close-btn {
             position: absolute;
             top: 0.5rem;
@@ -2927,57 +3394,47 @@
             border-radius: 0.25rem;
             transition: all 0.2s ease;
         }
-
+        
         .toast .close-btn:hover {
             color: white;
             background: rgba(255, 255, 255, 0.1);
         }
-
         /* Enhanced Visual Improvements */
+        
         .glass-premium {
             background: linear-gradient(135deg, rgba(10, 25, 40, 0.6), rgba(15, 35, 50, 0.4));
             -webkit-backdrop-filter: blur(25px);
             backdrop-filter: blur(25px);
             border: 1px solid rgba(20, 184, 166, 0.2);
-            box-shadow:
-                0 25px 50px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
+        
         .glass-premium:hover {
             transform: translateY(-2px);
-            box-shadow:
-                0 35px 70px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                0 0 30px rgba(20, 184, 166, 0.1);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 30px rgba(20, 184, 166, 0.1);
         }
-
+        
         .glass-highlight {
             background: linear-gradient(135deg, rgba(15, 30, 45, 0.5), rgba(20, 40, 60, 0.3));
             -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(20, 184, 166, 0.15);
-            box-shadow:
-                0 15px 35px rgba(0, 0, 0, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
             transition: all 0.3s ease;
         }
-
+        
         .glass-highlight:hover {
             transform: scale(1.02);
-            box-shadow:
-                0 20px 45px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                0 0 20px rgba(20, 184, 166, 0.08);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 20px rgba(20, 184, 166, 0.08);
         }
-
+        
         .btn-filtro {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
-
+        
         .btn-filtro::before {
             content: '';
             position: absolute;
@@ -2988,58 +3445,57 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s ease;
         }
-
+        
         .btn-filtro:hover::before {
             left: 100%;
         }
-
+        
         .btn-filtro.active {
             background: linear-gradient(135deg, rgba(20, 184, 166, 0.3), rgba(6, 182, 212, 0.2));
             box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
             animation: glow 2s ease-in-out infinite alternate;
         }
-
+        
         @keyframes glow {
             from {
                 box-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
             }
-
             to {
                 box-shadow: 0 0 30px rgba(20, 184, 166, 0.5), 0 0 40px rgba(6, 182, 212, 0.2);
             }
         }
-
+        
         .hero-blob {
             animation: blob 20s infinite alternate ease-in-out;
         }
-
+        
         .floating-element {
             animation: float-slow 10s ease-in-out infinite;
         }
-
+        
         .pulse-glow {
             animation: pulse 3s ease-in-out infinite;
         }
-
         /* Enhanced input styles */
+        
         input:focus,
         textarea:focus {
             box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.2), 0 0 20px rgba(20, 184, 166, 0.1);
             transform: scale(1.01);
         }
-
         /* Button hover effects */
+        
         button:hover {
             transform: translateY(-1px);
             box-shadow: 0 10px 25px rgba(20, 184, 166, 0.3);
         }
-
         /* Card entrance animations */
+        
         .animate-card-enter {
             animation: slideInLeft 0.8s ease-out forwards;
         }
-
         /* Loading spinner enhancement */
+        
         .spinner {
             border: 3px solid rgba(20, 184, 166, 0.1);
             border-top: 3px solid #14b8a6;
@@ -3048,18 +3504,17 @@
             height: 30px;
             animation: spin 1s linear infinite;
         }
-
+        
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
             }
-
             100% {
                 transform: rotate(360deg);
             }
         }
-
         /* Particle effect for success */
+        
         .particles {
             position: absolute;
             width: 100%;
@@ -3067,7 +3522,7 @@
             pointer-events: none;
             overflow: hidden;
         }
-
+        
         .particle {
             position: absolute;
             width: 4px;
@@ -3076,13 +3531,12 @@
             border-radius: 50%;
             animation: particle-float 3s ease-out forwards;
         }
-
+        
         @keyframes particle-float {
             0% {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
-
             100% {
                 opacity: 0;
                 transform: translateY(-100px) scale(0);
