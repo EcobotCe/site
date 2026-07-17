@@ -4,7 +4,7 @@ Backend Node.js para o Ecobot, um sistema de monitoramento ambiental que registr
 
 ## Descrição
 
-Esta aplicação recebe dados de sensores via Tago.io, registra alertas e estados em arquivos JSON locais e envia notificações por e-mail. Também disponibiliza uma interface web estática para inscrição e consulta de dados com tema claro consistente.
+Esta aplicação recebe dados de sensores via Tago.io, registra alertas e estados em arquivos JSON locais e envia notificações para assinantes. Também disponibiliza uma interface web estática para inscrição e consulta de dados.
 
 ## Recursos
 
@@ -102,7 +102,6 @@ npm run check
 ## Observações de deploy
 
 - A persistência é local em arquivos JSON em `data/` e não depende de PostgreSQL.
-- O frontend já usa tema claro uniforme para evitar partes escuras ou inconsistentes no layout.
 - Mantenha o `.env` fora do controle de versão.
 - Configure `EMAIL_USER`, `EMAIL_PASS`, `TAGO_TOKEN_1` e `TAGO_TOKEN_2` nas variáveis de ambiente do deploy.
 
