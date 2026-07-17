@@ -1,8 +1,8 @@
 // ── Ecobot Config ──────────────────────────────────────────
 
 // ========== CONFIGURAÇÃO DE AMBIENTE ==========
-        const API_URL = 'https://web-production-7eff7.up.railway.app';
-        const ECOBOT_BACKEND_URL = 'https://web-production-7eff7.up.railway.app';
+        const API_URL = 'https://ecobotce.github.io/site/';
+        const ECOBOT_BACKEND_URL = 'https://ecobotce.github.io/site/';
         const TAGO_API_BASE = 'https://api.tago.io/data';
         const TAGO_FETCH_QTY = 60;
 

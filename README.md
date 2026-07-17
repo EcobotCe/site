@@ -1,34 +1,32 @@
 ﻿# Ecobot Backend
 
-Backend Node.js para o Ecobot, um sistema de monitoramento ambiental que registra alertas e envia notificações por e-mail.
+Backend Node.js para o Ecobot, um sistema de monitoramento ambiental que registra alertas em arquivos JSON locais e envia notificações por e-mail.
 
 ## Descrição
 
-Esta aplicação recebe dados de sensores via Tago.io, registra alertas em um banco PostgreSQL e envia notificações para assinantes. Também disponibiliza uma interface web estática para inscrição e dashboard de monitoramento.
+Esta aplicação recebe dados de sensores via Tago.io, registra alertas e estados em arquivos JSON locais e envia notificações para assinantes. Também disponibiliza uma interface web estática para inscrição e consulta de dados.
 
 ## Recursos
 
 - API de inscrição de e-mails (`POST /subscribe`)
 - API de cancelamento de inscrição (`GET /unsubscribe`)
-- Histórico de alertas em banco de dados (`GET /api/alerts`)
+- Histórico de alertas persistido em JSON local (`GET /api/alerts`)
 - Consulta de dados ambientais recentes (`GET /api/dados-recentes`)
 - Health check (`GET /health`)
 - Agendamento de verificação automática a cada 5 minutos
-- Frontend estático em `index.html` e `dashboard.html`
+- Frontend estático em `index.html`
 
 ## Estrutura do projeto
 
 - `server.js` - servidor principal e rotas API
 - `check-alerts.js` - coleta dados de Tago.io e dispara alertas
-- `setup-db.js` - cria tabelas PostgreSQL necessárias
 - `index.html` - UI de inscrição e monitoramento
 - `dashboard.html` - dashboard com gráficos e histórico de alertas
-- `.env.example` - exemplo de variáveis de ambiente
+- `data/` - arquivos JSON usados para persistência local
 
 ## Pré-requisitos
 
 - Node.js 18 ou superior
-- PostgreSQL acessível via `DATABASE_URL`
 - Conta Gmail com senha de aplicativo para envio de e-mails
 - Tokens válidos do Tago.io para suas bases
 
@@ -46,29 +44,25 @@ Copie `.env.example` para `.env` e preencha os valores:
 
 - `PORT` - porta do servidor
 - `NODE_ENV` - ambiente (`development` ou `production`)
-- `DATABASE_URL` - conexão PostgreSQL interna
-- `DATABASE_PUBLIC_URL` - conexão pública alternativa
 - `EMAIL_USER` - conta Gmail para envio de e-mail
 - `EMAIL_PASS` - senha de app do Gmail
 - `TAGO_TOKEN_1` - token da base Tago.io 1
 - `TAGO_TOKEN_2` - token da base Tago.io 2
 - `CORS_ORIGINS` - origens permitidas separadas por vírgula
 
-> Observação: `ALERT_EMAILS` está documentado no `.env.example`, mas o backend atual usa inscritos em `subscribers` para envio de alertas.
+> Observação: a persistência é local em arquivos JSON dentro de `data/`.
 
-## Banco de dados
+## Persistência
 
-O projeto cria e usa as seguintes tabelas:
+A aplicação salva dados em arquivos JSON dentro da pasta `data/`:
 
-- `subscribers` - lista de e-mails inscritos
-- `alerts` - histórico de alertas gerados
-- `base_states` - último estado de cada base para evitar envios duplicados
+- `subscribers.json` - lista de e-mails inscritos
+- `alerts.json` - histórico de alertas gerados
+- `base_states.json` - último estado de cada base para evitar envios duplicados
+- `bases.json` - bases cadastradas
+- `subscriber_preferences.json` - preferências de alertas por inscrito
 
-Execute:
-
-```powershell
-npm run setup
-```
+A persistência é local, sem PostgreSQL nem scripts de migração de banco de dados.
 
 ## Execução
 
@@ -92,7 +86,7 @@ npm run check
 
 ## Endpoints principais
 
-- `POST /subscribe` - adiciona um e-mail ao banco
+- `POST /subscribe` - adiciona um e-mail ao armazenamento local
 - `GET /unsubscribe?email=<email>` - remove inscrição
 - `GET /api/alerts` - retorna alertas registrados
 - `GET /api/dados-recentes` - retorna dados recentes das bases
@@ -107,9 +101,9 @@ npm run check
 
 ## Observações de deploy
 
-- Em Railway, prefira `DATABASE_URL` para conexões internas e use `DATABASE_PUBLIC_URL` como fallback externo.
+- A persistência é local em arquivos JSON em `data/` e não depende de PostgreSQL.
 - Mantenha o `.env` fora do controle de versão.
-- Se usar Railway, configure `EMAIL_USER`, `EMAIL_PASS`, `TAGO_TOKEN_1` e `TAGO_TOKEN_2` nas variáveis de ambiente do deploy.
+- Configure `EMAIL_USER`, `EMAIL_PASS`, `TAGO_TOKEN_1` e `TAGO_TOKEN_2` nas variáveis de ambiente do deploy.
 
 ## Licença
 

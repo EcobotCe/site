@@ -8,11 +8,9 @@
   },
   "scripts": {
     "start": "node server.js",
-    "setup": "node setup-db.js",
     "check": "node check-alerts.js",
-    "db:setup": "node setup-db.js",
     "dev": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --check server.js && node --check check-alerts.js"
   },
   "keywords": [
     "ecobot",
@@ -28,9 +26,10 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.0.0",
+    "helmet": "^7.0.0",
     "node-cron": "^3.0.3",
-    "nodemailer": "^6.9.7",
-    "pg": "^8.11.3"
+    "nodemailer": "^6.9.7"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

@@ -125,9 +125,8 @@
             }
             // NO INÍCIO DO SEU SCRIPT - DECLARE UMA ÚNICA VEZ
             // ========== CONFIGURAÇÃO DE AMBIENTE ==========
-        const API_URL = 'https://web-production-7eff7.up.railway.app';
-        const ECOBOT_BACKEND_URL = 'https://web-production-7eff7.up.railway.app';
-        const TAGO_API_BASE = 'https://api.tago.io/data';
+        const API_URL = 'https://ecobotce.github.io/site/';
+        const ECOBOT_BACKEND_URL = 'https://ecobotce.github.io/site/';
         const TAGO_FETCH_QTY = 60;
 
         // Quando null, o dashboard busca os dados mais recentes em tempo real
@@ -1722,7 +1721,7 @@
                             } else {
                                 card.className += ' border-slate-700/50';
                             }
-                            const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slice(-6)}` : 'Sem token';
+const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slice(-6)}` : 'Token protegido';
                             const coords = base.lat || base.lon ? `${base.lat ? `Lat: ${base.lat}` : ''}${base.lat && base.lon ? ' • ' : ''}${base.lon ? `Lon: ${base.lon}` : ''}` : 'Coordenadas não informadas';
 
                     // Badge de status online/offline
@@ -1856,7 +1855,7 @@
         async function fetchBaseData(base) {
             try {
                 const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
-                const response = await fetch(`${backendUrl}/api/test-tago?token=${encodeURIComponent(base.token)}&qty=120`);
+                const response = await fetch(`${backendUrl}/api/test-tago?baseId=${encodeURIComponent(base.id)}&qty=120`);
                 if (!response.ok) {
                     throw new Error(`Falha ao buscar dados da base ${base.nome}`);
                 }
@@ -2011,7 +2010,8 @@
                     modalTitle.innerText = dicionario[idiomaAtual]['txt_editar_base_titulo'];
                     saveText.innerText = dicionario[idiomaAtual]['btn_atualizar_base'];
                     nomeInput.value = base.nome;
-                    tokenInput.value = base.token;
+                    tokenInput.value = '';
+                    tokenInput.placeholder = idiomaAtual === 'pt' ? 'Deixe vazio para manter o token atual' : idiomaAtual === 'en' ? 'Leave blank to keep current token' : 'Dejar vacío para mantener el token actual';
                     latInput.value = base.lat || '';
                     lonInput.value = base.lon || '';
                 }
@@ -2046,23 +2046,31 @@
             const lat = document.getElementById('nova-lat').value;
             const lon = document.getElementById('nova-lon').value;
 
-            if (!nome || !token) {
-                alert(idiomaAtual === 'pt' ? "Nome e Token são obrigatórios!" : idiomaAtual === 'es' ? "¡Nombre y Token son obligatorios!" : "Name and Token are required!");
+            if (!nome) {
+                alert(idiomaAtual === 'pt' ? "Nome é obrigatório!" : idiomaAtual === 'es' ? "¡El nombre es obligatorio!" : "Name is required!");
                 return;
             }
 
             const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
-            const payload = { nome, token, lat: lat || null, lon: lon || null };
+            const payload = { nome, lat: lat || null, lon: lon || null };
+            if (editingBaseId) {
+                payload.id = editingBaseId;
+                if (token) payload.token = token;
+            } else {
+                if (!token) {
+                    alert(idiomaAtual === 'pt' ? "Token é obrigatório para nova base!" : idiomaAtual === 'es' ? "¡El token es obligatorio para una base nueva!" : "Token is required for a new base!");
+                    return;
+                }
+                payload.token = token;
+            }
 
             try {
                 let response;
-                if (editingBaseId) {
-                    payload.id = editingBaseId;
-                    response = await fetch(`${backendUrl}/api/bases`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+                response = await fetch(`${backendUrl}/api/bases`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
                 } else {
                     response = await fetch(`${backendUrl}/api/bases`, {
                         method: 'POST',
@@ -2212,32 +2220,18 @@
                 // "tempo real". Sem filtro de data, mantém o qty padrão.
                 const qtyEfetivo = dataFiltroSelecionada ? 500 : TAGO_FETCH_QTY;
 
-                const proxyUrl = `${backendUrl}/api/test-tago?token=${encodeURIComponent(baseSelecionada.token)}&qty=${qtyEfetivo}${filtroDataParams}`;
-                const directUrl = `${TAGO_API_BASE}?qty=${qtyEfetivo}${filtroDataParams}`;
+                const proxyUrl = `${backendUrl}/api/test-tago?baseId=${encodeURIComponent(baseSelecionada.id)}&qty=${qtyEfetivo}${filtroDataParams}`;
 
-                const fetchData = async (url, useDirect = false) => {
-                    const headers = useDirect
-                        ? { 'Content-Type': 'application/json', 'Device-Token': baseSelecionada.token }
-                        : { 'Content-Type': 'application/json' };
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        mode: 'cors',
-                        cache: 'no-store',
-                        headers
-                    });
-                    if (!response.ok) {
-                        throw new Error(`TagO API retornou ${response.status} ${response.statusText}`);
-                    }
-                    return response.json();
-                };
-
-                let json;
-                try {
-                    json = await fetchData(proxyUrl, false);
-                } catch (proxyError) {
-                    console.warn('Proxy TagO falhou, tentando acesso direto:', proxyError.message);
-                    json = await fetchData(directUrl, true);
+                const response = await fetch(proxyUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-store',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!response.ok) {
+                    throw new Error(`TagO Proxy retornou ${response.status} ${response.statusText}`);
                 }
+                const json = await response.json();
 
                 const data = Array.isArray(json.result)
                     ? json.result
