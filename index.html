@@ -125,8 +125,9 @@
             }
             // NO INÍCIO DO SEU SCRIPT - DECLARE UMA ÚNICA VEZ
             // ========== CONFIGURAÇÃO DE AMBIENTE ==========
-        const API_URL = 'https://ecobotce.github.io/site/';
-        const ECOBOT_BACKEND_URL = 'https://ecobotce.github.io/site/';
+        // ⚠️ TROQUE pela URL do seu Worker depois do deploy (ver MIGRACAO.md)
+        // Exemplo: 'https://ecobot-api.SEU-USUARIO.workers.dev'
+        const ECOBOT_BACKEND_URL = 'https://ecobot-api.SEU-USUARIO.workers.dev';
         const TAGO_FETCH_QTY = 60;
 
         // Quando null, o dashboard busca os dados mais recentes em tempo real
@@ -1204,28 +1205,13 @@
             </div>
         </header>
 
-        <!-- Seção de Inscrição de E-mail -->
-        <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter">
-            <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-2 flex items-center gap-3">
-                <i class="fa-solid fa-envelope text-ecogreen"></i> Receber Alertas por E-mail
-            </h3>
-            <p class="text-xs text-slate-500 mb-6">Insira seu e-mail para ser notificado pelo servidor quando os sensores detectarem condições críticas.</p>
-            <div class="flex gap-3">
-                <input type="email" id="email_input" placeholder="seuemail@exemplo.com" class="flex-1 bg-slate-900/80 border border-slate-700 text-white rounded-xl px-4 py-3.5 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm shadow-inner placeholder-slate-600">
-                <button type="button" onclick="subscreverAlertas()" class="bg-gradient-to-r from-ecogreen to-cyan-600 hover:from-cyan-500 hover:to-ecogreen text-white font-bold py-3.5 px-6 rounded-xl transition-all text-sm whitespace-nowrap shadow-md hover:-translate-y-0.5 flex items-center gap-2">
-                    <i class="fa-solid fa-bell"></i> Inscrever
-                </button>
-            </div>
-        </div>
-
-
 
         <!-- O que o servidor monitora -->
         <div class="glass-premium p-6 md:p-8 rounded-[2.5rem] mb-8 relative overflow-hidden shadow-xl border border-ecogreen/10 animate-card-enter delay-02s">
             <h3 class="font-montserrat text-lg md:text-xl text-white font-black mb-6 flex items-center gap-3">
                 <i class="fa-solid fa-shield-halved text-ecogreen"></i> O que o servidor monitora
             </h3>
-            <p class="text-xs text-slate-400 mb-6">Ao se inscrever, você será notificado automaticamente por e-mail quando qualquer uma das condições abaixo for detectada:</p>
+            <p class="text-xs text-slate-400 mb-6">O sistema monitora continuamente as seguintes condições em cada base:</p>
             <div class="space-y-3">
                 <div class="glass-highlight p-4 rounded-2xl border border-orange-500/20 flex items-center gap-4">
                     <div class="w-10 h-10 bg-orange-500/20 rounded-xl flex items-center justify-center text-orange-400 shrink-0">
@@ -1235,7 +1221,7 @@
                         <p class="text-white font-semibold text-sm">Temperatura Crítica</p>
                         <p class="text-xs text-slate-400">Acima de 40°C (crítico) ou fora de 10–35°C (aviso)</p>
                     </div>
-                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
+                    <i class="fa-solid fa-eye text-ecogreen ml-auto text-sm" title="Monitorado em tempo real no dashboard"></i>
                 </div>
                 <div class="glass-highlight p-4 rounded-2xl border border-blue-500/20 flex items-center gap-4">
                     <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-400 shrink-0">
@@ -1245,7 +1231,7 @@
                         <p class="text-white font-semibold text-sm">Umidade Crítica</p>
                         <p class="text-xs text-slate-400">Abaixo de 20% ou acima de 85% (crítico); fora de 30–70% (aviso)</p>
                     </div>
-                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
+                    <i class="fa-solid fa-eye text-ecogreen ml-auto text-sm" title="Monitorado em tempo real no dashboard"></i>
                 </div>
                 <div class="glass-highlight p-4 rounded-2xl border border-purple-500/20 flex items-center gap-4">
                     <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 shrink-0">
@@ -1255,7 +1241,7 @@
                         <p class="text-white font-semibold text-sm">Nível de Gás Elevado</p>
                         <p class="text-xs text-slate-400">Acima de 20% (crítico) ou acima de 10% (aviso)</p>
                     </div>
-                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
+                    <i class="fa-solid fa-eye text-ecogreen ml-auto text-sm" title="Monitorado em tempo real no dashboard"></i>
                 </div>
                 <div class="glass-highlight p-4 rounded-2xl border border-slate-500/20 flex items-center gap-4">
                     <div class="w-10 h-10 bg-slate-500/20 rounded-xl flex items-center justify-center text-slate-400 shrink-0">
@@ -1265,7 +1251,7 @@
                         <p class="text-white font-semibold text-sm">Base Offline</p>
                         <p class="text-xs text-slate-400">Quando uma estação parar de enviar dados</p>
                     </div>
-                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
+                    <i class="fa-solid fa-eye text-ecogreen ml-auto text-sm" title="Monitorado em tempo real no dashboard"></i>
                 </div>
                 <div class="glass-highlight p-4 rounded-2xl border border-ecogreen/20 flex items-center gap-4">
                     <div class="w-10 h-10 bg-ecogreen/20 rounded-xl flex items-center justify-center text-ecogreen shrink-0">
@@ -1275,7 +1261,7 @@
                         <p class="text-white font-semibold text-sm">Recuperação</p>
                         <p class="text-xs text-slate-400">Quando a base voltar ao normal após um alerta</p>
                     </div>
-                    <i class="fa-solid fa-envelope text-ecogreen ml-auto text-sm"></i>
+                    <i class="fa-solid fa-eye text-ecogreen ml-auto text-sm" title="Monitorado em tempo real no dashboard"></i>
                 </div>
             </div>
         </div>
@@ -3042,50 +3028,6 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
         setTimeout(() => {
             atualizarSemaforo();
         }, 1000);
-        // Função para inscrever e-mail no servidor de alertas (backend /subscribe)
-        async function subscreverAlertas() {
-            const emailInput = document.getElementById("email_input");
-            const email = emailInput ? emailInput.value.trim() : '';
-
-            if (!email || !email.includes("@")) {
-                showToast('Por favor, insira um e-mail válido!', 'warning');
-                return;
-            }
-
-            const backendUrl = ECOBOT_BACKEND_URL || window.location.origin;
-
-            try {
-                // Usar AbortController para timeout customizado (60 segundos)
-                const controller = new AbortController();
-                const timeout = setTimeout(() => controller.abort(), 60000);
-
-                const response = await fetch(`${backendUrl}/subscribe`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email }),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeout);
-                const texto = await response.text();
-
-                if (response.ok) {
-                    showToast(`✅ ${texto}`, 'success');
-                    if (emailInput) emailInput.value = '';
-                } else if (response.status === 409) {
-                    showToast('ℹ️ Este e-mail já está inscrito na lista de alertas.', 'warning');
-                } else {
-                    showToast(`❌ Erro: ${texto}`, 'error');
-                }
-            } catch (erro) {
-                console.error('Erro ao inscrever no backend:', erro);
-                if (erro.name === 'AbortError') {
-                    showToast('⏱️ Requisição expirou. Servidor pode estar lento. Tente novamente.', 'error');
-                } else {
-                    showToast('❌ Não foi possível conectar ao servidor. Verifique a conexão.', 'error');
-                }
-            }
-        }
     </script>
 
     <!-- Toast Notification Container -->
