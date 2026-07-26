@@ -127,7 +127,7 @@
             // ========== CONFIGURAÇÃO DE AMBIENTE ==========
         // ⚠️ TROQUE pela URL do seu Worker depois do deploy (ver MIGRACAO.md)
         // Exemplo: 'https://ecobot-api.SEU-USUARIO.workers.dev'
-        const ECOBOT_BACKEND_URL = 'https://ecobot-worker.vnxxx2303.workers.dev';
+        const ECOBOT_BACKEND_URL = 'https://ecobot-api.SEU-USUARIO.workers.dev';
         const TAGO_FETCH_QTY = 60;
 
         // Quando null, o dashboard busca os dados mais recentes em tempo real
@@ -2051,19 +2051,11 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
             }
 
             try {
-                let response;
-                response = await fetch(`${backendUrl}/api/bases`, {
+                const response = await fetch(`${backendUrl}/api/bases`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                } else {
-                    response = await fetch(`${backendUrl}/api/bases`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                }
                 if (!response.ok) {
                     const errorBody = await response.json().catch(() => ({}));
                     throw new Error(errorBody.error || 'Não foi possível salvar a base.');
