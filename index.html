@@ -1004,9 +1004,6 @@
                         <select id="seletor-base" onchange="mudarBase(this.value)" class="w-full appearance-none bg-slate-900/90 border border-slate-700 text-white rounded-xl px-4 py-3.5 pr-10 outline-none focus:border-ecogreen focus:ring-1 focus:ring-ecogreen transition-all text-sm font-medium shadow-inner cursor-pointer hover:border-slate-600"></select>
                         <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"></i>
                     </div>
-                    <button type="button" onclick="abrirModalAdicionarBase()" class="bg-ecogreen/10 hover:bg-ecogreen/20 text-ecogreen border border-ecogreen/30 font-bold py-3.5 px-6 rounded-xl transition-all shadow-md text-sm flex items-center gap-2 whitespace-nowrap btn-hover-glow ripple animate-fade-in">
-                        <i class="fa-solid fa-plus"></i> <span data-i18n="btn_adicionar_base">Adicionar Base</span>
-                    </button>
                 </div>
             </div>
         </header>
@@ -1731,8 +1728,6 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <button type="button" onclick="mudarBase(${base.id})" class="text-ecogreen text-xs font-bold uppercase tracking-[0.26em]">Selecionar</button>
-                                <button type="button" onclick="editarBase(${base.id})" class="text-slate-300 text-xs hover:text-ecogreen flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i>Editar</button>
-                                <button type="button" onclick="removerBase(${base.id})" class="text-red-400 text-xs hover:text-red-200 flex items-center gap-2"><i class="fa-solid fa-trash"></i>Excluir</button>
                             </div>
                         </div>
                     `;
@@ -1741,7 +1736,7 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
             });
 
             if (baseManagement && redeBases.length === 0) {
-                baseManagement.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/40 text-slate-400">Nenhuma base cadastrada ainda. Clique em "Adicionar Base" para começar.</div>`;
+                baseManagement.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/40 text-slate-400">Nenhuma base cadastrada ainda.</div>`;
             }
             initCompareOptions();
         }

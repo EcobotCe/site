@@ -306,8 +306,6 @@
                             </div>
                             <div class="flex flex-col items-end gap-2">
                                 <button type="button" onclick="mudarBase(${base.id})" class="text-ecogreen text-xs font-bold uppercase tracking-[0.26em]">Selecionar</button>
-                                <button type="button" onclick="editarBase(${base.id})" class="text-slate-300 text-xs hover:text-ecogreen flex items-center gap-2"><i class="fa-solid fa-pen-to-square"></i>Editar</button>
-                                <button type="button" onclick="removerBase(${base.id})" class="text-red-400 text-xs hover:text-red-200 flex items-center gap-2"><i class="fa-solid fa-trash"></i>Excluir</button>
                             </div>
                         </div>
                     `;
@@ -316,7 +314,7 @@
             });
 
             if (baseManagement && redeBases.length === 0) {
-                baseManagement.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/40 text-slate-400">Nenhuma base cadastrada ainda. Clique em "Adicionar Base" para começar.</div>`;
+                baseManagement.innerHTML = `<div class="glass-premium p-6 rounded-[2rem] border border-slate-700/40 text-slate-400">Nenhuma base cadastrada ainda.</div>`;
             }
         }
 
