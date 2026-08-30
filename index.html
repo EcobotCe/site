@@ -1687,6 +1687,12 @@
             seletor.innerHTML = '';
             if (baseManagement) baseManagement.innerHTML = '';
 
+            const fixedManagementText = idiomaAtual === 'pt'
+                ? 'Gerenciamento fixo'
+                : idiomaAtual === 'es'
+                    ? 'Gestión fija'
+                    : 'Fixed management';
+
             redeBases.forEach(base => {
                         const option = document.createElement('option');
                         option.value = base.id;
@@ -1698,7 +1704,7 @@
 
                         if (baseManagement) {
                             const card = document.createElement('div');
-                            card.className = 'glass-premium p-6 rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)]';
+                            card.className = 'glass-premium p-6 rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(16,185,129,0.2)] opacity-80';
                             if (baseSelecionada && base.id === baseSelecionada.id) {
                                 card.className += ' border-ecogreen/40 shadow-[0_0_40px_rgba(16,185,129,0.18)]';
                             } else {
@@ -1727,7 +1733,8 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
                                 <p class="text-xs text-slate-500 mt-3">${coords}</p>
                             </div>
                             <div class="flex flex-col items-end gap-2">
-                                <button type="button" onclick="mudarBase(${base.id})" class="text-ecogreen text-xs font-bold uppercase tracking-[0.26em]">Selecionar</button>
+                                <button type="button" onclick="mudarBase(${base.id})" class="text-ecogreen text-xs font-bold uppercase tracking-[0.26em] opacity-90">Selecionar</button>
+                                <button type="button" class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 cursor-not-allowed" disabled title="${fixedManagementText}">${fixedManagementText}</button>
                             </div>
                         </div>
                     `;
@@ -1977,42 +1984,13 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
         }
 
         function abrirModalAdicionarBase(id = null) {
-            const modalTitle = document.getElementById('modal-title-base');
-            const saveText = document.getElementById('btn-salvar-base-text');
-            const nomeInput = document.getElementById('nova-nome');
-            const tokenInput = document.getElementById('nova-token');
-            const latInput = document.getElementById('nova-lat');
-            const lonInput = document.getElementById('nova-lon');
-
-            if (id) {
-                const base = redeBases.find(b => b.id == id);
-                if (base) {
-                    editingBaseId = base.id;
-                    modalTitle.innerText = dicionario[idiomaAtual]['txt_editar_base_titulo'];
-                    saveText.innerText = dicionario[idiomaAtual]['btn_atualizar_base'];
-                    nomeInput.value = base.nome;
-                    tokenInput.value = '';
-                    tokenInput.placeholder = idiomaAtual === 'pt' ? 'Deixe vazio para manter o token atual' : idiomaAtual === 'en' ? 'Leave blank to keep current token' : 'Dejar vacío para mantener el token actual';
-                    latInput.value = base.lat || '';
-                    lonInput.value = base.lon || '';
-                }
-            } else {
-                editingBaseId = null;
-                modalTitle.innerText = dicionario[idiomaAtual]['txt_adicionar_base_titulo'];
-                saveText.innerText = dicionario[idiomaAtual]['btn_salvar_nova_base'];
-                nomeInput.value = '';
-                tokenInput.value = '';
-                latInput.value = '';
-                lonInput.value = '';
-            }
-
-            const modal = document.getElementById('modal-adicionar-base');
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                document.getElementById('modal-adicionar-base-box').classList.remove('scale-95');
-            }, 10);
-            setTimeout(() => nomeInput.focus(), 100);
+            const actionText = idiomaAtual === 'pt'
+                ? 'Cadastro de bases foi desativado. Para adicionar uma nova estação, edite a constante BASES_FIXAS em worker.js e faça deploy.'
+                : idiomaAtual === 'es'
+                    ? 'El registro de bases fue desactivado. Para agregar una nueva estación, edite la constante BASES_FIXAS en worker.js y haga deploy.'
+                    : 'Base registration is disabled. To add a new station, edit the BASES_FIXAS constant in worker.js and deploy.';
+            alert(actionText);
+            return;
         }
 
         function fecharModalAdicionarBase() {
@@ -2022,104 +2000,30 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
         }
 
         async function salvarNovaBase() {
-            const nome = document.getElementById('nova-nome').value;
-            const token = document.getElementById('nova-token').value;
-            const lat = document.getElementById('nova-lat').value;
-            const lon = document.getElementById('nova-lon').value;
-
-            if (!nome) {
-                alert(idiomaAtual === 'pt' ? "Nome é obrigatório!" : idiomaAtual === 'es' ? "¡El nombre es obligatorio!" : "Name is required!");
-                return;
-            }
-
-            const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
-            const payload = { nome, lat: lat || null, lon: lon || null };
-            if (editingBaseId) {
-                payload.id = editingBaseId;
-                if (token) payload.token = token;
-            } else {
-                if (!token) {
-                    alert(idiomaAtual === 'pt' ? "Token é obrigatório para nova base!" : idiomaAtual === 'es' ? "¡El token es obligatorio para una base nueva!" : "Token is required for a new base!");
-                    return;
-                }
-                payload.token = token;
-            }
-
-            try {
-                const response = await fetch(`${backendUrl}/api/bases`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (!response.ok) {
-                    const errorBody = await response.json().catch(() => ({}));
-                    throw new Error(errorBody.error || 'Não foi possível salvar a base.');
-                }
-                const savedBase = await response.json();
-                await carregarBases();
-                if (!baseSelecionada || editingBaseId) {
-                    baseSelecionada = savedBase;
-                }
-                editingBaseId = null;
-                fecharModalAdicionarBase();
-                atualizarInterfaceBases();
-                if (document.getElementById('view-dashboard').classList.contains('active-view')) {
-                    sincronizarTago();
-                }
-            } catch (err) {
-                console.error('Erro ao salvar base:', err);
-                alert(idiomaAtual === 'pt' ? 'Erro ao salvar base. Verifique o console.' : 'Error saving base. Check console.');
-            }
+            const message = idiomaAtual === 'pt'
+                ? 'Cadastro de bases foi desativado. Para adicionar uma nova estação, edite a constante BASES_FIXAS em worker.js e faça deploy.'
+                : idiomaAtual === 'es'
+                    ? 'El registro de bases fue desactivado. Para agregar una nueva estación, edite la constante BASES_FIXAS en worker.js y haga deploy.'
+                    : 'Base registration is disabled. To add a new station, edit the BASES_FIXAS constant in worker.js and deploy.';
+            alert(message);
         }
 
         function editarBase(id) {
-            abrirModalAdicionarBase(id);
+            const message = idiomaAtual === 'pt'
+                ? 'O gerenciamento de bases está fixo. Para editar ou remover esta estação, edite a constante BASES_FIXAS em worker.js e faça deploy.'
+                : idiomaAtual === 'es'
+                    ? 'La gestión de bases está fija. Para editar o eliminar esta estación, edite la constante BASES_FIXAS en worker.js y haga deploy.'
+                    : 'Base management is fixed. To edit or remove this station, edit the BASES_FIXAS constant in worker.js and deploy.';
+            alert(message);
         }
 
         async function removerBase(id) {
-            const confirmMsg = idiomaAtual === 'pt'
-                ? 'Tem certeza que deseja excluir esta base?\n\nAtenção: apenas administradores podem excluir bases.'
+            const message = idiomaAtual === 'pt'
+                ? 'Exclusão de bases foi desativada. Para remover uma estação, edite a constante BASES_FIXAS em worker.js e faça deploy.'
                 : idiomaAtual === 'es'
-                    ? '¿Seguro que desea eliminar esta base? Solo administradores pueden hacerlo.'
-                    : 'Are you sure you want to delete this base? Only admins can do this.';
-            if (!confirm(confirmMsg)) return;
-
-            const adminPassword = prompt(
-                idiomaAtual === 'pt'
-                    ? 'Digite a senha de administrador:'
-                    : idiomaAtual === 'es'
-                        ? 'Ingrese la contraseña de administrador:'
-                        : 'Enter admin password:'
-            );
-            if (adminPassword === null) return; // cancelou
-
-            try {
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
-                const response = await fetch(`${backendUrl}/api/bases/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ adminPassword })
-                });
-                if (!response.ok) {
-                    const errorBody = await response.json().catch(() => ({}));
-                    if (response.status === 403) {
-                        alert(idiomaAtual === 'pt' ? 'Senha de administrador incorreta.' : 'Incorrect admin password.');
-                        return;
-                    }
-                    throw new Error(errorBody.error || 'Não foi possível excluir a base.');
-                }
-                await carregarBases();
-                if (baseSelecionada && baseSelecionada.id == id) {
-                    baseSelecionada = redeBases[0] || null;
-                }
-                atualizarInterfaceBases();
-                if (baseSelecionada && document.getElementById('view-dashboard').classList.contains('active-view')) {
-                    sincronizarTago();
-                }
-            } catch (err) {
-                console.error('Erro ao excluir base:', err);
-                alert(idiomaAtual === 'pt' ? 'Erro ao excluir base. Verifique o console.' : 'Error deleting base. Check console.');
-            }
+                    ? 'La eliminación de bases fue desactivada. Para eliminar una estación, edite la constante BASES_FIXAS en worker.js y haga deploy.'
+                    : 'Base deletion is disabled. To remove a station, edit the BASES_FIXAS constant in worker.js and deploy.';
+            alert(message);
         }
 
 
