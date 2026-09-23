@@ -267,7 +267,19 @@ window.onload = function () {
         }
 
         const splash = document.getElementById('splash-screen');
-        if (splash) {
+        if (splash) {O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. FMro_7mW2mE
+O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. hrKtoUhizrc
+O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. mWEZmoo-nWw
+O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. QNxZsPmxRLA
+XHR GET
+https://ecobot-worker.vnxxx2303.workers.dev/api/test-tago?baseId=-1140533849&qty=60
+[HTTP/2 404  21ms]
+Erro na sincronização: Error: TagO Proxy retornou 404 
+    sincronizarTago https://ecobotce.github.io/site/:2109
+    sincronizarTago https://ecobotce.github.io/site/:2909
+    navegarPara https://ecobotce.github.io/site/:1645
+    acessarSensoresManual https://ecobotce.github.io/site/:1935
+    onclick https://ecobotce.github.io/site/:1
             setTimeout(() => {
                 splash.classList.add('opacity-0');
                 setTimeout(() => splash.classList.add('hidden'), 1000);
@@ -514,10 +526,12 @@ async function sincronizarTago() {
         let url = `${WORKER_URL}/api/dados-recentes`;
         const params = new URLSearchParams();
 
-        if (baseSelecionada && baseSelecionada.id) {
+        // Valida o baseId para não enviar IDs negativos ou nulos
+        if (baseSelecionada && baseSelecionada.id && !String(baseSelecionada.id).startsWith('-')) {
             params.append('baseId', baseSelecionada.id);
         }
-        if (dataFiltroSelecionada) {
+        
+        if (typeof dataFiltroSelecionada !== 'undefined' && dataFiltroSelecionada) {
             params.append('data', dataFiltroSelecionada);
         }
 
@@ -530,13 +544,14 @@ async function sincronizarTago() {
         const dadosRecebidos = await response.json();
         if (!dadosRecebidos) return;
 
+        // Trata o retorno aceitando tanto array quanto objeto único
         let baseAtual = Array.isArray(dadosRecebidos) 
-            ? (dadosRecebidos.find(b => b.id === baseSelecionada?.id || b.nome === baseSelecionada?.nome) || dadosRecebidos[0])
+            ? (dadosRecebidos.find(b => String(b.id) === String(baseSelecionada?.id) || b.nome === baseSelecionada?.nome) || dadosRecebidos[0])
             : dadosRecebidos;
 
         if (!baseAtual) return;
 
-        // Atualização dos elementos da página
+        // Atualização dos elementos da DOM
         const elTemp = document.getElementById('temp-val') || document.querySelector('.temperatura-valor');
         const elUmid = document.getElementById('umid-val') || document.querySelector('.umidade-valor');
         const elGas  = document.getElementById('gas-val')  || document.querySelector('.gas-valor');
@@ -553,11 +568,11 @@ async function sincronizarTago() {
             const horaFormatada = new Date(timestamp).toLocaleTimeString('pt-BR', {
                 hour: '2-digit', minute: '2-digit', second: '2-digit'
             });
-            const prefixo = dicionario[idiomaAtual]?.txt_atualizado_as || 'Atualizado às';
+            const prefixo = (typeof dicionario !== 'undefined' && dicionario[idiomaAtual]?.txt_atualizado_as) || 'Atualizado às';
             elAtualizacao.textContent = `${prefixo} ${horaFormatada}`;
         }
 
-        if (baseAtual.dados && Array.isArray(baseAtual.dados)) {
+        if (baseAtual.dados && Array.isArray(baseAtual.dados) && typeof atualizarGraficoDashboard === 'function') {
             atualizarGraficoDashboard(baseAtual.dados);
         }
 
