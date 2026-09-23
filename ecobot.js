@@ -267,19 +267,7 @@ window.onload = function () {
         }
 
         const splash = document.getElementById('splash-screen');
-        if (splash) {O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. FMro_7mW2mE
-O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. hrKtoUhizrc
-O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. mWEZmoo-nWw
-O cookie “__Secure-YEC” foi rejeitado porque está em um contexto entre sites e seu “SameSite” é “Lax” ou “Strict”. QNxZsPmxRLA
-XHR GET
-https://ecobot-worker.vnxxx2303.workers.dev/api/test-tago?baseId=-1140533849&qty=60
-[HTTP/2 404  21ms]
-Erro na sincronização: Error: TagO Proxy retornou 404 
-    sincronizarTago https://ecobotce.github.io/site/:2109
-    sincronizarTago https://ecobotce.github.io/site/:2909
-    navegarPara https://ecobotce.github.io/site/:1645
-    acessarSensoresManual https://ecobotce.github.io/site/:1935
-    onclick https://ecobotce.github.io/site/:1
+        if (splash) {
             setTimeout(() => {
                 splash.classList.add('opacity-0');
                 setTimeout(() => splash.classList.add('hidden'), 1000);
@@ -513,36 +501,57 @@ function voltarTempoReal() {
     const btnVoltar = document.getElementById('btn-voltar-tempo-real');
     if (btnVoltar) btnVoltar.classList.add('hidden');
 
-async function sincronizarTago(baseSelecionada) {
-  // 1. Trava de segurança: Bloqueia IDs nulos ou negativos
-  if (!baseSelecionada || !baseSelecionada.id || String(baseSelecionada.id).startsWith('-')) {
-    console.error("Erro: O ID da base é inválido (negativo).", baseSelecionada);
-    alert("Erro na base. Remove esta base e adiciona novamente usando o Device-Token correto do Tago.io (ex: xxxx-xxxx-xxxx-xxxx).");
-    return;
-  }
+    sincronizarTago();
+    if (!intervalSync) intervalSync = setInterval(sincronizarTago, 15000);
+}
 
-  try {
-    // 2. Aponta para a rota correta do Worker
-    const workerUrl = `https://ecobot-worker.vnxxx2303.workers.dev/api/dados-recentes?baseId=${baseSelecionada.id}`;
-    
-    const resposta = await fetch(workerUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
+async function sincronizarTago() {
+    // 1. Trava de segurança
+    if (!baseSelecionada || !baseSelecionada.id) return;
+  
+    try {
+      // 2. Chama a API do Worker (lê TODAS as bases na mesma requisição)
+      const workerUrl = `${WORKER_URL}/api/dados-recentes`;
+      
+      const resposta = await fetch(workerUrl, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+  
+      if (!resposta.ok) {
+        throw new Error(`Erro na API: ${resposta.status}`);
       }
-    });
+  
+      // 3. Recebe a lista com os dados recentes de todas as bases
+      const todasAsBases = await resposta.json();
+      
+      // 4. Filtra apenas a base selecionada atualmente na Dashboard
+      const dadosDaBase = todasAsBases.find(b => b.id === baseSelecionada.id);
+  
+      if (dadosDaBase) {
+        console.log("Dados encontrados para esta base:", dadosDaBase);
+        
+        // 5. Atualiza o HTML com os valores reais
+        const elTemp = document.getElementById('valor-temperatura');
+        const elUmid = document.getElementById('valor-umidade');
+        const elGas = document.getElementById('valor-gas');
 
-    if (!resposta.ok) {
-      throw new Error(`Erro na API: ${resposta.status}`);
+        if(elTemp) elTemp.innerText = dadosDaBase.temp !== null ? dadosDaBase.temp : "--";
+        if(elUmid) elUmid.innerText = dadosDaBase.umid !== null ? dadosDaBase.umid : "--";
+        if(elGas) elGas.innerText = dadosDaBase.gas !== null ? dadosDaBase.gas : "--";
+        
+        // Atualiza o gráfico se existirem os dados daquela base
+        if(dadosDaBase.dados && dadosDaBase.dados.length > 0) {
+            atualizarGraficoDashboard(dadosDaBase.dados);
+        }
+        
+      } else {
+        console.warn("Nenhum dado retornado do Tago.io para esta base.");
+      }
+  
+    } catch (erro) {
+      console.error("Falha de comunicação com o Worker:", erro);
     }
-
-    const dados = await resposta.json();
-    console.log("Dados recebidos com sucesso:", dados);
-    // Aqui adicionas o código para atualizar os teus gráficos ou interface com os 'dados'
-    
-  } catch (erro) {
-    console.error("Falha de comunicação com o Worker/Tago.io:", erro);
-  }
 }
 
 // Alias para compatibilidade
