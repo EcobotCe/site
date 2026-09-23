@@ -2076,136 +2076,157 @@ const tokenPreview = base.token ? `${base.token.slice(0, 6)}...${base.token.slic
         }
 
         async function sincronizarTago() {
-            if (!baseSelecionada) return;
+    if (!baseSelecionada) return;
 
-            try {
-                // Busca os dados mais recentes para preencher o gráfico corretamente
-                const backendUrl = ECOBOT_BACKEND_URL || (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
+    try {
+        // Define a URL base do backend
+        const backendUrl = (typeof ECOBOT_BACKEND_URL !== 'undefined' && ECOBOT_BACKEND_URL) 
+            ? ECOBOT_BACKEND_URL 
+            : (window.location.protocol === 'file:' ? 'http://localhost:8080' : window.location.origin);
 
-                // Quando há uma data selecionada pelo usuário, busca somente os
-                // dados daquele dia (00:00:00 até 23:59:59). Caso contrário,
-                // mantém o comportamento original: últimos TAGO_FETCH_QTY registros.
-                let filtroDataParams = '';
-                if (dataFiltroSelecionada) {
-                    const inicio = `${dataFiltroSelecionada} 00:00:00`;
-                    const fim = `${dataFiltroSelecionada} 23:59:59`;
-                    filtroDataParams = `&start_date=${encodeURIComponent(inicio)}&end_date=${encodeURIComponent(fim)}`;
-                }
+        // Valida o baseId para não enviar IDs negativos/inválidos
+        const baseIdValido = (baseSelecionada.id && !String(baseSelecionada.id).startsWith('-')) 
+            ? baseSelecionada.id 
+            : '';
 
-                // Quando filtrando por um dia inteiro, pede mais registros (até 500)
-                // já que um dia inteiro pode ter mais pontos do que os 60 padrão de
-                // "tempo real". Sem filtro de data, mantém o qty padrão.
-                const qtyEfetivo = dataFiltroSelecionada ? 500 : TAGO_FETCH_QTY;
+        // Filtro de data por dia inteiro
+        let filtroDataParams = '';
+        if (typeof dataFiltroSelecionada !== 'undefined' && dataFiltroSelecionada) {
+            const inicio = `${dataFiltroSelecionada} 00:00:00`;
+            const fim = `${dataFiltroSelecionada} 23:59:59`;
+            filtroDataParams = `&start_date=${encodeURIComponent(inicio)}&end_date=${encodeURIComponent(fim)}&data=${encodeURIComponent(dataFiltroSelecionada)}`;
+        }
 
-                const proxyUrl = `${backendUrl}/api/test-tago?baseId=${encodeURIComponent(baseSelecionada.id)}&qty=${qtyEfetivo}${filtroDataParams}`;
+        const qtyEfetivo = (typeof dataFiltroSelecionada !== 'undefined' && dataFiltroSelecionada) 
+            ? 500 
+            : (typeof TAGO_FETCH_QTY !== 'undefined' ? TAGO_FETCH_QTY : 60);
 
-                const response = await fetch(proxyUrl, {
-                    method: 'GET',
-                    mode: 'cors',
-                    cache: 'no-store',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (!response.ok) {
-                    throw new Error(`TagO Proxy retornou ${response.status} ${response.statusText}`);
-                }
-                const json = await response.json();
+        // Rota corrigida para /api/dados-recentes
+        const proxyUrl = `${backendUrl}/api/dados-recentes?baseId=${encodeURIComponent(baseIdValido)}&qty=${qtyEfetivo}${filtroDataParams}`;
 
-                const data = Array.isArray(json.result)
-                    ? json.result
-                    : Array.isArray(json.dados?.result)
-                        ? json.dados.result
+        const response = await fetch(proxyUrl, {
+            method: 'GET',
+            mode: 'cors',
+            cache: 'no-store',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Worker retornou status ${response.status} ${response.statusText}`);
+        }
+
+        const json = await response.json();
+
+        // Trata o retorno em array independentemente da estrutura devolvida pelo Worker
+        const data = Array.isArray(json)
+            ? json
+            : Array.isArray(json.result)
+                ? json.result
+                : Array.isArray(json.dados?.result)
+                    ? json.dados.result
+                    : Array.isArray(json.dados)
+                        ? json.dados
                         : [];
 
-                const normalize = (value) => value ? value.toString().toLowerCase().trim() : '';
-                const sortByTime = (arr) => arr
-                    .filter(d => d && d.time)
-                    .map(d => ({ ...d, __time: new Date(d.time).getTime() }))
-                    .filter(d => !Number.isNaN(d.__time))
-                    .sort((a, b) => a.__time - b.__time);
+        const normalize = (value) => value ? value.toString().toLowerCase().trim() : '';
+        const sortByTime = (arr) => arr
+            .filter(d => d && d.time)
+            .map(d => ({ ...d, __time: new Date(d.time).getTime() }))
+            .filter(d => !Number.isNaN(d.__time))
+            .sort((a, b) => a.__time - b.__time);
 
-                const t = sortByTime(data.filter(d => {
-                    const v = normalize(d.variable);
-                    return /temp|temperatura/.test(v);
-                }));
-                const u = sortByTime(data.filter(d => {
-                    const v = normalize(d.variable);
-                    return /umid|humidity/.test(v);
-                }));
-                const g = sortByTime(data.filter(d => {
-                    const v = normalize(d.variable);
-                    return /gas|mq|co2/.test(v);
-                }));
+        const t = sortByTime(data.filter(d => {
+            const v = normalize(d.variable);
+            return /temp|temperatura/.test(v);
+        }));
+        const u = sortByTime(data.filter(d => {
+            const v = normalize(d.variable);
+            return /umid|humidity/.test(v);
+        }));
+        const g = sortByTime(data.filter(d => {
+            const v = normalize(d.variable);
+            return /gas|mq|co2/.test(v);
+        }));
 
-                const baseNomeBadge = baseSelecionada ? baseSelecionada.nome : 'Base não selecionada';
-                const statusNote = dicionario[idiomaAtual].txt_status_note;
+        const baseNomeBadge = baseSelecionada ? baseSelecionada.nome : 'Base não selecionada';
+        
+        const elBadge = document.getElementById('badge-conexao');
+        if (elBadge) elBadge.textContent = baseNomeBadge;
 
-                document.getElementById('badge-conexao').textContent = baseNomeBadge;
+        const safeParse = (val) => {
+            if (val === null || val === undefined) return null;
+            let num = parseFloat(String(val).replace(',', '.').trim());
+            return isNaN(num) ? null : num;
+        };
 
-                const safeParse = (val) => {
-                    if (val === null || val === undefined) return null;
-                    let num = parseFloat(String(val).replace(',', '.').trim());
-                    return isNaN(num) ? null : num;
-                };
+        const valT = t.length > 0 ? safeParse(t[t.length - 1].value) : (json.temp !== undefined ? json.temp : null);
+        const valU = u.length > 0 ? safeParse(u[u.length - 1].value) : (json.umid !== undefined ? json.umid : null);
+        const valC = g.length > 0 ? safeParse(g[g.length - 1].value) : (json.gas !== undefined ? json.gas : null);
 
-                const valT = t.length > 0 ? safeParse(t[t.length - 1].value) : null;
-                const valU = u.length > 0 ? safeParse(u[u.length - 1].value) : null;
-                const valC = g.length > 0 ? safeParse(g[g.length - 1].value) : null;  // gás em porcentagem
+        // Dados globais sincronizados
+        window.dadosAtuais = {
+            temp: t,
+            umi: u,
+            gas: g,
+            raw: data,
+            base: baseSelecionada ? baseSelecionada.nome : ''
+        };
+        window.elionTemp = valT;
+        window.elionUmi = valU;
+        window.elionGas = valC;
 
-                // Dados globais sincronizados
-                window.dadosAtuais = {
-                    temp: t,
-                    umi: u,
-                    gas: g,
-                    raw: data,
-                    base: baseSelecionada ? baseSelecionada.nome : ''
-                };
-                window.elionTemp = valT;
-                window.elionUmi = valU;
-                window.elionGas = valC;
+        // Atualização dos cards na tela
+        const elTemp = document.getElementById('temp');
+        const elUmi = document.getElementById('umi');
+        const elGas = document.getElementById('gas');
 
-                // Atualização dos cards
-                document.getElementById('temp').innerText = valT !== null ? valT : '--';
-                document.getElementById('umi').innerText = valU !== null ? valU : '--';
-                document.getElementById('gas').innerText = valC !== null ? valC + '%' : '--';
+        if (elTemp) elTemp.innerText = valT !== null ? valT : '--';
+        if (elUmi) elUmi.innerText = valU !== null ? valU : '--';
+        if (elGas) elGas.innerText = valC !== null ? valC + '%' : '--';
 
-                // Alerta baseado em gás e base ativa
-                const baseNomeAlerta = baseSelecionada ? baseSelecionada.nome : 'Desconhecida';
-                const alertaGasAtivo = valC !== null && valC > 10;
+        // Alerta baseado no nível de gás
+        const baseNomeAlerta = baseSelecionada ? baseSelecionada.nome : 'Desconhecida';
+        const alertaGasAtivo = valC !== null && valC > 10;
 
-                if (alertaGasAtivo) {
-                    document.getElementById('alerta-gas').classList.remove('hidden');
-                    document.getElementById('alerta-gas-text').innerHTML = `ALERTA: NÍVEL DE GÁS ELEVADO na base <strong>${baseNomeAlerta}</strong>!`;
+        const elAlertaGas = document.getElementById('alerta-gas');
+        const elAlertaGasText = document.getElementById('alerta-gas-text');
 
-                    // Enviar alerta por email/WhatsApp se configurado e se ainda não foi enviado para esta condição
-                    const mensagemAlerta = `🚨 ALERTA CRÍTICO: Nível de gás elevado detectado!\nValor atual: ${valC}%\nLimite: 10%`;
-                    enviarAlerta('gas', mensagemAlerta, baseNomeAlerta, valC);
-                } else {
-                    document.getElementById('alerta-gas').classList.add('hidden');
-                }
+        if (alertaGasAtivo) {
+            if (elAlertaGas) elAlertaGas.classList.remove('hidden');
+            if (elAlertaGasText) elAlertaGasText.innerHTML = `ALERTA: NÍVEL DE GÁS ELEVADO na base <strong>${baseNomeAlerta}</strong>!`;
 
-                let now = new Date();
-                let horaFormatada = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            const mensagemAlerta = `🚨 ALERTA CRÍTICO: Nível de gás elevado detectado!\nValor atual: ${valC}%\nLimite: 10%`;
+            if (typeof enviarAlerta === 'function') {
+                enviarAlerta('gas', mensagemAlerta, baseNomeAlerta, valC);
+            }
+        } else {
+            if (elAlertaGas) elAlertaGas.classList.add('hidden');
+        }
 
-                let textoAtualizado = dicionario[idiomaAtual].txt_atualizado_as || "Atualizado às";
-                const baseNome = baseSelecionada ? baseSelecionada.nome : 'Sem base';
+        let now = new Date();
+        let horaFormatada = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
-                if (dataFiltroSelecionada) {
-                    // Modo histórico: mostra qual dia está sendo exibido, em vez
-                    // do horário de sincronização em tempo real.
-                    const [ano, mes, dia] = dataFiltroSelecionada.split('-');
-                    document.getElementById('hora-sync').innerText =
-                        `📅 Exibindo dados de ${dia}/${mes}/${ano} • Base: ${baseNome}`;
-                } else {
-                    document.getElementById('hora-sync').innerText = `${textoAtualizado} ${horaFormatada} • Base: ${baseNome}`;
-                }
+        let textoAtualizado = (typeof dicionario !== 'undefined' && dicionario[idiomaAtual]?.txt_atualizado_as) || "Atualizado às";
+        const baseNome = baseSelecionada ? baseSelecionada.nome : 'Sem base';
 
-                atualizarGrafico(t, u, g);
-
-            } catch (err) {
-                console.error("Erro na sincronização:", err);
+        const elHoraSync = document.getElementById('hora-sync');
+        if (elHoraSync) {
+            if (typeof dataFiltroSelecionada !== 'undefined' && dataFiltroSelecionada) {
+                const [ano, mes, dia] = dataFiltroSelecionada.split('-');
+                elHoraSync.innerText = `📅 Exibindo dados de ${dia}/${mes}/${ano} • Base: ${baseNome}`;
+            } else {
+                elHoraSync.innerText = `${textoAtualizado} ${horaFormatada} • Base: ${baseNome}`;
             }
         }
 
+        if (typeof atualizarGrafico === 'function') {
+            atualizarGrafico(t, u, g);
+        }
+
+    } catch (err) {
+        console.error("Erro na sincronização:", err);
+    }
+}
         // Estado atual do filtro do gráfico
         // let filtroGraficoAtual = 'todos'; // 'todos', 'temp', 'umi', 'gas'
 
