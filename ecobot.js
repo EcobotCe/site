@@ -513,72 +513,36 @@ function voltarTempoReal() {
     const btnVoltar = document.getElementById('btn-voltar-tempo-real');
     if (btnVoltar) btnVoltar.classList.add('hidden');
 
-    sincronizarTago();
-    if (!intervalSync) intervalSync = setInterval(sincronizarTago, 15000);
-}
+async function sincronizarTago(baseSelecionada) {
+  // 1. Trava de segurança: Bloqueia IDs nulos ou negativos
+  if (!baseSelecionada || !baseSelecionada.id || String(baseSelecionada.id).startsWith('-')) {
+    console.error("Erro: O ID da base é inválido (negativo).", baseSelecionada);
+    alert("Erro na base. Remove esta base e adiciona novamente usando o Device-Token correto do Tago.io (ex: xxxx-xxxx-xxxx-xxxx).");
+    return;
+  }
 
-async function sincronizarTago() {
-    if (!baseSelecionada && redeBases.length > 0) {
-        baseSelecionada = redeBases[0];
+  try {
+    // 2. Aponta para a rota correta do Worker
+    const workerUrl = `https://ecobot-worker.vnxxx2303.workers.dev/api/dados-recentes?baseId=${baseSelecionada.id}`;
+    
+    const resposta = await fetch(workerUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!resposta.ok) {
+      throw new Error(`Erro na API: ${resposta.status}`);
     }
 
-    try {
-        let url = `${WORKER_URL}/api/dados-recentes`;
-        const params = new URLSearchParams();
-
-        // Valida o baseId para não enviar IDs negativos ou nulos
-        if (baseSelecionada && baseSelecionada.id && !String(baseSelecionada.id).startsWith('-')) {
-            params.append('baseId', baseSelecionada.id);
-        }
-        
-        if (typeof dataFiltroSelecionada !== 'undefined' && dataFiltroSelecionada) {
-            params.append('data', dataFiltroSelecionada);
-        }
-
-        const queryString = params.toString();
-        if (queryString) url += `?${queryString}`;
-
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`Worker respondeu com status ${response.status}`);
-
-        const dadosRecebidos = await response.json();
-        if (!dadosRecebidos) return;
-
-        // Trata o retorno aceitando tanto array quanto objeto único
-        let baseAtual = Array.isArray(dadosRecebidos) 
-            ? (dadosRecebidos.find(b => String(b.id) === String(baseSelecionada?.id) || b.nome === baseSelecionada?.nome) || dadosRecebidos[0])
-            : dadosRecebidos;
-
-        if (!baseAtual) return;
-
-        // Atualização dos elementos da DOM
-        const elTemp = document.getElementById('temp-val') || document.querySelector('.temperatura-valor');
-        const elUmid = document.getElementById('umid-val') || document.querySelector('.umidade-valor');
-        const elGas  = document.getElementById('gas-val')  || document.querySelector('.gas-valor');
-        const elNome = document.getElementById('base-nome') || document.querySelector('.base-nome');
-        const elAtualizacao = document.getElementById('last-update') || document.querySelector('.ultima-atualizacao');
-
-        if (elTemp && baseAtual.temp !== undefined) elTemp.textContent = `${baseAtual.temp} °C`;
-        if (elUmid && baseAtual.umid !== undefined) elUmid.textContent = `${baseAtual.umid} %`;
-        if (elGas  && baseAtual.gas  !== undefined) elGas.textContent  = `${baseAtual.gas} ppm`;
-        if (elNome && baseAtual.nome) elNome.textContent = baseAtual.nome;
-
-        if (elAtualizacao) {
-            const timestamp = baseAtual.timestamp || new Date();
-            const horaFormatada = new Date(timestamp).toLocaleTimeString('pt-BR', {
-                hour: '2-digit', minute: '2-digit', second: '2-digit'
-            });
-            const prefixo = (typeof dicionario !== 'undefined' && dicionario[idiomaAtual]?.txt_atualizado_as) || 'Atualizado às';
-            elAtualizacao.textContent = `${prefixo} ${horaFormatada}`;
-        }
-
-        if (baseAtual.dados && Array.isArray(baseAtual.dados) && typeof atualizarGraficoDashboard === 'function') {
-            atualizarGraficoDashboard(baseAtual.dados);
-        }
-
-    } catch (err) {
-        console.error('Erro na sincronização de dados:', err);
-    }
+    const dados = await resposta.json();
+    console.log("Dados recebidos com sucesso:", dados);
+    // Aqui adicionas o código para atualizar os teus gráficos ou interface com os 'dados'
+    
+  } catch (erro) {
+    console.error("Falha de comunicação com o Worker/Tago.io:", erro);
+  }
 }
 
 // Alias para compatibilidade
